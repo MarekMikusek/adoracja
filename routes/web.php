@@ -1,21 +1,29 @@
 <?php
 
+use App\Http\Controllers\CurrentDutyController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PatternController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReserveController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('guest');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('patterns', [PatternController::class, 'index'])->name('patterns.index');
+
+Route::middleware('auth')->group(function () {
+    Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
+    Route::delete('patterns', [PatternController::class, 'destroy'])->name('patterns.delete');
+    Route::post('patterns', [PatternController::class, 'store'])->name('patterns.store');
+    Route::post('suspend_petterns', [PatternController::class, 'suspend'])->name('patterns.suspend');
+    Route::post('reserves', [ReserveController::class, 'store'])->name('reserves.store');
+    Route::delete('reserves', [ReserveController::class, 'destroy'])->name('reserves.delete');
+
+    Route::get('/reserves', [ReserveController::class, 'index'])->name('reserves.index');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('user');
-    });
-
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/admin', function () {
-            return view('admin');
-        });
-    });
-});
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

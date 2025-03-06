@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
+    nodejs \
+    npm \
     libpq-dev
 
 # Clear cache
@@ -22,6 +24,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
+
+# Create symbolic link for pictures
+RUN mkdir -p public/pict
+RUN ln -s /var/www/resources/pict/adoracja.webp /var/www/public/pict/adoracja.webp
 
 # Copy existing application directory
 COPY . .
