@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReserveStoreRequest;
+use App\Models\DutyPattern;
 use App\Models\ReservePattern;
 use App\Services\Helper;
 use Illuminate\Http\Request;
@@ -66,17 +67,18 @@ class ReserveController extends Controller
      */
     public function store(ReserveStoreRequest $request): RedirectResponse
     {
-dd($request->validated());
+        $validated = $request->validated();
 
-        ReservePattern::create([
+        DutyPattern::create([
             'user_id' => Auth::id(),
-            'day_of_week' => $validated['day_of_week'],
+            'day_of_week' => $validated['day'],
             'hour' => $validated['hour'],
-            'repeat_pattern' => $validated['repeat_pattern']
+            'duty_type' => $validated['duty_type'],
+            'repeat_pattern' => $validated['repeat_interval']
         ]);
 
         return redirect()
-            ->route('reserves.index')
+            ->route('patterns.index')
             ->with('success', 'Dyżur rezerwowy został zapisany');
     }
 

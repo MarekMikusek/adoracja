@@ -35,22 +35,25 @@ class GenerateTestUsers extends Command
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
+                'duty_type' => 'adoracja',
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1 ,1]),
             ]);
 
-            ReservePattern::create([
+            DutyPattern::create([
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
+                'duty_type' => 'gotowość',
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1, 1]),
             ]);
 
-            ReservePattern::create([
+            DutyPattern::create([
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
+                'duty_type' => 'gotowość',
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1, 1]),
             ]);

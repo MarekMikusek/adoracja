@@ -13,10 +13,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('day', 12); // niedziela-sobota
             $table->tinyInteger('hour'); //0-23
+            $table->string('duty_type', 12); // adoracja, gotowość
             $table->tinyInteger('repeat_interval')->default(1);
             $table->date('start_date')->nullable();
-            $table->date('suspend_from')->nullable();
-            $table->date('suspend_to')->nullable();
             $table->timestamps();
         });
     }

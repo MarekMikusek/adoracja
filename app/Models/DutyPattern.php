@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Services\Helper;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -16,9 +16,8 @@ class DutyPattern extends Model
         'day',
         'hour',
         'start_date',
+        'duty_type',
         'repeat_interval',
-        'suspend_from',
-        'suspend_to',
         'repeat_pattern',
     ];
 
@@ -33,18 +32,24 @@ class DutyPattern extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public static function getUsersForTimeFrame(Carbon $weekStartDate, string $weekDay, int $hour): Collection
+    public static function getUsersForTimeFrame(Carbon $weekStartDate, string $weekDay, int $hour, Collection $users)
     {
-        $allDuties = self::where(['day'=> $weekDay])->where('hour', $hour)->get();
+        $mappedUsers = $users->keyBy('id');
+        $allDuties = self::where(['day' => $weekDay])->where('hour', $hour)->get();
 
-        foreach($allDuties as &$duty){
-
-            if(!$duty->isDutyInWeek($weekStartDate) || $duty->isSuspended($weekStartDate)) {
+        foreach ($allDuties as &$duty) {
+            if (!$duty->isDutyInWeek($weekStartDate) || $mappedUsers[$duty->user_id]->isSuspended($weekStartDate)) {
                 unset($duty);
             }
         }
 
-        return $allDuties->pluck('user_id');
+        // Return a collection of arrays with user_id and duty_type
+        return $allDuties->map(function ($duty) {
+            return [
+                'user_id' => $duty->user_id,
+                'duty_type' => $duty->duty_type,
+            ];
+        });
     }
 
     public function isDutyInWeek(Carbon $startDate): bool {
@@ -58,18 +63,5 @@ class DutyPattern extends Model
 
         // Check if the duty repeats in this week
         return $weeksDifference >= 0 && $weeksDifference % $this->repeat_interval === 0;
-    }
-
-    public function isSuspended(Carbon $weekStartDate): bool
-    {
-        $currentDate = $weekStartDate->addDays(Helper::dayNumber($this->day));
-
-        $suspendFrom = Carbon::parse($this->suspend_from);
-        $suspendTo = Carbon::parse($this->suspend_to);
-        if($currentDate->between($suspendFrom, $suspendTo) || ($currentDate >= $suspendFrom && !$suspendTo)) {
-            return true;
-        }
-
-        return false;
     }
 }

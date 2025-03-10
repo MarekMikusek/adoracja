@@ -3,42 +3,27 @@ namespace App\Console\Commands;
 
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
+use App\Models\User;
 use App\Services\Helper;
+use App\Services\DutiesService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GenerateCurrentDuties extends Command
 {
     protected $signature   = 'app:generate-current-duties {--advance=} {--no_weeks=}';
-    protected $description = 'Generate duties for the next 4 weeks';
-    const ADVANCE          = 4;
-    const NO_WEEKS         = 1;
+    protected $description = 'Generate duties for no_weeks weeks';
+    const NO_WEEKS = 1;
 
     public function handle()
     {
-        $startDate = Carbon::now()
-            ->startOfWeek(Carbon::SUNDAY)
-            ->addWeeks(intval($this->option('advance') ?? self::ADVANCE));
+        $users = User::all();
 
-        $noOfWeeks = intval($this->option('no_weeks') ?? self::ADVANCE);
+        $startDate = (new Carbon(CurrentDuty::max('date')))->addDays(1);
 
-        $dateInserted = $startDate->copy();
+        $noOfWeeks = intval($this->option('no_weeks') ?? self::NO_WEEKS);
 
-        for ($week = 1; $week < $noOfWeeks; $week++) {
-            foreach (Helper::WEEK_DAYS as $weekDay) {
-                foreach (Helper::DAY_HOURS as $hour) {
-                    $currentDuty       = new CurrentDuty();
-                    $currentDuty->hour = $hour;
-                    $currentDuty->date = $dateInserted;
-                    $currentDuty->save();
-
-                    if ($users = DutyPattern::getUsersForTimeFrame($startDate, $weekDay, $hour)->toArray()) {
-                        $currentDuty->users()->attach($users);
-                    }
-                }
-                $dateInserted->addDays(1);
-            }
-        }
+        DutiesService::generateCurrentDuties($users, $startDate, $noOfWeeks);
 
         $this->info('Duties generated successfully!');
     }

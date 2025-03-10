@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('password');
             $table->enum('notification_preference', ['email', 'sms']);
+            $table->date('suspend_from')->nullable();
+            $table->date('suspend_to')->nullable();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_confirmed')->default(false);
             $table->string('confirmation_token')->nullable();
@@ -27,4 +29,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('users');
     }
-}; 
+};

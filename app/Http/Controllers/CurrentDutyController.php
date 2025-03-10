@@ -16,22 +16,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CurrentDutyController extends Controller
 {
-    protected $notificationService;
+    public function __construct(private NotificationService $notificationService)
+    {}
 
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct(
-        //NotificationService $notificationService
-        )
-    {
-        // dd('duty');
-        // $this->notificationService = $notificationService;
-    }
-
-    /**
-     * Display current duties.
-     */
     public function index(Request $request): View
     {
         $query = CurrentDuty::query()
@@ -51,22 +38,20 @@ class CurrentDutyController extends Controller
         ]);
     }
 
-    /**
-     * Store a new duty.
-     */
     public function store(StoreCurrentDutyRequest $request): RedirectResponse
     {
         $data = $request->validated();
 
         $currentDuty = CurrentDuty::find($data['duty_id']);
-        $currentDuty->users()->attach(Auth::user());
+        $currentDuty->users()->attach(Auth::user(), ['duty_type' => $data['duty_type']]);
 
         // Send notification to the assigned user
-        // $user = User::findOrFail($validated['user_id']);
-        // $this->notificationService->sendNotification(
-        //     $user,
-        //     "Zostałeś przypisany do dyżuru w dniu {$duty->duty_date} o godzinie {$duty->hour}:00"
-        // );
+        $user = Auth::user();
+        // dd($user);
+        $this->notificationService->sendNotification(
+            $user,
+            "Zostałeś przypisany do dyżuru w dniu {$currentDuty->duty_date} o godzinie {$currentDuty->hour}:00"
+        );
 
         return Redirect::route('home')
             ->with('success', 'Dyżur został utworzony');

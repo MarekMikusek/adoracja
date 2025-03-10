@@ -29,9 +29,8 @@ class HomeController extends Controller
             $userId = Auth::user()->id;
         }
 
-
         $upcomingDuties = DB::table('current_duties as cd')
-            ->select(['cd.date', 'cd.hour', 'cdu.user_id', 'cd.id'])
+            ->select(['cd.date', 'cd.hour', 'cdu.user_id', 'cd.id as duty_id', 'cdu.duty_type'])
             ->where('date', '>=', Carbon::today())
             ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', 'cd.id')
             ->orderBy('cd.date')
@@ -41,32 +40,33 @@ class HomeController extends Controller
         $duties = [];
         foreach ($upcomingDuties as $duty) {
             $dateFormatted = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
-
+// dump($duty);
             if (! isset($duties[$dateFormatted])) {
 
                 $duties[$dateFormatted]               = [];
                 $dayName                              = Carbon::createFromDate($duty->date)->isoFormat('dddd');
                 $duties[$dateFormatted]['dayName']    = $dayName;
                 $duties[$dateFormatted]['timeFrames'] = [];
-                foreach (Helper::DAY_HOURS as $hour) {
-                    $duties[$dateFormatted]['timeFrames'][$hour]['hour']       = $hour;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['dutyId']       = $duty->id;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['users']      = [];
-                    $duties[$dateFormatted]['timeFrames'][$hour]['isUserDuty'] = false;
-                }
+            }
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['hour']           = $duty->hour;
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId']         = $duty->duty_id;
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['users']          = [];
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = '';
+
+            if ($duty->user_id && $duty->user_id == $user->id) {
+                    $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
             }
 
-            if ($duty->user_id) {
+            if($duty->user_id && $duty->duty_type == 'adoracja'){
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['users'][] = $duty->user_id;
-                $duties[$dateFormatted]['timeFrames'][$duty->hour]['isUserDuty'] = ($userId && $user->id == $duty->user_id);
             }
+
         }
-// dd($duties);
+        // dd($duties);
         return ViewFacade::make('home', [
-            'user' => $user,
-            'duties' => $duties,
+            'user'     => $user,
+            'duties'   => $duties,
             'dayHours' => Helper::DAY_HOURS,
-            // 'repeatPatternLabels' => $this->repeatPatternLabels,
         ]);
     }
 }

@@ -23,6 +23,7 @@ class StoreCurrentDutyRequest extends FormRequest
     {
         return [
             'duty_id' => 'required|string',
+            'duty_type' => 'required|string',
         ];
     }
 }

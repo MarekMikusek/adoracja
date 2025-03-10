@@ -45,9 +45,14 @@ class PatternController extends Controller
     public function index(): View
     {
 
+        $patterns = DutyPattern::query()
+        ->select(['hour', 'day', 'id','duty_type', 'repeat_interval'])
+        ->where('user_id', Auth::user()->id)
+        ->get()
+        ->groupBy('duty_type');
+
         return ViewFacade::make('patterns.index', [
-            'reserves'  => $this->getPattern(new ReservePattern()),
-            'duties'    => $this->getPattern(new DutyPattern()),
+            'duties'    => $patterns,
             'weekDays'  => Helper::getWeekDays(),
             'hours'     => Helper::getHours(),
             'intervals' => Helper::getIntervals(),
@@ -72,6 +77,7 @@ class PatternController extends Controller
     public function store(PatternStoreRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+
         $user      = Auth::user();
         $startDate = Carbon::now();
 
@@ -80,6 +86,7 @@ class PatternController extends Controller
             'user_id'         => $user->id,
             'day'             => $validated['day'],
             'hour'            => $validated['hour'],
+            'duty_type'       => $validated['duty_type'],
             'repeat_interval' => $validated['repeat_interval'],
         ]);
 
@@ -90,19 +97,17 @@ class PatternController extends Controller
     /**
      * Remove a duty.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(DutyPattern $dutyPattern): RedirectResponse
     {
-        $pattern = DutyPattern::find($request->id);
-
-        if (($pattern->user_id !== Auth::id() && ! Auth::user()->is_admin)) {
+        if (($dutyPattern->user_id !== Auth::id() && ! Auth::user()->is_admin)) {
             return Redirect::route('patterns.index')
                 ->with('error', 'Brak uprawnień do usunięcia tego dyżuru');
         }
 
-        $pattern->delete();
+        $dutyPattern->delete();
 
         return Redirect::route('patterns.index')
-            ->with('success', 'Dyżur został anulowany');
+            ->with('success', 'Dyżur został usunięty pomyślnie');
     }
 
     /**
@@ -143,15 +148,6 @@ class PatternController extends Controller
                 $this->notificationService->sendNotification($user, $message);
             }
         }
-    }
-
-    private function getPattern(Model $model): array
-    {
-        return $model::query()
-            ->select(['hour', 'day', 'id', 'repeat_interval'])
-            ->where('user_id', Auth::user()->id)
-            ->get()
-            ->toArray();
     }
 
     private function getAdminDuty()

@@ -8,7 +8,7 @@
         @auth
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('patterns.index') }}">Planowane adoracje i gotowość</a>
+                    <a class="nav-link active" href="{{ route('patterns.index') }}">Zadeklarowane posługi</a>
                 </li>
             </ul>
         @endauth
@@ -21,8 +21,11 @@
                     <a class="nav-link active" href="{{ route('register') }}">Utwórz konto</a>
                 </li>
             @else
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
+            </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="#">Moje konto</a>
+                    <a class="nav-link active" href="{{route('profile.edit')}}">Moje konto</a>
                 </li>
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">

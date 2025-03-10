@@ -6,6 +6,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\VerifyEmailNotification;
+use App\Services\Helper;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -16,13 +18,13 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'first_name',
         'last_name',
-        'email',
         'phone_number',
-        'password',
-        'notification_preference',
-        'is_admin',
+        'email',
+        'suspend_from',
+        'suspend_to',
         'is_confirmed',
-        'confirmation_token',
+        'notification_preference',
+        'google_token'
     ];
 
     protected $hidden = [
@@ -62,5 +64,18 @@ class User extends Authenticatable implements MustVerifyEmail
                 $user->sendEmailVerificationNotification();
             }
         });
+    }
+
+    public function isSuspended(Carbon $weekStartDate): bool
+    {
+        $currentDate = $weekStartDate->addDays(Helper::dayNumber($this->day));
+
+        $suspendFrom = Carbon::parse($this->suspend_from);
+        $suspendTo = Carbon::parse($this->suspend_to);
+        if($currentDate->between($suspendFrom, $suspendTo) || ($currentDate >= $suspendFrom && !$suspendTo)) {
+            return true;
+        }
+
+        return false;
     }
 }

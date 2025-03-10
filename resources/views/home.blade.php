@@ -73,15 +73,19 @@
                                 <tbody>
                                     @foreach ($dayHours as $hour)
                                         <tr>
-                                            <td class="sticky-col">{{ $hour }}</td>
+                                            <td class="sticky-col">{{ $hour }}.00 - {{ $hour + 1 }}.00</td>
                                             @foreach ($duties as $date => $duty)
-                                                {{-- @dd($duty) --}}
-                                                <td @auth
-                                                    data-date="{{ $date }}"
+                                                <td
+                                                    @auth
+data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
-                                                    class="editable-cell" @endauth
-                                                    @if ($duty['timeFrames'][$hour]['isUserDuty']) style="background-color: rgb(146, 146, 223);" @endif>
+                                                    class="editable-cell"
+                                                    @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
+                                                        style="background-color: rgb(146, 146, 223);"
+                                                    @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'gotowość')
+                                                        style="background-color: rgb(16, 180, 223);"
+                                                    @endif @endauth>
                                                     {{ count($duty['timeFrames'][$hour]['users']) }}</td>
                                             @endforeach
 
@@ -142,14 +146,23 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację</h5>
+                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ gotowość</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm" method="POST" action="#">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="new-duty-hour" class="form-label">Data</label>
+                    <form id="editForm">
+                        <div class="mb-4">
+                            <div class="flex gap-4 mb-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="duty_type" value="adoracja" class="form-radio" checked>
+                                    <span class="ml-2">Adoracja</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="duty_type" value="dyzur" class="form-radio">
+                                    <span class="ml-2">Dyżur</span>
+                                </label>
+                            </div>
+                            <label for="new-duty-date" class="form-label">Data</label>
                             <input type="text" class="form-control" id="new-duty-date" name="date" readonly>
                         </div>
                         <div class="mb-3">
@@ -198,25 +211,26 @@
 
             const duty_id = $('#new-duty-duty-id').val();
             const url = "{{ route('current-duty.store') }}";
+            const duty_type = $('input[name="duty_type"]:checked').val();
 
             $('#editModal').modal('hide');
 
-
             return $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        duty_id: duty_id
-                    },
-                    success: function(response) {
-                        alert('Dodano');
-                        location.reload();
-                    },
-                    error: function(xhr) {
-                        alert('Błąd');
-                    }
-                });
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    duty_id: duty_id,
+                    duty_type: duty_type
+                },
+                success: function(response) {
+                    alert('Dodano');
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Błąd');
+                }
+            });
 
         });
     </script>
