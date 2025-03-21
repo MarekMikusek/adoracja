@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('navigation')
+@include('admin.navigation')
+@endsection
+
 @section('content')
 <div class="container">
     <div class="row justify-content-between mb-4">
@@ -32,7 +36,7 @@
                             <label class="form-label">Dni tygodnia</label>
                             @foreach($weekDays as $key => $day)
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" 
+                                    <input type="checkbox" class="form-check-input"
                                            name="days[]" value="{{ $key }}" id="day_{{ $key }}">
                                     <label class="form-check-label" for="day_{{ $key }}">{{ $day }}</label>
                                 </div>
@@ -45,7 +49,7 @@
                                 @for($hour = 0; $hour < 24; $hour++)
                                     <div class="col-md-3">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" 
+                                            <input type="checkbox" class="form-check-input"
                                                    name="hours[]" value="{{ $hour }}" id="hour_{{ $hour }}">
                                             <label class="form-check-label" for="hour_{{ $hour }}">
                                                 {{ sprintf('%02d:00', $hour) }}
@@ -107,4 +111,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection

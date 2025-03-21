@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\DutyType;
 use App\Models\AdminDutyPattern;
 use App\Models\DutyPattern;
 use App\Models\ReservePattern;
@@ -19,6 +20,7 @@ class GenerateTestUsers extends Command
 
     public function handle()
     {
+
         // Generate regular users
         for ($i = 1; $i <= 80; $i++) {
             $user = User::create([
@@ -35,7 +37,7 @@ class GenerateTestUsers extends Command
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
-                'duty_type' => 'adoracja',
+                'duty_type' => DutyType::DUTY->value,
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1 ,1]),
             ]);
@@ -44,7 +46,7 @@ class GenerateTestUsers extends Command
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
-                'duty_type' => 'gotowość',
+                'duty_type' => DutyType::READY->value,
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1, 1]),
             ]);
@@ -53,28 +55,32 @@ class GenerateTestUsers extends Command
                 'user_id' => $user->id,
                 'hour' => array_rand(Helper::DAY_HOURS),
                 'day' => Helper::WEEK_DAYS[random_int(0, 6)],
-                'duty_type' => 'gotowość',
+                'duty_type' => DutyType::READY->value,
                 'start_date' => Carbon::now(),
                 'repeat_interval' => Arr::random([1, 1, 1, 1, 1, 2, 3, 1, 1]),
             ]);
         }
 
+        $admindIds = [];
         // Generate admin users
         for ($i = 1; $i <= 4; $i++) {
-            User::create([
-                'first_name' => 'Admin',
-                'last_name' => $i,
+            $adminId = User::create([
+                'first_name' => fake()->firstName,
+                'last_name' => fake()->lastName,
                 'email' => fake()->email,
                 'password' => Hash::make('test'),
                 'notification_preference' => rand(0, 1) ? 'email' : 'sms',
                 'is_admin' => true,
                 'is_confirmed' => true,
                 'phone_number' => null,
+                'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
             ]);
+
+            $admindIds[] = $adminId->id;
         }
 
         foreach(AdminDutyPattern::all() as $adminDutyPattern){
-            $adminDutyPattern->admin_id = random_int(1, 4);
+            $adminDutyPattern->admin_id = $admindIds[random_int(0, 3)];
             $adminDutyPattern->save();
         }
 

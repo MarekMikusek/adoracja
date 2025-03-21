@@ -10,6 +10,7 @@ use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -23,8 +24,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspend_from',
         'suspend_to',
         'is_confirmed',
+        'is_admin',
         'notification_preference',
-        'google_token'
+        'google_token',
+        'color',
+        'password'
     ];
 
     protected $hidden = [
@@ -37,9 +41,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_confirmed' => 'boolean',
     ];
 
-    public function dutyPatterns()
+    public function dutyPatterns(): HasMany
     {
-        return $this->hasOne(DutyPattern::class);
+        return $this->hasMany(AdminDutyPattern::class, 'admin_id');
     }
 
     public function reservePatterns()
@@ -77,5 +81,10 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return false;
+    }
+
+    public static function admins()
+    {
+        return DB::select("select id, concat(first_name, ' ', last_name) as name, color from users where is_admin = true");
     }
 }

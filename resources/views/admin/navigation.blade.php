@@ -5,22 +5,20 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        @auth
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('patterns.index') }}">Moje posługi</a>
-                </li>
 
-                @if (Auth::user()->is_admin)
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.dashboard') }}">Panel administracyjny</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.users') }}">Użytkownicy</a>
-                    </li>
-                @endif
-            </ul>
-        @endauth
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ route('admin.dashboard') }}">Pland adoracji</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ route('admin.users') }}">Użytkownicy</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ route('admin.users') }}">Administratorzy</a>
+            </li>
+
+        </ul>
+
         <ul class="navbar-nav ms-auto">
             @guest
                 <li class="nav-item">

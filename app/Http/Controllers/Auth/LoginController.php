@@ -47,14 +47,16 @@ class LoginController extends Controller
      */
     public function login(Request $request): RedirectResponse
     {
-        $this->validateLogin($request);
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
 
-        if ($this->attemptLogin($request)) {
-            return $this->sendLoginResponse($request);
+        if (Auth::attempt($credentials, $remember)) {
+            // Authentication passed...
+            return redirect()->intended('dashboard');
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
         ]);
     }
 

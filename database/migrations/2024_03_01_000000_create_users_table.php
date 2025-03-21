@@ -21,6 +21,8 @@ return new class extends Migration
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_confirmed')->default(false);
             $table->string('confirmation_token')->nullable();
+            $table->rememberToken()->after('password')->nullable();
+            $table->string('color', 7)->nullable();
             $table->timestamps();
         });
     }

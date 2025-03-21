@@ -16,14 +16,14 @@ class DutiesService
             $startDate = Carbon::now();
         }
 
-        $dateInserted = $startDate->copy();
+        $dateInserting = $startDate->copy();
 
         for ($week = 1; $week <= $noOfWeeks; $week++) {
             foreach (Helper::WEEK_DAYS as $weekDay) {
                 foreach (Helper::DAY_HOURS as $hour) {
                     $currentDuty       = new CurrentDuty();
                     $currentDuty->hour = $hour;
-                    $currentDuty->date = $dateInserted;
+                    $currentDuty->date = $dateInserting;
                     $currentDuty->save();
 
                     $usersForTimeFrame = DutyPattern::getUsersForTimeFrame($startDate, $weekDay, $hour, $users);
@@ -32,7 +32,7 @@ class DutiesService
                         $currentDuty->users()->attach($userDuty['user_id'], ['duty_type' => $userDuty['duty_type']]);
                     }
                 }
-                $dateInserted->addDays(1);
+                $dateInserting->addDays(1);
             }
         }
     }

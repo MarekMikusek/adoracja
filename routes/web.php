@@ -5,6 +5,11 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PatternController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReserveController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminCurrentDutyController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,7 +30,35 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
+Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::post('users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::get('users', [AdminUserController::class, 'index'])->name('admin.users');
+    Route::post('verify-user', [AdminUserController::class, 'verifyUser'])->name('admin.user.verify');
+    Route::get('users/create', [AdminUserController::class, 'createUser'])->name('admin.users.create');
+    Route::post('users', [AdminController::class, 'storeUser'])->name('admin.users.store');
+
+    Route::get('users/{user}/patterns', [AdminUserController::class, 'showUserDuties'])->name('admin.users.patterns');
+    Route::post('users/{user}/patterns', [AdminUserController::class, 'userPatternsStore'])->name('admin.user.patterns.store');
+
+    Route::get('current-duty/{duty}/edit', [AdminCurrentDutyController::class, 'edit'])->name('admin.current-duty.edit');
+    Route::post('current-duty', [AdminCurrentDutyController::class, 'addUser'])->name('admin.current-duty.store');
+    Route::post('delete-current-duty', [AdminCurrentDutyController::class, 'removeCurrentDuty'])->name('admin.current-duty.delete');
+
+    Route::post('messages', [NotificationController::class, 'sendMessages'])->name('admin.messages');
+    Route::get('admins', [AdminController::class, 'index'])->name('admin.admins.index');
+    Route::post('admins/update-duty-hours', [AdminController::class, 'updateDutyHours'])->name('admin.admins.updateDutyHours');
+    Route::get('duty-hours', [AdminController::class, 'dutyHours'])->name('admin.duty_hours');
+    Route::post('assign-duty-hours', [AdminController::class, 'assignDutyHours'])->name('admin.assign_duty_hours');
+    Route::post('update-color', [AdminController::class, 'updateColor'])->name('admin.update_color');
+
+
+
+    // Add more admin routes here
 });
 
 require __DIR__ . '/auth.php';

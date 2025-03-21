@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SendMessagesRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -60,4 +61,9 @@ class NotificationController extends Controller
         return Redirect::route('notifications.index')
             ->with('success', 'Wszystkie powiadomienia oznaczono jako przeczytane');
     }
-} 
+
+    public function sendMessages(SendMessagesRequest $request)
+    {
+        dd($request->validated());
+    }
+}

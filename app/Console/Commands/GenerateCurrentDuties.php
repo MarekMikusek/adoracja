@@ -11,7 +11,7 @@ use Illuminate\Console\Command;
 
 class GenerateCurrentDuties extends Command
 {
-    protected $signature   = 'app:generate-current-duties {--advance=} {--no_weeks=}';
+    protected $signature   = 'app:generate-current-duties {--no_weeks=}';
     protected $description = 'Generate duties for no_weeks weeks';
     const NO_WEEKS = 1;
 

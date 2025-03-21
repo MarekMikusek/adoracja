@@ -1,10 +1,14 @@
 @extends('layouts.app')
 
+@section('navigation')
+@include('layouts.navigation')
+@endsection
+
 @section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">
-                Twoje godziny adoracji
+                Twoje posługi
             </div>
             <div class="card-body">
 
@@ -121,7 +125,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="inline-flex items-center">
-                                <span class="mr-2">Typ posługi: </span>
+                                <span class="mr-2">Rodzaj posługi: </span>
                                 <input id="duty-type-input" type="text" name="duty_type" value="" readonly>
                             </label>
                         </div>

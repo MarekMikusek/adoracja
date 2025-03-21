@@ -78,10 +78,8 @@ class PatternController extends Controller
     {
         $validated = $request->validated();
 
-        $user      = Auth::user();
-        $startDate = Carbon::now();
+        $user = Auth::user();
 
-        // Create pattern if repeating
         $duty = DutyPattern::query()->create([
             'user_id'         => $user->id,
             'day'             => $validated['day'],

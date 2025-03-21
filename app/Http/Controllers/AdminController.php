@@ -1,81 +1,76 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\DutyPattern;
+use App\Enums\DutyType;
+use App\Http\Requests\AdminUserStoreRequest;
+use App\Http\Requests\AssignAdminRequest;
+use App\Http\Requests\PatternStoreRequest;
+use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
+use App\Models\DutyPattern;
 use App\Models\ReservePattern;
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Services\Helper;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\View as ViewFacade;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\View as ViewFacade;
+use Illuminate\View\View;
 use WeekDays;
+use App\Services\DateHelper;
 
 class AdminController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
+    public function dashboard()
     {
-        $this->middleware(['auth', 'admin']);
-    }
+        $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
 
-    /**
-     * Display user management page.
-     */
-    public function users(): View
-    {
-        $users = User::query()
-            ->orderBy('last_name')
-            ->orderBy('first_name')
+        $startDate = Carbon::now()->subDay();
+
+        $currentDuties = DB::table('current_duties as cd')
+            ->selectRaw("cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, u.first_name || ' ' || u.last_name as name")
+            ->where('date', '>=', $startDate)
+            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', 'cd.id')
+            ->leftJoin('users as u', 'cdu.user_id', 'u.id')
+            ->orderBy('cd.date')
+            ->orderBy('cd.hour')
             ->get();
 
-        return ViewFacade::make('admin.users.index', [
-            'users' => $users
-        ]);
-    }
+        $duties = [];
 
-    /**
-     * Update user details.
-     */
-    public function updateUser(Request $request, User $user): RedirectResponse
-    {
-        $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'phone_number' => ['nullable', 'string', 'max:255'],
-            'notification_preference' => ['required', 'in:email,sms'],
-            'is_admin' => ['sometimes', 'boolean']
-        ]);
+        foreach ($currentDuties as $duty) {
+            $currentDate = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
 
-        $user->update($validated);
+            if (! isset($duties[$currentDate])) {
+                $dayName                            = DateHelper::dayOfWeek($duty->date);
+                $duties[$currentDate]               = [];
+                $duties[$currentDate]['dayName']    = $dayName;
+                $duties[$currentDate]['timeFrames'] = [];
+            }
 
-        return Redirect::route('admin.users')
-            ->with('success', 'Dane użytkownika zostały zaktualizowane');
-    }
+            if (! isset($duties[$currentDate]['timeFrames'][$duty->hour])) {
+                $duties[$currentDate]['timeFrames'][$duty->hour] = [];
+                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]  = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value] = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_id'] = $adminDutyPatterns[$dayName][$duty->hour]['admin_id'];
+                $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id'] = $duty->duty_id;
+            }
 
-    /**
-     * Verify user's email manually.
-     */
-    public function verifyUser(User $user): RedirectResponse
-    {
-        if (!$user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
+            if ($duty->user_id) {
+                $duties[$currentDate]['timeFrames'][$duty->hour][$duty->duty_type]++;
+            }
         }
 
-        return Redirect::route('admin.users')
-            ->with('success', 'Email użytkownika został zweryfikowany');
+        return view('admin.dashboard', [
+            'duties'   => $duties,
+            'admins'   => collect(User::admins())->keyBy('id')->toArray(),
+            'dayHours' => Helper::DAY_HOURS,
+        ]);
     }
 
-    /**
-     * Display admin hours management page.
-     */
     public function hours(): View
     {
         $admins = User::query()
@@ -88,9 +83,9 @@ class AdminController extends Controller
         });
 
         return ViewFacade::make('admin.hours.index', [
-            'admins' => $admins,
+            'admins'     => $admins,
             'adminHours' => $adminHours,
-            'weekDays' => WeekDays::DAYS
+            'weekDays'   => WeekDays::DAYS,
         ]);
     }
 
@@ -101,10 +96,10 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'admin_id' => ['required', 'exists:users,id'],
-            'days' => ['required', 'array'],
-            'days.*' => ['integer', 'between:0,6'],
-            'hours' => ['required', 'array'],
-            'hours.*' => ['integer', 'between:0,23']
+            'days'     => ['required', 'array'],
+            'days.*'   => ['integer', 'between:0,6'],
+            'hours'    => ['required', 'array'],
+            'hours.*'  => ['integer', 'between:0,23'],
         ]);
 
         $admin = User::findOrFail($validated['admin_id']);
@@ -116,9 +111,9 @@ class AdminController extends Controller
         foreach ($validated['days'] as $day) {
             foreach ($validated['hours'] as $hour) {
                 $admin->dutyPatterns()->create([
-                    'day_of_week' => $day,
-                    'hour' => $hour,
-                    'is_admin_duty' => true
+                    'day_of_week'   => $day,
+                    'hour'          => $hour,
+                    'is_admin_duty' => true,
                 ]);
             }
         }
@@ -150,21 +145,97 @@ class AdminController extends Controller
             ->get();
 
         return response()->json([
-            'duties' => $duties,
-            'reserves' => $reserves
+            'duties'   => $duties,
+            'reserves' => $reserves,
         ]);
     }
 
     public function sendNotification(Request $request)
     {
         $request->validate([
-            'user_ids' => 'required|array',
+            'user_ids'   => 'required|array',
             'user_ids.*' => 'exists:users,id',
-            'message' => 'required|string'
+            'message'    => 'required|string',
         ]);
 
         // TODO: Implement notification sending
 
         return response()->json(['message' => 'Powiadomienia zostały wysłane']);
+    }
+
+    public function storeUser(AdminUserStoreRequest $request): RedirectResponse
+    {
+        $validated                 = $request->validated();
+        $validated['password']     = Hash::make($validated['password']);
+        $validated['is_confirmed'] = true;
+        // dd($validated);
+        User::create($validated);
+
+        return Redirect::route('admin.users')->with('success', 'User added successfully.');
+    }
+
+    public function index()
+    {
+        $admins = User::where('is_admin', true)->get();
+        return view('admin.admins.index', compact('admins'));
+    }
+
+    public function updateDutyHours(Request $request)
+    {
+        $request->validate([
+            'admin_id' => 'required|exists:users,id',
+            'duty_hours' => 'nullable|string',
+        ]);
+
+        $admin = User::findOrFail($request->admin_id);
+        $admin->duty_hours = explode(',', $request->duty_hours);
+        $admin->save();
+
+        return response()->json(['message' => 'Duty hours updated successfully.']);
+    }
+
+    public function dutyHours()
+    {
+        $dutyHours = $this->getDutyHours(); // Assume this method retrieves duty hours
+        $admins = User::where('is_admin', true)->get();
+
+        // dd($dutyHours);
+        return view('admin.duty_hours', compact('dutyHours', 'admins'));
+    }
+
+    public function assignDutyHours(AssignAdminRequest $request)
+    {
+        $validated = $request->validated();
+
+        DB::table('admin_duty_patterns')
+            ->where('id', $validated['duty_id'])
+            ->update(['admin_id' => $validated['admin_id']]);
+
+        return response()->json(['message' => 'Admin assigned successfully.']);
+    }
+
+    public function getDutyHours()
+    {
+        $dutyHours = DB::table('admin_duty_patterns as adp')
+        ->join('users as u', 'u.id', 'adp.admin_id')
+        ->selectRaw("adp.day, adp.hour, adp.id, u.id as admin_id, concat(u.first_name, ' ', u.last_name) as admin_name")
+        ->orderBy('adp.id')
+        ->get();
+
+        return $dutyHours;
+    }
+
+    public function updateColor(Request $request)
+    {
+        $request->validate([
+            'admin_id' => 'required|exists:users,id',
+            'color' => 'required|string|size:7', // Ensure it's a valid hex color
+        ]);
+
+        $admin = User::findOrFail($request->admin_id);
+        $admin->color = $request->color;
+        $admin->save();
+
+        return response()->json(['message' => 'Admin color updated successfully.']);
     }
 }

@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@section('navigation')
+
+@include('layouts.navigation')
+
+@endsection
+
 @section('styles')
     <style>
         .user-duty {
@@ -60,7 +66,7 @@
                     </div>
                     <div class="card-body table-wrapper">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table" id="current_duty_table">
                                 <thead>
                                     <tr>
                                         <th class="sticky-col">Godziny</th>
@@ -77,7 +83,7 @@
                                             @foreach ($duties as $date => $duty)
                                                 <td
                                                     @auth
-data-date="{{ $date }}"
+                                                    data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
                                                     class="editable-cell"

@@ -36,17 +36,16 @@ class AdminMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  Request  $request
-     * @param  \Closure(Request): (Response)  $next
-     * @return Response
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        if (!$this->auth->check() || !$this->auth->user()->is_admin) {
-            return Redirect::route('home')
-                ->with('error', 'Brak uprawnień administratora');
+        if (Auth::check() && Auth::user()->is_admin) {
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect('/')->with('error', 'You do not have admin access.');
     }
-} 
+}

@@ -21,12 +21,16 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      */
-    public function index(): View
+    public function index()
     {
         $userId = null;
 
         if ($user = Auth::user()) {
             $userId = Auth::user()->id;
+        }
+
+        if($user && $user->is_admin == true){
+            return response()->redirectTo('/admin/dashboard');
         }
 
         $upcomingDuties = DB::table('current_duties as cd')
@@ -44,8 +48,7 @@ class HomeController extends Controller
             if (! isset($duties[$dateFormatted])) {
 
                 $duties[$dateFormatted]               = [];
-                $dayName                              = Carbon::createFromDate($duty->date)->isoFormat('dddd');
-                $duties[$dateFormatted]['dayName']    = $dayName;
+                $duties[$dateFormatted]['dayName']    = Carbon::createFromDate($duty->date)->isoFormat('dddd');
                 $duties[$dateFormatted]['timeFrames'] = [];
             }
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['hour']           = $duty->hour;
@@ -53,7 +56,7 @@ class HomeController extends Controller
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['users']          = [];
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = '';
 
-            if ($duty->user_id && $duty->user_id == $user->id) {
+            if (isset($userId) && $duty->user_id && $duty->user_id == $user->id) {
                     $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
             }
 
