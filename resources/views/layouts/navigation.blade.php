@@ -8,15 +8,15 @@
         @auth
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('patterns.index') }}">Moje stałe posługi</a>
+                    <a class="nav-link" href="{{ route('patterns.index') }}">Moje stałe posługi</a>
                 </li>
 
                 @if (Auth::user()->is_admin)
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.dashboard') }}">Panel administracyjny</a>
+                        <a class="nav-link" href="{{ route('admin.dashboard') }}">Widok administracyjny</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.users') }}">Użytkownicy</a>
+                        <a class="nav-link" href="{{ route('admin.users') }}">Użytkownicy</a>
                     </li>
                 @endif
             </ul>
@@ -24,17 +24,17 @@
         <ul class="navbar-nav ms-auto">
             @guest
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('login') }}">Zaloguj się</a>
+                    <a class="nav-link" href="{{ route('login') }}">Zaloguj się</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('register') }}">Zarejestruj się</a>
+                    <a class="nav-link" href="{{ route('register') }}">Zarejestruj się</a>
                 </li>
             @else
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
+                    <a class="nav-link" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('profile.edit') }}">Moje konto</a>
+                    <a class="nav-link" href="{{ route('profile.edit') }}">Moje konto</a>
                 </li>
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">

@@ -26,7 +26,9 @@
                                     <p>
                                         <input type="checkbox" data-user_id="{{ $users[$user_id]->id }}"
                                             class="user-checkbox">
-                                        {{ $users[$user_id]->first_name }} {{ $users[$user_id]->last_name }}
+                                        <a href="{{ route('admin.users.edit', ['user' => $users[$user_id]->id]) }}">
+                                            {{ $users[$user_id]->first_name }} {{ $users[$user_id]->last_name }}
+                                        </a>
                                     </p>
                                 @empty
                                     Brak
@@ -57,7 +59,9 @@
                                     <p>
                                         <input type="checkbox" data-user_id="{{ $users[$user_id]->id }}"
                                             class="user-checkbox">
-                                        {{ $users[$user_id]->first_name }} {{ $users[$user_id]->last_name }}
+                                        <a href="{{ route('admin.users.edit', ['user' => $users[$user_id]->id]) }}">
+                                            {{ $users[$user_id]->first_name }} {{ $users[$user_id]->last_name }}
+                                        </a>
                                     </p>
                                 @empty
                                     Brak
@@ -89,7 +93,8 @@
                                         <h6>Wyślij wiadomość do zaznaczonych osób:</h6>
                                         <textarea id="messageText" cols="40" rows="6"></textarea>
                                     </div>
-                                    <button type="button" class="btn btn-primary" id="sendMessages">Wyślij wiadomości</button>
+                                    <button type="button" class="btn btn-primary" id="sendMessages">Wyślij
+                                        wiadomości</button>
                                 </div>
                                 <div class="col-4">
                                     <button class="btn btn-success" id="remove-duties">Usuń zaznaczone posługi</button>

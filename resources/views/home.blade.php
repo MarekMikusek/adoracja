@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('navigation')
-    @include('layouts.navigation')
 @endsection
 
 @section('styles')
@@ -10,65 +9,60 @@
             color: #23aa55
         }
 
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            /* Enable horizontal scroll */
+        .table-container {
+            max-height: 500px;
+            /* Set max height to enable scrolling */
+            overflow: auto;
             position: relative;
         }
 
-        .table-container {
-            display: block;
-            white-space: nowrap;
-            /* Prevent text wrapping */
-            overflow-x: auto;
-            max-width: 100%;
+        /* Sticky header */
+        .table th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+            /* Ensure the header is above the content */
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th,
-        td {
-            padding: 8px 15px;
-            border: 1px solid #ddd;
-            background: white;
-            text-align: left;
-        }
-
-        /* Sticky Columns */
-        .sticky-col {
+        /* Sticky first column */
+        .table td:first-child,
+        .table th:first-child {
             position: sticky;
             left: 0;
-            background: white;
-            z-index: 3;
-            white-space: nowrap;
+            background-color: #f8f9fa;
+
+            z-index: 2;
+            /* Ensure the first column is above other cells */
         }
 
-        /* First column */
-        .first-col {
-            left: 0;
-            min-width: 80px;
+        /* Optional: Add a border to separate the first column */
+        .table td:first-child,
+        .table th:first-child {
+            border-right: 2px solid #ddd;
+        }
+
+        .no-wrap {
+            white-space: nowrap;
         }
     </style>
 @endsection
 
 @section('content')
+    @include('layouts.navigation')
     <div class="container">
         <div class="row">
-            <div class="col-md-11">
+            <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        Adoracja w najbliższym czasie
+                        Ilość osób adorujących i wyrażających gotowość do adoracji (w nawiasie)
                     </div>
                     <div class="card-body table-wrapper">
-                        <div class="table-responsive table-scrollable">
+                        <div class="table-container">
                             <table class="table" id="current_duty_table">
                                 <thead>
                                     <tr>
-                                        <th class="sticky-col">Godziny</th>
+                                        <th class="sticky-col no-wrap">Godziny</th>
                                         @foreach ($duties as $date => $duty)
                                             <th>{{ $date }}</br>
                                                 {{ $duty['dayName'] }} </th>
@@ -78,11 +72,12 @@
                                 <tbody>
                                     @foreach ($dayHours as $hour)
                                         <tr>
-                                            <td class="sticky-col">{{ $hour }}.00 - {{ $hour + 1 }}.00</td>
+                                            <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
+                                            </td>
                                             @foreach ($duties as $date => $duty)
                                                 <td
                                                     @auth
-                                                    data-date="{{ $date }}"
+data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
                                                     @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
@@ -201,7 +196,7 @@
             $('#removeDutyModal').modal('show');
         });
 
-        $('#remove-duty-form').on('submit', function(e){
+        $('#remove-duty-form').on('submit', function(e) {
             e.preventDefault();
 
             const duty_id = $('#remove-duty-duty-id').val();
@@ -222,8 +217,8 @@
                 error: function(xhr) {
                     alert('Błąd');
                 }
+            });
         });
-    });
 
         $('.no-duty-cell').dblclick(function() {
             const date = $(this).data('date');
