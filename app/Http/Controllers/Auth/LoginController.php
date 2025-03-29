@@ -1,17 +1,14 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ProvidersRouteServiceProvider;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\View as ViewFacade;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
@@ -48,7 +45,7 @@ class LoginController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->only('email', 'password');
-        $remember = $request->has('remember');
+        $remember    = $request->has('remember');
 
         if (Auth::attempt($credentials, $remember)) {
             // Authentication passed...
@@ -88,11 +85,9 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if (!$user->is_confirmed) {
-            auth()->logout();
-            return response()->json([
-                'message' => 'Proszę potwierdzić adres email przed zalogowaniem.'
-            ], 401);
-        }
+        auth()->logout();
+        return response()->json([
+            'message' => 'Proszę potwierdzić adres email przed zalogowaniem.',
+        ], 401);
     }
 }

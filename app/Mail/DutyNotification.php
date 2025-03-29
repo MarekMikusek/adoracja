@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class DutyNotification extends Mailable
+class DutyNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,4 +22,4 @@ class DutyNotification extends Mailable
         return $this->view('emails.duty-notification')
                     ->subject('Powiadomienie o dyżurze');
     }
-} 
+}

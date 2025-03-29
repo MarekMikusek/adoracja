@@ -27,7 +27,7 @@
                 <tbody>
                     @foreach ($dayHours as $hour)
                         <tr>
-                            <td class="sticky-col hour-cell">{{ $hour }}-{{ $hour + 1 }}</td>
+                            <td class="sticky-col text-nowrap">{{ $hour }}-{{ $hour + 1 }}</td>
                             @foreach ($duties as $date => $duty)
                                 <td class="editable-cell"
                                     style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color }};"

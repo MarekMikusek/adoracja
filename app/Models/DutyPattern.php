@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DateHelper;
 use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,7 +39,7 @@ class DutyPattern extends Model
         $allDuties = self::where(['day' => $weekDay])->where('hour', $hour)->get();
 
         foreach ($allDuties as &$duty) {
-            if (!$duty->isDutyInWeek($weekStartDate) || $mappedUsers[$duty->user_id]->isSuspended($weekStartDate)) {
+            if (!$duty->isDutyInWeek($weekStartDate)|| $mappedUsers[$duty->user_id]->isSuspended($weekStartDate->addDays(DateHelper::weekDayOffset($duty->day)))) {
                 unset($duty);
             }
         }

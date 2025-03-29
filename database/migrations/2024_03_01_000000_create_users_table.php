@@ -19,8 +19,6 @@ return new class extends Migration
             $table->date('suspend_from')->nullable();
             $table->date('suspend_to')->nullable();
             $table->boolean('is_admin')->default(false);
-            $table->boolean('is_confirmed')->default(false);
-            $table->string('confirmation_token')->nullable();
             $table->rememberToken()->after('password')->nullable();
             $table->string('color', 7)->nullable();
             $table->timestamps();

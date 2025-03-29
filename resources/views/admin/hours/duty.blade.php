@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('navigation')
-@include('admin.navigation')
+    @include('layouts.navigation')
 @endsection
 
 @section('content')
@@ -89,8 +89,7 @@
                                         <h6>Wyślij wiadomość do zaznaczonych osób:</h6>
                                         <textarea id="messageText" cols="40" rows="6"></textarea>
                                     </div>
-                                    <button type="button" class="btn btn-primary" id="sendMessages">Wyślij
-                                        wiadomości</button>
+                                    <button type="button" class="btn btn-primary" id="sendMessages">Wyślij wiadomości</button>
                                 </div>
                                 <div class="col-4">
                                     <button class="btn btn-success" id="remove-duties">Usuń zaznaczone posługi</button>
@@ -172,7 +171,7 @@
                 var selectedUsers = [];
 
                 $('.user-checkbox:checked').each(function() {
-                    selectedUsers.push($(this).data('user-id'));
+                    selectedUsers.push($(this).data('user_id'));
                 });
 
                 const message = $('#messageText').val();
@@ -181,9 +180,7 @@
                     return;
                 }
                 const url = "{{ route('admin.messages') }}";
-                console.log(selectedUsers);
-                console.log($('#messageText').val());
-                return
+
                 $.ajax({
                     url: url,
                     type: 'POST',

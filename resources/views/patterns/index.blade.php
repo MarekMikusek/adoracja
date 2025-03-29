@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('navigation')
-@include('layouts.navigation')
+    @include('layouts.navigation')
 @endsection
 
 @section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">
-                Twoje posługi
+                Twoje stałe posługi
             </div>
             <div class="card-body">
 
@@ -64,8 +64,12 @@
                                         {{ $duty['day'] }}, godz. {{ $duty['hour'] }}.00
                                     </div>
                                     <div class="col-md-6">
-                                        <button class="btn btn-danger ml-5 remove-duty"
-                                            data-id="{{ $duty['id'] }}">Rezygnuję</button>
+                                        <form method="POST"
+                                            action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger ml-5 remove-duty">Rezygnuję</button>
+                                        </form>
                                     </div>
                                 </div>
                             </li>
@@ -92,7 +96,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Dodaj dyżur</h5>
+                    <h5 class="modal-title">Dodaj posługę</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('patterns.store') }}" method="POST">
@@ -123,19 +127,26 @@
 
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="inline-flex items-center">
-                                <span class="mr-2">Rodzaj posługi: </span>
-                                <input id="duty-type-input" type="text" name="duty_type" value="" readonly>
-                            </label>
+                        <div id="modal-start-date" class="d-none">
+                            <div class="mb-3">
+                                <input type="hidden" name="id" id="suspend_id">
+
+                                <label for="start_date" class="form-label mr-5">Data pierwszej posługi</label>
+                                <input id="start_date" type="date" name="start_date" value="">
+                            </div>
+                            <div class="mb-3">
+                                <label class="inline-flex items-center">
+                                    <span class="mr-2">Rodzaj posługi: </span>
+                                    <input id="duty-type-input" type="text" name="duty_type" value="" readonly>
+                                </label>
+                            </div>
+
+
                         </div>
-
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button type="submit" class="btn btn-primary">Zapisz</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                            <button type="submit" class="btn btn-primary">Zapisz</button>
+                        </div>
                 </form>
             </div>
         </div>
@@ -180,7 +191,14 @@
                 const dutyType = $(this).data('duty-type');
                 $('#duty-type-input').val(dutyType);
             });
-
+            $('#add_duty_repeat_interval').on('change', () => {
+                const interval = $('#add_duty_repeat_interval option:selected').val();
+                if(interval==1){
+                    $('#modal-start-date').addClass('d-none');
+                } else {
+                    $('#modal-start-date').removeClass('d-none');
+                };
+            });
         });
     </script>
 @endsection

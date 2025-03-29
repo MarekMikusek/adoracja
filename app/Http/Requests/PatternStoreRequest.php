@@ -26,6 +26,7 @@ class PatternStoreRequest extends FormRequest
             'hour'=> 'required|integer|between:0,23',
             'day' => 'required|string',
             'duty_type' => 'required|string',
+            'start_date' => 'nullable|string',
             'repeat_interval' => 'required|integer'
         ];
     }

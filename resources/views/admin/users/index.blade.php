@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('navigation')
-@include('admin.navigation')
+    @include('layouts.navigation')
 @endsection
 
 @section('content')
@@ -30,7 +30,6 @@
                                 <th>Nazwisko</th>
                                 <th>Email</th>
                                 <th>Telefon</th>
-                                <th>Status</th>
                                 <th>Powiadomienia</th>
                                 <th>Akcje</th>
                             </tr>
@@ -43,17 +42,6 @@
                                     <td>{{ $user->last_name }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->phone_number ?? '-' }}</td>
-                                    <td>
-                                        {{-- @dd($user) --}}
-                                        @if ($user->is_confirmed)
-                                            <span class="badge bg-success">Zweryfikowany</span>
-                                        @else
-                                            <button type="submit" data-user_id="{{ $user->id }}"
-                                                class="btn btn-success confirm-account">
-                                                Potwierdź konto
-                                            </button>
-                                        @endif
-                                    </td>
                                     <td>{{ $user->notification_preference === 'email' ? 'Email' : 'SMS' }}</td>
                                     <td>
                                         <a href="{{ route('admin.users.edit', ['user' => $user->id])}}" role="button" class="btn btn-sm btn-primary edit-user">
@@ -71,30 +59,3 @@
 
 @endsection
 
-
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-
-            $('.confirm-account').on('click', function(event) {
-                event.preventDefault(); // Prevent the default form submission
-
-                $.ajax({
-                    url: "{{ route('admin.user.verify') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        user_id: $(this).data("user_id")
-                    },
-                    success: function(response) {
-                        location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        alert('An error occurred: ' + error);
-                        console.log(xhr.responseText);
-                    }
-                });
-            });
-        });
-    </script>
-@endsection

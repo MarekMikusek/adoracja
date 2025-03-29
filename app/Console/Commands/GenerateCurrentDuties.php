@@ -19,8 +19,10 @@ class GenerateCurrentDuties extends Command
     {
         $users = User::all();
 
-        $startDate = (new Carbon(CurrentDuty::max('date')))->addDays(1);
+        $isDataInBD = CurrentDuty::count('*');
 
+        $startDate = $isDataInBD == 0 ? Carbon::now() : (new Carbon(CurrentDuty::max('date')))->addDays(1);
+        
         $noOfWeeks = intval($this->option('no_weeks') ?? self::NO_WEEKS);
 
         DutiesService::generateCurrentDuties($users, $startDate, $noOfWeeks);

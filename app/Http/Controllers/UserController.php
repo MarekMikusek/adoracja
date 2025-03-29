@@ -59,11 +59,6 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        if ($request->email !== $user->email) {
-            $user->email_verified_at = null;
-            $user->sendEmailVerificationNotification();
-        }
-
         return Redirect::route('profile')
             ->with('success', 'Profil został zaktualizowany');
     }

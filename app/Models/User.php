@@ -23,7 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'suspend_from',
         'suspend_to',
-        'is_confirmed',
+        'confirmation_token',
         'is_admin',
         'notification_preference',
         'google_token',
@@ -38,17 +38,16 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $casts = [
         'is_admin' => 'boolean',
-        'is_confirmed' => 'boolean',
     ];
 
-    public function dutyPatterns(): HasMany
+    public function AdminDutyPatterns(): HasMany
     {
         return $this->hasMany(AdminDutyPattern::class, 'admin_id');
     }
 
-    public function reservePatterns()
+    public function dutyPatterns()
     {
-        return $this->hasOne(ReservePattern::class);
+        return $this->hasMany(DutyPattern::class);
     }
 
     public function currentDuties(): BelongsToMany
@@ -70,13 +69,11 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
-    public function isSuspended(Carbon $weekStartDate): bool
+    public function isSuspended(Carbon $date): bool
     {
-        $currentDate = $weekStartDate->addDays(Helper::dayNumber($this->day));
-
-        $suspendFrom = Carbon::parse($this->suspend_from);
+                $suspendFrom = Carbon::parse($this->suspend_from);
         $suspendTo = Carbon::parse($this->suspend_to);
-        if($currentDate->between($suspendFrom, $suspendTo) || ($currentDate >= $suspendFrom && !$suspendTo)) {
+        if($date->between($suspendFrom, $suspendTo) || ($date >= $suspendFrom && !$suspendTo)) {
             return true;
         }
 

@@ -10,27 +10,15 @@ use App\Http\Controllers\AdminCurrentDutyController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Mail\TestEmail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-
-Route::get('patterns', [PatternController::class, 'index'])->name('patterns.index');
-
-Route::middleware('auth')->group(function () {
-    Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
-    Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');
-    Route::post('patterns', [PatternController::class, 'store'])->name('patterns.store');
-    Route::post('suspend_petterns', [PatternController::class, 'suspend'])->name('patterns.suspend');
-    Route::post('reserves', [ReserveController::class, 'store'])->name('reserves.store');
-    Route::delete('reserves', [ReserveController::class, 'destroy'])->name('reserves.delete');
-
-    Route::get('/reserves', [ReserveController::class, 'index'])->name('reserves.index');
-    Route::post('/suspend', [ProfileController::class, 'saveSuspend'])->name('profile.save-suspend');
-    Route::get('/suspend', [ProfileController::class, 'editSuspend'])->name('profile.edit-suspend');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::get('mailto', function(){
+Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
 });
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -56,9 +44,25 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::post('assign-duty-hours', [AdminController::class, 'assignDutyHours'])->name('admin.assign_duty_hours');
     Route::post('update-color', [AdminController::class, 'updateColor'])->name('admin.update_color');
 
-
-
     // Add more admin routes here
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
+    Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
+    Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');
+    Route::post('patterns', [PatternController::class, 'store'])->name('patterns.store');
+    Route::get('patterns', [PatternController::class, 'index'])->name('patterns.index');
+    Route::post('suspend_patterns', [PatternController::class, 'suspend'])->name('patterns.suspend');
+    Route::post('reserves', [ReserveController::class, 'store'])->name('reserves.store');
+    Route::delete('reserves', [ReserveController::class, 'destroy'])->name('reserves.delete');
+
+    Route::get('/reserves', [ReserveController::class, 'index'])->name('reserves.index');
+    Route::post('/suspend', [ProfileController::class, 'saveSuspend'])->name('profile.save-suspend');
+    Route::get('/suspend', [ProfileController::class, 'editSuspend'])->name('profile.edit-suspend');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

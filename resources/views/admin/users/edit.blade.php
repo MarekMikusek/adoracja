@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('navigation')
-@include('admin.navigation')
+    @include('layouts.navigation')
 @endsection
 
 @section('content')
@@ -55,10 +55,6 @@
                             <option value="email">Email</option>
                             <option value="sms">SMS</option>
                         </select>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" id="is_confirmed" name="is_confirmed"  @if ($user->is_confirmed) checked @endif>
-                        <label class="form-check-label" for="is_admin">Konto potwierdzone</label>
                     </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin"  @if ($user->is_admin) checked  @endif>

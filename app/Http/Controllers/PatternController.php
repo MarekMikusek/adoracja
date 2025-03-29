@@ -6,14 +6,13 @@ use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\SuspendDutyRequest;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
-use App\Models\ReservePattern;
 use App\Models\User;
+use App\Services\DutiesService;
 use App\Services\Helper;
 use App\Services\NotificationService;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -34,7 +33,6 @@ class PatternController extends Controller
      */
     public function __construct(NotificationService $notificationService)
     {
-        Auth::loginUsingId(9);
         $this->middleware('auth');
         $this->notificationService = $notificationService;
     }
@@ -44,7 +42,6 @@ class PatternController extends Controller
      */
     public function index(): View
     {
-
         $patterns = DutyPattern::query()
         ->select(['hour', 'day', 'id','duty_type', 'repeat_interval'])
         ->where('user_id', Auth::user()->id)
@@ -86,7 +83,10 @@ class PatternController extends Controller
             'hour'            => $validated['hour'],
             'duty_type'       => $validated['duty_type'],
             'repeat_interval' => $validated['repeat_interval'],
+            'start_date' => $validated['start_date'] ?? Carbon::now()
         ]);
+
+        DutiesService::updateUserDuties($user);
 
         return Redirect::route('patterns.index')
             ->with('success', 'Dyżur został zapisany pomyślnie');
@@ -103,6 +103,8 @@ class PatternController extends Controller
         }
 
         $dutyPattern->delete();
+
+        DutiesService::updateUserDuties(Auth::user());
 
         return Redirect::route('patterns.index')
             ->with('success', 'Dyżur został usunięty pomyślnie');

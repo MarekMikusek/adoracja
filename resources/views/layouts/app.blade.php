@@ -18,7 +18,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="row"><img src="{{ asset('images/adoracja.jpg') }}"/></div>
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="container">
             @yield('navigation')
             <!-- Page Heading -->
             @isset($header)

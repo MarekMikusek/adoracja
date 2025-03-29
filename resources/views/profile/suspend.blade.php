@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('styles')
+@section('navigation')
+    @include('layouts.navigation')
 @endsection
 
 @section('content')

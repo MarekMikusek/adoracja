@@ -23,15 +23,25 @@ class GenerateTestUsers extends Command
 
         // Generate regular users
         for ($i = 1; $i <= 80; $i++) {
-            $user = User::create([
-                'first_name' => fake()->firstName,
-                'last_name' => fake()->lastName,
-                'email' => fake()->email,
-                'password' => Hash::make('test'),
-                'notification_preference' => rand(0, 1) ? 'email' : 'sms',
-                'is_confirmed' => true,
-                'phone_number' => null,
-            ]);
+            if($i ==1 ){
+                $user = User::create([
+                    'first_name' => 'Marek',
+                    'last_name' => fake()->lastName,
+                    'email' => 'mmikusek@o2.pl',
+                    'password' => Hash::make('test'),
+                    'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+                    'phone_number' => '600075041',
+                ]);
+            } else {
+                $user = User::create([
+                    'first_name' => fake()->firstName,
+                    'last_name' => fake()->lastName,
+                    'email' => fake()->email,
+                    'password' => Hash::make('test'),
+                    'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+                    'phone_number' => null,
+                ]);
+            }
 
             DutyPattern::create([
                 'user_id' => $user->id,
@@ -62,6 +72,16 @@ class GenerateTestUsers extends Command
         }
 
         $admindIds = [];
+        $marek = User::create([
+            'first_name' => 'Marek',
+            'last_name' => 'Mikusek',
+            'email' => 'mmikusek2211@gmail.com',
+            'password' => Hash::make('test'),
+            'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+            'is_admin' => true,
+            'phone_number' => null,
+            'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
+        ]);
         // Generate admin users
         for ($i = 1; $i <= 4; $i++) {
             $adminId = User::create([
@@ -71,7 +91,6 @@ class GenerateTestUsers extends Command
                 'password' => Hash::make('test'),
                 'notification_preference' => rand(0, 1) ? 'email' : 'sms',
                 'is_admin' => true,
-                'is_confirmed' => true,
                 'phone_number' => null,
                 'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
             ]);

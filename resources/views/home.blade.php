@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
 @section('navigation')
-
-@include('layouts.navigation')
-
+    @include('layouts.navigation')
 @endsection
 
 @section('styles')
@@ -46,6 +44,7 @@
             left: 0;
             background: white;
             z-index: 3;
+            white-space: nowrap;
         }
 
         /* First column */
@@ -65,7 +64,7 @@
                         Adoracja w najbliższym czasie
                     </div>
                     <div class="card-body table-wrapper">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scrollable">
                             <table class="table" id="current_duty_table">
                                 <thead>
                                     <tr>
@@ -86,23 +85,19 @@
                                                     data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
-                                                    class="editable-cell"
                                                     @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
                                                         style="background-color: rgb(146, 146, 223);"
+                                                        class="duty-cell" title="Posłguję adoracją"
                                                     @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'gotowość')
                                                         style="background-color: rgb(16, 180, 223);"
+                                                        class="duty-cell"  title="Jestem gotowy do posługi adoracji"
+                                                        @else
+                                                        class="no-duty-cell"
                                                     @endif @endauth>
-                                                    {{ count($duty['timeFrames'][$hour]['users']) }}</td>
+                                                    {{ $duty['timeFrames'][$hour]['adoracja'] }}
+                                                    ({{ $duty['timeFrames'][$hour]['gotowość'] }})
+                                                </td>
                                             @endforeach
-
-                                            {{-- <form method="POST" action="{{ route('duties.destroy', $duty) }}" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Czy na pewno chcesz zrezygnować z tego dyżuru?')">
-                                                    Zrezygnuj
-                                                </button>
-                                            </form> --}}
 
                                         </tr>
                                     @endforeach
@@ -111,38 +106,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- <div class="card">
-                <div class="card-header">
-                    Twoje dyżury rezerwowe
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Dzień tygodnia</th>
-                                    <th>Godzina</th>
-                                    <th>Powtarzanie</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($reservePatterns as $pattern)
-                                    <tr>
-                                        <td>{{ $weekDays[$pattern->day] }}</td>
-                                        <td>{{ sprintf('%02d:00', $pattern->hour) }}</td>
-                                        <td>{{ $repeatPatternLabels[$pattern->repeat_pattern] }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center">Brak zdefiniowanych dyżurów rezerwowych</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div> --}}
             </div>
         </div>
     </div>
@@ -156,7 +119,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm">
+                    <form id="add-duty-form">
                         <div class="mb-4">
                             <div class="flex gap-4 mb-2">
                                 <label class="inline-flex items-center">
@@ -164,8 +127,8 @@
                                     <span class="ml-2">Adoracja</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="duty_type" value="dyzur" class="form-radio">
-                                    <span class="ml-2">Dyżur</span>
+                                    <input type="radio" name="duty_type" value="gotowość" class="form-radio">
+                                    <span class="ml-2">Gotowość</span>
                                 </label>
                             </div>
                             <label for="new-duty-date" class="form-label">Data</label>
@@ -175,8 +138,33 @@
                             <label for="new-duty-hour" class="form-label">Godzina</label>
                             <input type="text" class="form-control" id="new-duty-hour" readonly>
                         </div>
-                        <input type="hidden" id="new-duty-user-id">
                         <input type="hidden" id="new-duty-duty-id">
+                        <button type="submit" class="btn btn-primary">Zapisz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove duty modal -->
+    <div class="modal fade" id="removeDutyModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Rezygnuję z posługi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="remove-duty-form">
+                        <div class="mb-4">
+                            <label for="remove-duty-date" class="form-label">Data</label>
+                            <input type="text" class="form-control" id="remove-duty-date" name="date" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="remove-duty-hour" class="form-label">Godzina</label>
+                            <input type="text" class="form-control" id="remove-duty-hour" readonly>
+                        </div>
+                        <input type="hidden" id="remove-duty-duty-id">
                         <button type="submit" class="btn btn-primary">Zapisz</button>
                     </form>
                 </div>
@@ -200,7 +188,44 @@
                 }, "fast");
             });
         });
-        $('.editable-cell').dblclick(function() {
+
+        $('.duty-cell').on('dblclick', function() {
+            const duty_id = $(this).data('duty_id');
+            const date = $(this).data('date');
+            const hour = $(this).data('hour');
+
+            $('#remove-duty-hour').val(hour);
+            $('#remove-duty-date').val(date);
+            $('#remove-duty-duty-id').val(duty_id);
+
+            $('#removeDutyModal').modal('show');
+        });
+
+        $('#remove-duty-form').on('submit', function(e){
+            e.preventDefault();
+
+            const duty_id = $('#remove-duty-duty-id').val();
+            const url = "{{ route('current-duty.remove') }}";
+
+            $('#removeDutyModal').modal('hide');
+
+            return $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    duty_id: duty_id,
+                },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Błąd');
+                }
+        });
+    });
+
+        $('.no-duty-cell').dblclick(function() {
             const date = $(this).data('date');
             const hour = $(this).data('hour');
             const duty_id = $(this).data('duty_id');
@@ -212,7 +237,7 @@
             $('#editModal').modal('show'); // Show modal
         });
 
-        $('#editForm').submit(function(e) {
+        $('#add-duty-form').submit(function(e) {
             e.preventDefault();
 
             const duty_id = $('#new-duty-duty-id').val();
@@ -230,7 +255,6 @@
                     duty_type: duty_type
                 },
                 success: function(response) {
-                    alert('Dodano');
                     location.reload();
                 },
                 error: function(xhr) {

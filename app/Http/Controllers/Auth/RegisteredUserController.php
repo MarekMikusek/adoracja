@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AccountRegisteredRequest;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use App\Jobs\AccountRegistered;
+use App\Jobs\AccountRegisteredJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,23 +29,21 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(AccountRegisteredRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'] ?? null,
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'notification_preference' => 'email',
         ]);
 
-        event(new Registered($user));
+        Auth::loginUsingId($user->id);
 
-        Auth::login($user);
+        AccountRegisteredJob::dispatch($user);
 
         return response()->redirectTo('/');
     }

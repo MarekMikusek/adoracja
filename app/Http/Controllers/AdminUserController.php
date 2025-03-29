@@ -70,7 +70,6 @@ public function __construct()
     public function update(AdminUserUpdateRequest $request, User $user): RedirectResponse
     {
         $validated                 = $request->validated();
-        $validated['is_confirmed'] = (isset($validated['is_confirmed']) && $validated['is_confirmed'] == "on") ? true : false;
         $validated['is_admin']     = (isset($validated['is_admin']) && $validated['is_admin'] == "on") ? true : false;
         $validated['suspend_from'] == $validated['suspend_from'] ?? null;
         $validated['suspend_to'] == $validated['suspend_to'] ?? null;

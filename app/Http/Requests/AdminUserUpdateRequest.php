@@ -21,7 +21,6 @@ class AdminUserUpdateRequest extends FormRequest
             'suspend_from' => ['nullable', 'string'],
             'suspend_to' => ['nullable', 'string'],
             'notification_preference' => ['required', 'in:email,sms'],
-            'is_confirmed' => [ 'string'],
             'is_admin' => ['string'],
         ];
     }

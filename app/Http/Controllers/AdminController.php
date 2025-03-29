@@ -167,8 +167,7 @@ class AdminController extends Controller
     {
         $validated                 = $request->validated();
         $validated['password']     = Hash::make($validated['password']);
-        $validated['is_confirmed'] = true;
-        // dd($validated);
+
         User::create($validated);
 
         return Redirect::route('admin.users')->with('success', 'User added successfully.');

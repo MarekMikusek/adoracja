@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View as ViewFacade;
-use Illuminate\View\View;
 
 class HomeController extends Controller
 {
@@ -29,43 +28,51 @@ class HomeController extends Controller
             $userId = Auth::user()->id;
         }
 
-        if($user && $user->is_admin == true){
-            return response()->redirectTo('/admin/dashboard');
-        }
+        // if ($user && $user->is_admin == true) {
+        //     return response()->redirectTo('/admin/dashboard');
+        // }
 
         $upcomingDuties = DB::table('current_duties as cd')
-            ->select(['cd.date', 'cd.hour', 'cdu.user_id', 'cd.id as duty_id', 'cdu.duty_type'])
+            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
             ->where('date', '>=', Carbon::today())
-            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', 'cd.id')
+            ->join('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id', 'full')
             ->orderBy('cd.date')
             ->orderBy('cd.hour')
             ->get();
-
+// dd($upcomingDuties);
         $duties = [];
         foreach ($upcomingDuties as $duty) {
             $dateFormatted = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
-// dump($duty);
+
             if (! isset($duties[$dateFormatted])) {
 
                 $duties[$dateFormatted]               = [];
                 $duties[$dateFormatted]['dayName']    = Carbon::createFromDate($duty->date)->isoFormat('dddd');
                 $duties[$dateFormatted]['timeFrames'] = [];
+
+                foreach (Helper::DAY_HOURS as $hour) {
+                    $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['gotowość']   = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
+                }
             }
-            $duties[$dateFormatted]['timeFrames'][$duty->hour]['hour']           = $duty->hour;
-            $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId']         = $duty->duty_id;
-            $duties[$dateFormatted]['timeFrames'][$duty->hour]['users']          = [];
-            $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = '';
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId']       = $duty->duty_id;
 
             if (isset($userId) && $duty->user_id && $duty->user_id == $user->id) {
-                    $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
+                $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
             }
 
-            if($duty->user_id && $duty->duty_type == 'adoracja'){
-                $duties[$dateFormatted]['timeFrames'][$duty->hour]['users'][] = $duty->user_id;
+            if ($duty->user_id && $duty->duty_type == 'adoracja') {
+                $duties[$dateFormatted]['timeFrames'][$duty->hour]['adoracja']++;
+            }
+
+            if ($duty->user_id && $duty->duty_type == 'gotowość') {
+                $duties[$dateFormatted]['timeFrames'][$duty->hour]['gotowość']++;
             }
 
         }
-        // dd($duties);
+// dd($duties);
         return ViewFacade::make('home', [
             'user'     => $user,
             'duties'   => $duties,
