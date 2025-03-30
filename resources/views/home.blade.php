@@ -45,6 +45,92 @@
         .no-wrap {
             white-space: nowrap;
         }
+
+                /* Sidebar Styling */
+                .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100%;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .sidebar ul {
+            padding-left: 20px;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .sidebar.hidden {
+            left: -220px; /* Hide the sidebar */
+        }
+
+         /* Mobile-specific styles */
+         @media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table th, .table td {
+                font-size: 12px; /* Reduce font size for mobile */
+                padding: 8px; /* Less padding for smaller screens */
+            }
+
+            /* Sticky column adjustments for mobile */
+            .table td:first-child,
+            .table th:first-child {
+                /* position: relative; Make it non-sticky on small screens */
+                background-color: #f8f9fa;
+            }
+
+                        /* Collapse sidebar for mobile */
+                        .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .card {
+                margin-bottom: 20px; /* Adjust margin for cards on mobile */
+            }
+
+            /* Modal adjustments */
+            .modal-dialog {
+                max-width: 100%; /* Make modals full width on small screens */
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .btn-close {
+                padding: 0.2rem 0.5rem;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Smallest mobile screens */
+        @media (max-width: 480px) {
+            .table th, .table td {
+                font-size: 10px; /* Further reduce font size */
+            }
+
+            .table-container {
+                max-height: 400px; /* Decrease max height for smaller screens */
+            }
+        }
     </style>
 @endsection
 
@@ -171,6 +257,10 @@ data-date="{{ $date }}"
 @section('scripts')
     <script>
         $(document).ready(function() {
+            $('#toggleMenu').click(function() {
+                $('#sidebar').toggleClass('hidden');
+            });
+
             $("#scrollLeft").click(function() {
                 $(".table-container").animate({
                     scrollLeft: "-=100px"
