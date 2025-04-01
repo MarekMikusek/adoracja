@@ -5,9 +5,12 @@ use App\Enums\DutyType;
 use App\Http\Requests\AdminUserStoreRequest;
 use App\Http\Requests\AssignAdminRequest;
 use App\Http\Requests\PatternStoreRequest;
+use App\Http\Requests\RemoveIntentionRequest;
 use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
+use App\Models\Intention;
+use App\Models\IntentionUser;
 use App\Models\ReservePattern;
 use App\Models\User;
 use App\Services\Helper;
@@ -69,6 +72,20 @@ class AdminController extends Controller
             'admins'   => collect(User::admins())->keyBy('id')->toArray(),
             'dayHours' => Helper::DAY_HOURS,
         ]);
+    }
+
+    public function intentions()
+    {
+        return view('admin.intentions.index',['intentions' => Intention::orderBy('id', "DESC")->get()]);
+    }
+
+    public function removeIntention(RemoveIntentionRequest $request)
+    {
+        $data = $request->validated();
+
+        DB::table('intentions_users')->where('intention_id', $data['intention'])->delete();
+
+        DB::table('intentions')->where('id', $data['intention'])->delete();
     }
 
     public function hours(): View

@@ -8,6 +8,7 @@ use App\Http\Controllers\ReserveController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCurrentDutyController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\IntentionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Mail\TestEmail;
@@ -19,9 +20,13 @@ Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/intentions', [IntentionController::class, 'index'])->name('intentions');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    Route::get('intentions', [AdminController::class, 'intentions'])->name('admin.intentions');
+    Route::post('intentions-remove', [AdminController::class, 'removeIntention'])->name('admin.intentions.remove');
 
     Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::post('users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
@@ -38,7 +43,7 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::post('delete-current-duty', [AdminCurrentDutyController::class, 'removeCurrentDuty'])->name('admin.current-duty.delete');
 
     Route::post('messages', [NotificationController::class, 'sendMessages'])->name('admin.messages');
-    Route::get('admins', [AdminController::class, 'index'])->name('admin.admins.index');
+    Route::get('admins', [AdminController::class, 'index'])->name('admin.admins');
     Route::post('admins/update-duty-hours', [AdminController::class, 'updateDutyHours'])->name('admin.admins.updateDutyHours');
     Route::get('duty-hours', [AdminController::class, 'dutyHours'])->name('admin.duty_hours');
     Route::post('assign-duty-hours', [AdminController::class, 'assignDutyHours'])->name('admin.assign_duty_hours');
@@ -48,6 +53,8 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/intention/is_prayer', [IntentionController::class, 'isPrayer'])->name('intentions.is_prayer');
+    Route::post('/intention', [IntentionController::class, 'save'])->name('intention.save');
     Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
     Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
     Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');

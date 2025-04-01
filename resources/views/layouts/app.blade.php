@@ -9,6 +9,7 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         @yield('styles')
@@ -19,7 +20,79 @@
     <body class="font-sans antialiased">
         <div class="row"><img src="{{ asset('images/adoracja.jpg') }}"/></div>
         <div class="container">
-            @yield('navigation')
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="{{ route('home') }}">Adoracja w najbliższych dniach</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-target="#navbarNavAltMarkup" data-bs-toggle="collapse"
+                    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse pr-5" id="navbarNavAltMarkup">
+                    @auth
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('patterns.index') }}">Moje stałe posługi</a>
+                            </li>
+
+                            @if (Auth::user()->is_admin)
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.users') }}">Użytkownicy</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="{{ route('admin.admins') }}">Administratorzy</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="{{ route('admin.intentions') }}">Intencje</a>
+                                </li>
+                            @endif
+                        </ul>
+                    @endauth
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('intentions') }}">Intencje modlitewne</a>
+                        </li>
+                        @guest
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('login') }}">Zaloguj się</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('register') }}">Zarejestruj się</a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('profile.edit') }}">Moje konto</a>
+                            </li>
+                            <li class="nav-item">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="nav-link btn btn-link"
+                                        style="border: none; background: none; cursor: pointer;">
+                                        Wyloguj się
+                                    </button>
+                                </form>
+                            </li>
+                        @endguest
+                    </ul>
+                </div>
+                </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                @auth
+
+                @endauth
+            </nav>
             <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white dark:bg-gray-800 shadow">

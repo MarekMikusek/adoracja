@@ -5,7 +5,8 @@ namespace App\Console\Commands;
 use App\Enums\DutyType;
 use App\Models\AdminDutyPattern;
 use App\Models\DutyPattern;
-use App\Models\ReservePattern;
+use App\Models\Intention;
+use App\Models\IntentionUser;
 use App\Models\User;
 use App\Services\Helper;
 use Carbon\Carbon;
@@ -13,20 +14,20 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
-class GenerateTestUsers extends Command
+class GenerateTestData extends Command
 {
-    protected $signature = 'app:generate-test-users';
+    protected $signature = 'app:td';
     protected $description = 'Generate test users and admins';
 
     public function handle()
     {
-
+        $faker = fake('pl_PL');
         // Generate regular users
         for ($i = 1; $i <= 80; $i++) {
             if($i ==1 ){
                 $user = User::create([
                     'first_name' => 'Marek',
-                    'last_name' => fake()->lastName,
+                    'last_name' => $faker->lastName,
                     'email' => 'mmikusek@o2.pl',
                     'password' => Hash::make('test'),
                     'notification_preference' => rand(0, 1) ? 'email' : 'sms',
@@ -34,9 +35,9 @@ class GenerateTestUsers extends Command
                 ]);
             } else {
                 $user = User::create([
-                    'first_name' => fake()->firstName,
-                    'last_name' => fake()->lastName,
-                    'email' => fake()->email,
+                    'first_name' => $faker->firstName,
+                    'last_name' => $faker->lastName,
+                    'email' => $faker->email,
                     'password' => Hash::make('test'),
                     'notification_preference' => rand(0, 1) ? 'email' : 'sms',
                     'phone_number' => null,
@@ -85,9 +86,9 @@ class GenerateTestUsers extends Command
         // Generate admin users
         for ($i = 1; $i <= 4; $i++) {
             $adminId = User::create([
-                'first_name' => fake()->firstName,
-                'last_name' => fake()->lastName,
-                'email' => fake()->email,
+                'first_name' => $faker->firstName,
+                'last_name' => $faker->lastName,
+                'email' => $faker->email,
                 'password' => Hash::make('test'),
                 'notification_preference' => rand(0, 1) ? 'email' : 'sms',
                 'is_admin' => true,
@@ -101,6 +102,19 @@ class GenerateTestUsers extends Command
         foreach(AdminDutyPattern::all() as $adminDutyPattern){
             $adminDutyPattern->admin_id = $admindIds[random_int(0, 3)];
             $adminDutyPattern->save();
+        }
+
+        for($i = 0; $i<= 20; $i++) {
+            $intention = Intention::create([
+                'intention' => $faker->sentence(8, true)
+            ]);
+
+            $randomNumberOfUsers = Arr::random([1, 1, 1, 0, 0, 2, 3, 4, 1]);
+
+            for($j = 0; $j<= $randomNumberOfUsers; $j++){
+                IntentionUser::create(['intention_id' => $intention->id, 'user_id' => random_int(1, 80)]);
+            }
+
         }
 
         $this->info('Test users and admins generated successfully!');

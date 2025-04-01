@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@section('navigation')
-    @include('layouts.navigation')
-@endsection
-
 @section('content')
 <div class="container">
     <h1>Odpowiedzialność admnistratorów</h1>

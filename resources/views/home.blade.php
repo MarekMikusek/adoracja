@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('navigation')
-@endsection
-
 @section('styles')
     <style>
+        .no_user {
+            background-color: lightcoral
+        }
         .user-duty {
             color: #23aa55
         }
@@ -171,10 +171,14 @@ data-date="{{ $date }}"
                                                         class="duty-cell" title="Posłguję adoracją"
                                                     @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'gotowość')
                                                         style="background-color: rgb(16, 180, 223);"
-                                                        class="duty-cell"  title="Jestem gotowy do posługi adoracji"
+                                                        class="readiness-cell"  title="Jestem gotowy do posługi adoracji"
                                                         @else
                                                         class="no-duty-cell"
-                                                    @endif @endauth>
+                                                    @endif @endauth
+                                                    @if(
+                                                        $duty['timeFrames'][$hour]['adoracja'] == 0
+                                                        && $duty['timeFrames'][$hour]['gotowość'] == 0
+                                                    )  style="background-color: rgb(255, 50, 50)!important;" @endif>
                                                     {{ $duty['timeFrames'][$hour]['adoracja'] }}
                                                     ({{ $duty['timeFrames'][$hour]['gotowość'] }})
                                                 </td>
@@ -284,6 +288,18 @@ data-date="{{ $date }}"
             $('#remove-duty-duty-id').val(duty_id);
 
             $('#removeDutyModal').modal('show');
+        });
+
+        $('.readiness-cell').on('dblclick', function() {
+            const date = $(this).data('date');
+            const hour = $(this).data('hour');
+            const duty_id = $(this).data('duty_id');
+
+            $('#new-duty-date').val(date);
+            $('#new-duty-hour').val(hour);
+            $('#new-duty-duty-id').val(duty_id);
+
+            $('#editModal').modal('show'); // Show modal
         });
 
         $('#remove-duty-form').on('submit', function(e) {

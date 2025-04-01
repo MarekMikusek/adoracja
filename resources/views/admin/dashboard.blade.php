@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@section('navigation')
-    @include('layouts.navigation')
-@endsection
-
 @section('style')
     <style>
         a {
