@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Jobs\SuspendDutyJob;
+use App\Models\WaysOfContact;
 use App\Services\DutiesService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -23,21 +24,17 @@ class ProfileController extends Controller
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'waysOfContacts' => WaysOfContact::all()
         ]);
     }
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-
         $request->user()->fill($request->validated());
-
-        // if ($request->user()->isDirty('email')) {
-        //     $request->user()->email_verified_at = null;
-        // }
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('home')->with('status', 'profile-updated');
     }
 
     public function editSuspend()

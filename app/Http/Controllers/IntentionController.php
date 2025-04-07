@@ -15,8 +15,9 @@ class IntentionController extends Controller
     {
         $user       = Auth::user();
         $intentions = DB::table('intentions_users as iu')
-            ->select('i.id as intention_id', 'i.intention', 'iu.user_id')
+            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id')
             ->join('intentions as i', 'iu.intention_id', '=', 'i.id', 'full')
+            ->whereNotNull('i.user_id')
             ->orderBy('i.created_at', 'DESC')
             ->get();
 
@@ -28,6 +29,7 @@ class IntentionController extends Controller
                 $return[$intention->intention_id]                  = [];
                 $return[$intention->intention_id]['intention']     = $intention->intention;
                 $return[$intention->intention_id]['users']         = 0;
+                $return[$intention->intention_id]['user_id']       = $intention->user_id;
                 $return[$intention->intention_id]['isMyIntention'] = false;
             }
 
@@ -39,14 +41,22 @@ class IntentionController extends Controller
                 $return[$intention->intention_id]['isMyIntention'] = true;
             }
         }
+
         return ViewFacade::make('intentions.index', [
             'intentions' => $return,
+            'user_id' => Auth::user()->id ?? null
         ]);
     }
 
     public function save(SaveIntentionRequest $request)
     {
-        return Intention::create(['intention' => $request->validated()['intention']]);
+        $data = $request->validated();
+
+        if($user = Auth::user()){
+            $data['user_id'] = $user->id;
+        }
+
+        return Intention::create(['intention' => $data['intention']]);
     }
 
     public function isPrayer(IsPrayerRequest $request)

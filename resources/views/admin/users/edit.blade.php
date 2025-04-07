@@ -46,8 +46,8 @@
                             value="{{ $user->suspend_to }}">
                     </div>
                     <div class="mb-3">
-                        <label for="notification_preference" class="form-label">Sposób powiadomień</label>
-                        <select class="form-select" id="notification_preference" name="notification_preference" required>
+                        <label for="contact_preference" class="form-label">Sposób powiadomień</label>
+                        <select class="form-select" id="contact_preference" name="contact_preference" required>
                             <option value="email">Email</option>
                             <option value="sms">SMS</option>
                         </select>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Enums\DutyType;
 use App\Http\Requests\AdminUserStoreRequest;
 use App\Http\Requests\AssignAdminRequest;
+use App\Http\Requests\ConfirmIntentionRequest;
 use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\RemoveIntentionRequest;
 use App\Models\AdminDutyPattern;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
 use WeekDays;
 use App\Services\DateHelper;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -77,6 +79,14 @@ class AdminController extends Controller
     public function intentions()
     {
         return view('admin.intentions.index',['intentions' => Intention::orderBy('id', "DESC")->get()]);
+    }
+
+    public function confirmIntention(ConfirmIntentionRequest $request)
+    {
+        $intention = Intention::find($request->validated()['intention']);
+        $intention->user_id = Auth::user()->id;
+
+        return $intention->save();
     }
 
     public function removeIntention(RemoveIntentionRequest $request)

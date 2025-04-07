@@ -15,18 +15,30 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="last_name" class="form-label">Nazwisko <small class="muted"> (nieobowiązkowe)</small></label>
+                                <label for="last_name" class="form-label">Nazwisko <small class="muted">
+                                        (nieobowiązkowe)</small></label>
                                 <input type="text" id="last_name" name="last_name" class="form-control">
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" id="email" name="email" class="form-control" required>
+                                <div id="email_error_message" class="alert alert-danger" style="display: none;">Test</div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="phone" class="form-label">Numer telefonu <small class="muted">(nieobowiązkowy, ale przydatny)</small></label>
+                                <label for="phone" class="form-label">Numer telefonu <small
+                                        class="muted">(nieobowiązkowy, ale przydatny)</small></label>
                                 <input type="tel" id="phone" name="phone" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="way_of_contact" class="form-label">Proszę kontaktować się ze mną przez</label>
+                                <select name="ways_of_contacts_id" id="way_of_contact" class="form-control">
+                                    @foreach ($waysOfContact as $wayOfContact)
+                                        <option value="{{ $wayOfContact->id }}">{{ $wayOfContact->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="mb-3">
@@ -51,4 +63,38 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#email').on('focusout', function() {
+                console.log('out');
+                var errorText = $('#email_error_message');
+                errorText.hide();
+                var email = $(this).val();
+
+                if (email.length == 0) {
+                    $('#email_error_message').html('Proszę podać prawidłowy adres email');
+                    $('#email_error_message').show();
+                } else {
+                    const url = "{{ route('check-email') }}";
+                    $.ajax({
+                        url: url,
+                        method: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            email: email
+                        },
+                        success: function(response) {
+                            if (response != "free") {
+                                $('#email_error_message').html('Ten adres jest już zajęty');
+                                $('#email_error_message').show();
+                            };
+                        }
+                    });
+                }
+            });
+        })
+    </script>
 @endsection

@@ -70,7 +70,7 @@
                                         title="admin: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
                                         data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
                                         {{ $duty['timeFrames'][$hour]['adoracja'] }}
-                                        ({{ $duty['timeFrames'][$hour]['gotowość'] }})
+                                        ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
                                     </td>
                                 @endforeach
                             </tr>

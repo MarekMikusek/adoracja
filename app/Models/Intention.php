@@ -9,7 +9,7 @@ class Intention extends Model
 {
     protected $table = 'intentions';
 
-    protected $fillable = ['intention'];
+    protected $fillable = ['intention', 'user_id'];
 
     public function users(): HasMany
     {

@@ -33,12 +33,19 @@
                         <table class="table table-striped">
                             <thead>
                                 <th>Intencja</th>
+                                <th>Potwierdź</th>
                                 <th>Usuń</th>
                             </thead>
                             <tbody>
                                 @foreach ($intentions as $intention)
                                     <tr>
                                         <td>{{ $intention->intention }}</td>
+                                        <td>
+                                            @if (!$intention->user_id)
+                                                <button class="btn btn-sm btn-success confirm-intention"
+                                                    data-intention_id="{{ $intention->id }}">Potwierdź intencję</button>
+                                            @endif
+                                        </td>
                                         <td><span class="remove-intention" data-intention_id="{{ $intention->id }}"><i
                                                     class="fas fa-trash"></i></span></td>
                                     </tr>
@@ -55,6 +62,27 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+
+            $(".confirm-intention").on('click', function() {
+                const intention = $(this).data('intention_id');
+                const url = "{{ route('admin.confirm-intention') }}";
+
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {
+                        intention: intention,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(request) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Błąd');
+                    }
+                });
+            });
+
             $('.remove-intention').on('click', function() {
 
                 if (confirm("Czy chcesz usunąć intencję?")) {

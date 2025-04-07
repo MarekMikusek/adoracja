@@ -53,7 +53,7 @@ class HomeController extends Controller
                 foreach (Helper::DAY_HOURS as $hour) {
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
                     $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['gotowość']   = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['rezerwa']   = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
                 }
             }
@@ -67,8 +67,8 @@ class HomeController extends Controller
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['adoracja']++;
             }
 
-            if ($duty->user_id && $duty->duty_type == 'gotowość') {
-                $duties[$dateFormatted]['timeFrames'][$duty->hour]['gotowość']++;
+            if ($duty->user_id && $duty->duty_type == 'rezerwa') {
+                $duties[$dateFormatted]['timeFrames'][$duty->hour]['rezerwa']++;
             }
 
         }

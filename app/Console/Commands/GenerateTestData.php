@@ -30,7 +30,7 @@ class GenerateTestData extends Command
                     'last_name' => $faker->lastName,
                     'email' => 'mmikusek@o2.pl',
                     'password' => Hash::make('test'),
-                    'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+                    'ways_of_contacts_id' => rand(1, 5),
                     'phone_number' => '600075041',
                 ]);
             } else {
@@ -39,7 +39,7 @@ class GenerateTestData extends Command
                     'last_name' => $faker->lastName,
                     'email' => $faker->email,
                     'password' => Hash::make('test'),
-                    'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+                    'ways_of_contacts_id' => rand(1, 5),
                     'phone_number' => null,
                 ]);
             }
@@ -78,7 +78,7 @@ class GenerateTestData extends Command
             'last_name' => 'Mikusek',
             'email' => 'mmikusek2211@gmail.com',
             'password' => Hash::make('test'),
-            'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+            'ways_of_contacts_id' => rand(1, 5),
             'is_admin' => true,
             'phone_number' => null,
             'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
@@ -90,7 +90,7 @@ class GenerateTestData extends Command
                 'last_name' => $faker->lastName,
                 'email' => $faker->email,
                 'password' => Hash::make('test'),
-                'notification_preference' => rand(0, 1) ? 'email' : 'sms',
+                'ways_of_contacts_id' => rand(1, 5),
                 'is_admin' => true,
                 'phone_number' => null,
                 'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))

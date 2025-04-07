@@ -38,7 +38,7 @@
                                     <td>{{ $user->last_name }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->phone_number ?? '-' }}</td>
-                                    <td>{{ $user->notification_preference === 'email' ? 'Email' : 'SMS' }}</td>
+                                    <td>{{ $user->contact_preference === 'email' ? 'Email' : 'SMS' }}</td>
                                     <td>
                                         <a href="{{ route('admin.users.edit', ['user' => $user->id])}}" role="button" class="btn btn-sm btn-primary edit-user">
                                             Edytuj

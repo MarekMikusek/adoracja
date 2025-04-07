@@ -48,10 +48,10 @@
 
                     <div class="container mt-3 col-6">
                         <div class="card">
-                            <div class="card-header">Osoby w gotowości</div>
+                            <div class="card-header">Osoby na liście rezerwowej</div>
                             <div class="card-body">
 
-                                @forelse($duties['gotowość'] as $user_id)
+                                @forelse($duties['rezerwa'] as $user_id)
                                     <p>
                                         <input type="checkbox" data-user_id="{{ $users[$user_id]->id }}"
                                             class="user-checkbox">
@@ -163,7 +163,7 @@
 
             $('#user-select-ready').on('change', function() {
                 const duty_id = $(this).data('duty_id');
-                addUserToDuty($(this).val(), duty_id, 'gotowość');
+                addUserToDuty($(this).val(), duty_id, 'rezerwa');
                 $("#user-select-ready option:first").prop("selected", true);
             });
 

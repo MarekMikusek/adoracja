@@ -19,6 +19,7 @@
                 <table class="table">
                     <thead>
                         <th>Intencja</th>
+                        <th>Moje intencje</th>
                         <th>Ilość osób <br>modlących się</th>
                         @auth
                             <th>Modlę się</th>
@@ -28,6 +29,7 @@
                         @foreach ($intentions as $intention_id => $intention)
                             <tr>
                                 <td>{{ $intention['intention'] }}</td>
+                                <td><input type="checkbox" onclick="return false;" @if(isset($intention['user_id']) && $intention['user_id'] == $user_id) checked @endif></td>
                                 <td>{{ $intention['users'] }}</td>
                                 @auth
                                     <td><input type="checkbox" class="intention_pray" data-intention_id="{{ $intention_id }}"
@@ -59,7 +61,7 @@
                         <small>Prosimy nie podawać w intencjach informacji umożliwiających identyfikację osób: nazwisk, zbyt
                             dokładnych opisów sytuacji, itp. Prosimy o możliwie krótkie intencje:
                             np. w intencji uzdrowienia z choroby serca dla Anny, o poprawę relacji z żoną dla
-                            Zbigniewa.</small>
+                            Zbigniewa. Intencje dodane przez osóby niezalogowane będą wyświetlane po zatwierdzeniu przez koorodynatora. </small>
                     </div>
                 </div>
             </div>

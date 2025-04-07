@@ -12,8 +12,9 @@ class AccountRegisteredRequest extends FormRequest
     {
         return [
             'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'ways_of_contacts_id' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }

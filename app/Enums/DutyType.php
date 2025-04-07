@@ -5,5 +5,6 @@ namespace App\Enums;
 enum DutyType: string
 {
     case DUTY = 'adoracja';
-    case READY = 'gotowość';
+    case READY = 'rezerwa';
+    case SUSPEND = 'zawieszona';
 }

@@ -25,7 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspend_to',
         'confirmation_token',
         'is_admin',
-        'notification_preference',
+        'ways_of_contacts_id',
         'google_token',
         'color',
         'password'

@@ -47,12 +47,12 @@
     </div>
     <div class="card">
         <div class="card-header">
-            Zgłosiłaś/eś gotowość:
+            Wpisałeś się na listę rezerwową:
         </div>
         <div class="card-body">
             <ul class="list-group">
-                @if (!empty($patterns['gotowość']))
-                    @foreach ($patterns['gotowość'] as $duty)
+                @if (!empty($patterns['rezerwa']))
+                    @foreach ($patterns['rezerwa'] as $duty)
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-md-6">
@@ -72,8 +72,8 @@
             <div class="row justify-content-between m-4">
                 <div class="col-auto">
                     <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#addDutyModal" data-duty-type="gotowość">
-                        Dodaj gotowość
+                        data-bs-target="#addDutyModal" data-duty-type="rezerwa">
+                        Dodaj do listy rezerwowej
                     </button>
                 </div>
             </div>

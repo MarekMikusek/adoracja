@@ -45,7 +45,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -54,7 +54,7 @@ class UserController extends Controller
                 Rule::unique('users')->ignore($user->id)
             ],
             'phone_number' => ['nullable', 'string', 'max:255'],
-            'notification_preference' => ['required', 'in:email,sms']
+            'ways_of_communications_id' => ['required', 'string']
         ]);
 
         $user->update($validated);

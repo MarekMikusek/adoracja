@@ -32,8 +32,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="notification_preference" class="form-label">Powiadomienia</label>
-                            <select class="form-control" id="notification_preference" name="notification_preference" required>
+                            <label for="contact_preference" class="form-label">Powiadomienia</label>
+                            <select class="form-control" id="contact_preference" name="contact_preference" required>
                                 <option value="email">Email</option>
                                 <option value="sms">SMS</option>
                             </select>

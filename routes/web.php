@@ -26,6 +26,7 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::get('intentions', [AdminController::class, 'intentions'])->name('admin.intentions');
+    Route::post('confirm-intention', [AdminController::class, 'confirmIntention'])->name('admin.confirm-intention');
     Route::post('intentions-remove', [AdminController::class, 'removeIntention'])->name('admin.intentions.remove');
 
     Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');

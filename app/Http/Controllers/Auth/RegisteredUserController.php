@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AccountRegisteredRequest;
+use App\Http\Requests\CheckEmailRequest;
 use App\Models\User;
 use App\Jobs\AccountRegistered;
 use App\Jobs\AccountRegisteredJob;
+use App\Models\WaysOfContact;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +23,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', ['waysOfContact'=>WaysOfContact::all()]);
     }
 
     /**
@@ -38,7 +40,7 @@ class RegisteredUserController extends Controller
             'last_name' => $data['last_name'] ?? null,
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'notification_preference' => 'email',
+            'ways_of_contacts_id' => $data['ways_of_contacts_id'],
         ]);
 
         Auth::loginUsingId($user->id);
@@ -46,5 +48,13 @@ class RegisteredUserController extends Controller
         AccountRegisteredJob::dispatch($user);
 
         return response()->redirectTo('/');
+    }
+
+
+    public function checkEmail(CheckEmailRequest $request)
+    {
+        $user = User::where(['email' => $request->validated()['email']])->first();
+
+        return empty($user) ? 'free' : 'taken';
     }
 }

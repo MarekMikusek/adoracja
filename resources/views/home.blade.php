@@ -141,7 +141,7 @@
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        Ilość osób adorujących i wyrażających gotowość do adoracji (w nawiasie)
+                        Ilość osób adorujących i ilość osób na liście rezerwowej (w nawiasie)
                     </div>
                     <div class="card-body table-wrapper">
                         <div class="table-container">
@@ -163,24 +163,24 @@
                                             @foreach ($duties as $date => $duty)
                                                 <td
                                                     @auth
-data-date="{{ $date }}"
+                                                    data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
                                                     @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
                                                         style="background-color: rgb(146, 146, 223);"
                                                         class="duty-cell" title="Posłguję adoracją"
-                                                    @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'gotowość')
+                                                    @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
                                                         style="background-color: rgb(16, 180, 223);"
-                                                        class="readiness-cell"  title="Jestem gotowy do posługi adoracji"
+                                                        class="readiness-cell"  title="Jestem na liście rezerwowej"
                                                         @else
                                                         class="no-duty-cell"
                                                     @endif @endauth
                                                     @if(
                                                         $duty['timeFrames'][$hour]['adoracja'] == 0
-                                                        && $duty['timeFrames'][$hour]['gotowość'] == 0
-                                                    )  style="background-color: rgb(255, 50, 50)!important;" @endif>
+                                                        && $duty['timeFrames'][$hour]['rezerwa'] == 0
+                                                    )  style="background-color: rgb(236, 161, 161)!important;" title="Brak posługujących" @endif>
                                                     {{ $duty['timeFrames'][$hour]['adoracja'] }}
-                                                    ({{ $duty['timeFrames'][$hour]['gotowość'] }})
+                                                    ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
                                                 </td>
                                             @endforeach
 
@@ -200,7 +200,7 @@ data-date="{{ $date }}"
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ gotowość</h5>
+                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ wpisuję się na listę rezerwową</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -212,8 +212,8 @@ data-date="{{ $date }}"
                                     <span class="ml-2">Adoracja</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="duty_type" value="gotowość" class="form-radio">
-                                    <span class="ml-2">Gotowość</span>
+                                    <input type="radio" name="duty_type" value="rezerwa" class="form-radio">
+                                    <span class="ml-2">Lista rezerwowa</span>
                                 </label>
                             </div>
                             <label for="new-duty-date" class="form-label">Data</label>
