@@ -13,7 +13,7 @@
                 <p id="dutyModalHour">Godzina: <b>{{ $duty->hour }}.00 - {{ $duty->hour + 1 }}.00</b></p>
 
                 <div class="row">
-                    <div class="container  mt-3 col-6">
+                    <div class="container mt-3 col-4">
                         <div class="card">
                             <div class="card-header">Osoby adorujące</div>
                             <div class="card-body">
@@ -46,7 +46,7 @@
                     </div>
 
 
-                    <div class="container mt-3 col-6">
+                    <div class="container mt-3 col-4">
                         <div class="card">
                             <div class="card-header">Osoby na liście rezerwowej</div>
                             <div class="card-body">
@@ -75,6 +75,26 @@
                                         @endforeach
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="container mt-3 col-4">
+                        <div class="card">
+                            <div class="card-header">Posługa tymczasowo zawieszona</div>
+                            <div class="card-body">
+
+                                @forelse($duties['zawieszona'] as $user_id)
+                                    <p>
+                                        <input type="checkbox" data-user_id="{{ $users[$user_id]->id }}"
+                                            class="user-checkbox">
+                                        <a href="{{ route('admin.users.edit', ['user' => $users[$user_id]->id]) }}">
+                                            {{ $users[$user_id]->first_name }} {{ $users[$user_id]->last_name }}
+                                        </a>
+                                    </p>
+                                @empty
+                                    Brak
+                                @endforelse
                             </div>
                         </div>
                     </div>

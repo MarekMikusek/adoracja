@@ -31,15 +31,16 @@ class AdminCurrentDutyController extends Controller
             ->orderBy('cd.date')
             ->orderBy('cd.hour')
             ->get();
-
+// dd($currentDuties);
         $duties                         = [];
         $duties[DutyType::DUTY->value]  = [];
         $duties[DutyType::READY->value] = [];
+        $duties[DutyType::SUSPEND->value] = [];
 
         foreach ($currentDuties as $duty) {
             $duties[$duty->duty_type][] = $duty->user_id;
         }
-
+// dd($duties);
         return view('admin.hours.duty', [
             'duties' => $duties,
             'duty'   => $duty,

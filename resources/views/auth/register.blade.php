@@ -23,12 +23,11 @@
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" id="email" name="email" class="form-control" required>
-                                <div id="email_error_message" class="alert alert-danger" style="display: none;">Test</div>
+                                <div id="email_error_message" class="alert alert-danger" style="display: none;"></div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="phone" class="form-label">Numer telefonu <small
-                                        class="muted">(nieobowiązkowy, ale przydatny)</small></label>
+                                <label for="phone" class="form-label">Numer telefonu</label>
                                 <input type="tel" id="phone" name="phone" class="form-control">
                             </div>
 

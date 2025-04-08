@@ -48,13 +48,11 @@
 
                             <!-- Way of communication -->
                             <div class="form-group">
-                                <label for="way_of_communication">Sposób kontaktu</label>
+                                <label for="way_of_communication">Proszę o kontakt ze mną przez</label>
                                 <select name="ways_of_contacts_id" id="ways_of_contacts_id" class="form-control">
                                     <option value="1" @if($user['ways_of_contacts_id'] == 1) selected @endif>Telefon</option>
                                     <option value="2" @if($user['ways_of_contacts_id'] == 2) selected @endif>Email</option>
                                     <option value="3" @if($user['ways_of_contacts_id'] == 3) selected @endif>SMS</option>
-                                    <option value="4" @if($user['ways_of_contacts_id'] == 4) selected @endif>Messager</option>
-                                    <option value="5" @if($user['ways_of_contacts_id'] == 1) selected @endif>WhatsUp</option>
                                 </select>
                                 @error('last_name')
                                     <span class="invalid-feedback" role="alert">

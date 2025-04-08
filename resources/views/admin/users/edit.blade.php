@@ -36,12 +36,12 @@
                             value="{{ $user->phone_number }}">
                     </div>
                     <div class="mb-3">
-                        <label for="phone_number" class="form-label">Zawieszone od:</label>
+                        <label for="phone_number" class="form-label">Posługa zawieszona od:</label>
                         <input type="date" class="form-control" id="suspend_from" name="suspend_from"
                             value="{{ $user->suspend_from }}">
                     </div>
                     <div class="mb-3">
-                        <label for="phone_number" class="form-label">Zawieszone od:</label>
+                        <label for="phone_number" class="form-label">Posługa zawieszona do:</label>
                         <input type="date" class="form-control" id="suspend_to" name="suspend_to"
                             value="{{ $user->suspend_to }}">
                     </div>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Enums\DutyType;
 use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -28,10 +29,6 @@ class HomeController extends Controller
             $userId = Auth::user()->id;
         }
 
-        // if ($user && $user->is_admin == true) {
-        //     return response()->redirectTo('/admin/dashboard');
-        // }
-
         $upcomingDuties = DB::table('current_duties as cd')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
             ->where('date', '>=', Carbon::today())
@@ -57,9 +54,9 @@ class HomeController extends Controller
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
                 }
             }
-            $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId']       = $duty->duty_id;
+            $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId'] = $duty->duty_id;
 
-            if (isset($userId) && $duty->user_id && $duty->user_id == $user->id) {
+            if (isset($userId) && $duty->user_id && $duty->user_id == $user->id && $duty->duty_type != DutyType::SUSPEND) {
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
             }
 
@@ -72,7 +69,7 @@ class HomeController extends Controller
             }
 
         }
-// dd($duties);
+
         return ViewFacade::make('home', [
             'user'     => $user,
             'duties'   => $duties,

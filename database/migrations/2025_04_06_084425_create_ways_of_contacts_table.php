@@ -21,9 +21,7 @@ return new class extends Migration
         DB::table('ways_of_contacts')->insert([
             ['name' => 'Telefon'],
             ['name' => 'Email'],
-            ['name' => 'SMS'],
-            ['name' => 'Messager'],
-            ['name' => 'WhatsUp'],
+            ['name' => 'SMS']
         ]);
 
     }

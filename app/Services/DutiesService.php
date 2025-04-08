@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\DutyType;
 use App\Models\CurrentDuty;
 use App\Models\CurrentDutyUser;
 use App\Models\DutyPattern;
@@ -8,6 +9,7 @@ use App\Models\User;
 use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class DutiesService
 {
@@ -97,12 +99,20 @@ class DutiesService
         }
     }
 
-    public static function applySuspension(User $user): void
+    public static function applySuspension(User $user, ?Carbon $suspendFrom, ?Carbon $suspendTo): void
     {
-        $duties = $user->currentDuties;
+        $duties = DB::table('current_duties_users as cdu')
+        ->selectRaw('cdu.id as id')
+        ->join('current_duties as cd', 'cd.id', 'cdu.current_duty_id')
+        ->where('cdu.user_id', $user->id)
+        ->where('cd.date', '>=', $suspendFrom)
+        ->when($suspendTo, function($query) use ($suspendTo){
+            return $query->where('cd.date','<=', $suspendTo);
+        })
+        ->get();
 
-        foreach ($duties as $duty) {
-            $duty->users()->detach($user);
+        foreach($duties as $duty){
+            CurrentDutyUser::find($duty->id)->update(['duty_type' => DutyType::SUSPEND]);
         }
     }
 

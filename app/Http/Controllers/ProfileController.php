@@ -47,12 +47,15 @@ class ProfileController extends Controller
     public function saveSuspend(Request $request)
     {
         $user = Auth::user();
-        $user->suspend_from = $request->input('suspend_from') ? new Carbon($request->input('suspend_from')) : null;
-        $user->suspend_to = $request->input('suspend_to') ? new Carbon($request->input('suspend_to')) : null;
+        $suspendFrom = $request->input('suspend_from') ? new Carbon($request->input('suspend_from')) : null;
+        $user->suspend_from = $suspendFrom;
+
+        $suspendTo = $request->input('suspend_to') ? new Carbon($request->input('suspend_to')) : null;
+        $user->suspend_to = $suspendTo;
 
         $user->save();
 
-        DutiesService::applySuspension($user);
+        DutiesService::applySuspension($user, $suspendFrom, $suspendTo);
 
         if($user->email){
             SuspendDutyJob::dispatch($user);
