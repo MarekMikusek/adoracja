@@ -21,6 +21,7 @@ Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/intentions', [IntentionController::class, 'index'])->name('intentions');
+Route::post('/intention', [IntentionController::class, 'save'])->name('intention.save');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -55,7 +56,6 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/intention/is_prayer', [IntentionController::class, 'isPrayer'])->name('intentions.is_prayer');
-    Route::post('/intention', [IntentionController::class, 'save'])->name('intention.save');
     Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
     Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
     Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');

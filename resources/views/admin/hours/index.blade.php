@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-between mb-4">
         <div class="col-auto">
-            <h2>Zarządzanie godzinami administratorów</h2>
+            <h2>Zarządzanie godzinami koordynatorów</h2>
         </div>
     </div>
 
@@ -18,7 +18,7 @@
                     <form action="{{ route('admin.hours.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="admin_id" class="form-label">Administrator</label>
+                            <label for="admin_id" class="form-label">Koordynator</label>
                             <select class="form-select" id="admin_id" name="admin_id" required>
                                 @foreach($admins as $admin)
                                     <option value="{{ $admin->id }}">

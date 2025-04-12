@@ -5,6 +5,7 @@
         .no_user {
             background-color: lightcoral
         }
+
         .user-duty {
             color: #23aa55
         }
@@ -23,6 +24,12 @@
             background-color: #f8f9fa;
             z-index: 1;
             /* Ensure the header is above the content */
+        }
+
+        td,
+        th {
+            text-align: center;
+            vertical-align: middle;
         }
 
         /* Sticky first column */
@@ -46,8 +53,8 @@
             white-space: nowrap;
         }
 
-                /* Sidebar Styling */
-                .sidebar {
+        /* Sidebar Styling */
+        .sidebar {
             position: fixed;
             top: 0;
             left: 0;
@@ -68,18 +75,22 @@
         }
 
         .sidebar.hidden {
-            left: -220px; /* Hide the sidebar */
+            left: -220px;
+            /* Hide the sidebar */
         }
 
-         /* Mobile-specific styles */
-         @media (max-width: 768px) {
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
             .table-container {
                 overflow-x: auto;
             }
 
-            .table th, .table td {
-                font-size: 12px; /* Reduce font size for mobile */
-                padding: 8px; /* Less padding for smaller screens */
+            .table th,
+            .table td {
+                font-size: 12px;
+                /* Reduce font size for mobile */
+                padding: 8px;
+                /* Less padding for smaller screens */
             }
 
             /* Sticky column adjustments for mobile */
@@ -89,8 +100,8 @@
                 background-color: #f8f9fa;
             }
 
-                        /* Collapse sidebar for mobile */
-                        .sidebar {
+            /* Collapse sidebar for mobile */
+            .sidebar {
                 width: 100%;
                 height: 100%;
                 left: -100%;
@@ -102,12 +113,14 @@
             }
 
             .card {
-                margin-bottom: 20px; /* Adjust margin for cards on mobile */
+                margin-bottom: 20px;
+                /* Adjust margin for cards on mobile */
             }
 
             /* Modal adjustments */
             .modal-dialog {
-                max-width: 100%; /* Make modals full width on small screens */
+                max-width: 100%;
+                /* Make modals full width on small screens */
                 margin: 10px;
             }
 
@@ -123,25 +136,34 @@
 
         /* Smallest mobile screens */
         @media (max-width: 480px) {
-            .table th, .table td {
-                font-size: 10px; /* Further reduce font size */
+
+            .table th,
+            .table td {
+                font-size: 10px;
+                /* Further reduce font size */
             }
 
             .table-container {
-                max-height: 400px; /* Decrease max height for smaller screens */
+                max-height: 400px;
+                /* Decrease max height for smaller screens */
             }
         }
     </style>
 @endsection
 
 @section('content')
-    @include('layouts.navigation')
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
                         Ilość osób adorujących i ilość osób na liście rezerwowej (w nawiasie)
+                        @auth
+                            <span style="display:inline-block;">, znaczenie kolorów:</span>
+                             <span style="display:inline-block; padding:5px; background-color: {{ $adoracjaColour }}" class="ml-5">adoracja</span>
+                             <span style="display:inline-block; padding:5px; background-color: {{ $rezerwaColour }}" class="ml-5">lista rezerwowa</span>
+                             <span style="display:inline-block; padding:5px; background-color: {{ $noDutyColour }}" class="ml-5">brak posługujących</span>
+                        @endauth
                     </div>
                     <div class="card-body table-wrapper">
                         <div class="table-container">
@@ -161,24 +183,20 @@
                                             <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
                                             </td>
                                             @foreach ($duties as $date => $duty)
-                                                <td
-                                                    @auth
+                                                <td @auth
                                                     data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
                                                     @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
-                                                        style="background-color: rgb(146, 146, 223);"
+                                                        style="background-color: {{ $adoracjaColour }}"
                                                         class="duty-cell" title="Posłguję adoracją"
                                                     @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
-                                                        style="background-color: rgb(16, 180, 223);"
+                                                        style="background-color: {{ $rezerwaColour }};"
                                                         class="readiness-cell"  title="Jestem na liście rezerwowej"
                                                         @else
                                                         class="no-duty-cell"
                                                     @endif @endauth
-                                                    @if(
-                                                        $duty['timeFrames'][$hour]['adoracja'] == 0
-                                                        && $duty['timeFrames'][$hour]['rezerwa'] == 0
-                                                    )  style="background-color: rgb(236, 161, 161)!important;" title="Brak posługujących" @endif>
+                                                    @if ($duty['timeFrames'][$hour]['adoracja'] == 0) style="background-color: {{ $noDutyColour }}" title="Brak posługujących" @endif>
                                                     {{ $duty['timeFrames'][$hour]['adoracja'] }}
                                                     ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
                                                 </td>

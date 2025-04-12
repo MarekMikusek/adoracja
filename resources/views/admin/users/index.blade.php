@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row justify-content-between mb-4">
             <div class="col-9">
-                <h2>Zarządzanie użytkownikami</h2>
+                <h2>Użytkownicy</h2>
             </div>
             <div class="col-3">
                 <a href="{{ route('admin.users.create') }}">

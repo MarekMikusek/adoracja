@@ -22,6 +22,11 @@
             /* Ensure the header is above the content */
         }
 
+        td,
+        th {
+            text-align: center!important;
+            vertical-align: middle!important;
+        }
         /* Sticky first column */
         .table td:first-child,
         .table th:first-child {
@@ -46,8 +51,8 @@
 @endsection
 
 @section('content')
-    <div class="container" style="border:solid red 1px;">
-        <h1>Admin Dashboard</h1>
+    <div class="container">
+        <h1>Panel koorynatora</h1>
         <div class="table-responsive">
             <div class="table-container">
                 <table class="table table-bordered">
@@ -55,7 +60,7 @@
                         <tr>
                             <th class="sticky-col">Godziny</th>
                             @foreach ($duties as $date => $duty)
-                                <th>{{ $date }}</br>
+                                <th class="align-middle text-center">{{ $date }}</br>
                                     {{ $duty['dayName'] }} </th>
                             @endforeach
                         </tr>
@@ -63,9 +68,9 @@
                     <tbody>
                         @foreach ($dayHours as $hour)
                             <tr>
-                                <td class="sticky-col text-nowrap no-wrap">{{ $hour }}-{{ $hour + 1 }}</td>
+                                <td class="sticky-col text-nowrap no-wrap align-middle text-center">{{ $hour }}-{{ $hour + 1 }}</td>
                                 @foreach ($duties as $date => $duty)
-                                    <td class="editable-cell"
+                                    <td class="editable-cell align-middle text-center"
                                         style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color }};"
                                         title="admin: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
                                         data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">

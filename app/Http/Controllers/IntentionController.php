@@ -52,11 +52,13 @@ class IntentionController extends Controller
     {
         $data = $request->validated();
 
+        $data['user_id'] = Auth::user() ? Auth::user()->id : null;
+
         if($user = Auth::user()){
             $data['user_id'] = $user->id;
         }
 
-        return Intention::create(['intention' => $data['intention']]);
+        return Intention::create(['intention' => $data['intention'], 'user_id' => $data['user_id']]);
     }
 
     public function isPrayer(IsPrayerRequest $request)

@@ -54,7 +54,7 @@
                     </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin"  @if ($user->is_admin) checked  @endif>
-                        <label class="form-check-label" for="is_admin">Administrator</label>
+                        <label class="form-check-label" for="is_admin">Koordynator</label>
                     </div>
                 </div>
                 <div class="modal-footer">

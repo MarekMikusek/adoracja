@@ -4,18 +4,18 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                Administratorzy
+                Koordynatorzy
             </div>
             <div class="card-content">
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>First Name</th>
-                                <th>Last Name</th>
+                                <th>Imię</th>
+                                <th>Nazwisko</th>
                                 <th>Email</th>
-                                <th>Phone Number</th>
-                                <th>Admin Color</th>
+                                <th>Numer telefonu</th>
+                                <th>Kolor koordynatora</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,7 +41,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@section('scripts')
     <script>
         $(document).ready(function() {
             $('.color-picker').on('change', function() {
@@ -57,7 +57,6 @@
                         color: color
                     },
                     success: function(response) {
-                        alert('Admin color updated successfully!');
                     },
                     error: function(xhr, status, error) {
                         alert('An error occurred: ' + error);
@@ -66,4 +65,4 @@
             });
         });
     </script>
-@endpush
+@endsection

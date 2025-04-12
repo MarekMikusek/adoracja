@@ -9,7 +9,7 @@
                 <tr>
                     <th>Dzień</th>
                     <th>Godzina</th>
-                    <th>Administrator</th>
+                    <th>Koordynator</th>
                     <th></th>
                 </tr>
             </thead>
@@ -39,13 +39,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="assignAdminModalLabel">Assign Admin</h5>
+                    <h5 class="modal-title" id="assignAdminModalLabel">Przypisz koordynatora</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="assignAdminForm">
                         <div class="mb-3">
-                            <label for="admin_id" class="form-label">Select Admin</label>
+                            <label for="admin_id" class="form-label">Wybierz koordynatora</label>
                             <select class="form-control" id="admin_id" name="admin_id">
                                 @foreach($admins as $admin)
                                     <option value="{{ $admin->id }}">{{ $admin->name }}</option>

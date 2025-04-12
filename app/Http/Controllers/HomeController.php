@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\View as ViewFacade;
 
 class HomeController extends Controller
 {
+    public const ADORACJA_COLOUR = '#328E6E';
+    public const REZERWA_COLOUR = '#D3CA79';
+    public const NO_DUTY_COLOUR = '#F7374F';
     /**
      * Create a new controller instance.
      */
@@ -74,6 +77,9 @@ class HomeController extends Controller
             'user'     => $user,
             'duties'   => $duties,
             'dayHours' => Helper::DAY_HOURS,
+            'adoracjaColour' => self::ADORACJA_COLOUR,
+            'rezerwaColour' => self::REZERWA_COLOUR,
+            'noDutyColour' => self::NO_DUTY_COLOUR
         ]);
     }
 }

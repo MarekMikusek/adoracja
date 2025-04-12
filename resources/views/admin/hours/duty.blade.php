@@ -212,7 +212,6 @@
                     },
                     success: function(response) {
                         $('#messageText').val('');
-                        alert('Wysłano');
                         location.reload();
                     },
                     error: function(xhr) {
