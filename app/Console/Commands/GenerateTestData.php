@@ -10,6 +10,7 @@ use App\Models\IntentionUser;
 use App\Models\User;
 use App\Services\Helper;
 use Carbon\Carbon;
+use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -21,13 +22,14 @@ class GenerateTestData extends Command
 
     public function handle()
     {
-        $faker = fake('pl_PL');
+        $faker = Faker::create('pl_PL');
+
         // Generate regular users
         for ($i = 1; $i <= 80; $i++) {
             if($i ==1 ){
                 $user = User::create([
                     'first_name' => 'Marek',
-                    'last_name' => $faker->lastName,
+                    'last_name' => $faker->las,
                     'email' => 'mmikusek@o2.pl',
                     'password' => Hash::make('test'),
                     'ways_of_contacts_id' => rand(1, 5),
