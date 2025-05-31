@@ -14,12 +14,23 @@ class IntentionController extends Controller
     public function index()
     {
         $user       = Auth::user();
-        $intentions = DB::table('intentions_users as iu')
-            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id')
-            ->join('intentions as i', 'iu.intention_id', '=', 'i.id', 'full')
-            ->whereNotNull('i.user_id')
-            ->orderBy('i.created_at', 'DESC')
-            ->get();
+        $firstPart = DB::table('intentions_users as iu')
+        ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
+        ->leftJoin('intentions as i', 'iu.intention_id', '=', 'i.id');
+
+    $secondPart = DB::table('intentions as i')
+        ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
+        ->leftJoin('intentions_users as iu', 'i.id', '=', 'iu.intention_id')
+        ->whereNull('iu.intention_id');
+
+    $unionQuery = $firstPart->unionAll($secondPart);
+
+
+    $intentions = DB::query()
+        ->fromSub($unionQuery, 'combined_results')
+        ->whereNotNull('user_id')
+        ->orderBy('created_at_intention', 'DESC')
+        ->get();
 
         $return = [];
 

@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">Twoje dane:</div>
+                    <div class="card-header">Moje konto:</div>
 
                     <div class="card-body">
                         @if (session('success'))
@@ -46,9 +46,10 @@
                             <div class="form-group">
                                 <label for="way_of_communication">Proszę o kontakt ze mną przez</label>
                                 <select name="ways_of_contacts_id" id="ways_of_contacts_id" class="form-control">
-                                    <option value="1" @if($user['ways_of_contacts_id'] == 1) selected @endif>Telefon</option>
-                                    <option value="2" @if($user['ways_of_contacts_id'] == 2) selected @endif>Email</option>
-                                    <option value="3" @if($user['ways_of_contacts_id'] == 3) selected @endif>SMS</option>
+                                    <option value="1" @if ($user['ways_of_contacts_id'] == 1) selected @endif>Telefon
+                                    </option>
+                                    <option value="2" @if ($user['ways_of_contacts_id'] == 2) selected @endif>Email</option>
+                                    <option value="3" @if ($user['ways_of_contacts_id'] == 3) selected @endif>SMS</option>
                                 </select>
                                 @error('last_name')
                                     <span class="invalid-feedback" role="alert">
@@ -80,11 +81,21 @@
                                     </span>
                                 @enderror
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3">
-                                Zapisz
-                            </button>
+                            <div class="col3">
+                                <button type="submit" class="btn btn-primary mt-3">
+                                    Zapisz
+                                </button>
+                            </div>
                         </form>
                     </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="d-flex justify-content-end">
+                    <button id="remove-account" class="btn btn-danger">Usuń konto</button>
                 </div>
             </div>
         </div>
@@ -92,16 +103,23 @@
 @endsection
 
 @section('scripts')
-    {{-- <script>
+    <script>
         $(document).ready(function() {
-            $('#way_of_communication').on('change', function() {
-                var value = $(this).val();
-                console.log(value);
-                $(this).foreach(function() {
-
-                })
-
-            })
+            $('#remove-account').on('click', function() {
+                if (confirm("Czy chcesz usunąć konto?")) {
+                    const url = "{{ route('remove_account') }}";
+                    $.ajax({
+                        url: url,
+                        _token: '{{ csrf_token() }}',
+                    },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Błąd');
+                });
+                };
+            });
         });
-    </script> --}}
+    </script>
 @endsection

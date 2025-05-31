@@ -7,6 +7,7 @@ use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\VerifyUserRequest;
 use App\Models\DutyPattern;
 use App\Models\User;
+use App\Services\DutiesService;
 use App\Services\Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,9 +24,8 @@ public function __construct()
 }
     public function index()
     {
-        $users = User::query()
+        $users = User::orderBy('first_name')
             ->orderBy('last_name')
-            ->orderBy('first_name')
             ->get();
 
         return View::make('admin.users.index', [
@@ -111,7 +111,7 @@ public function __construct()
             'duty_type'       => $pattern['duty_type'],
             'repeat_interval' => $pattern['repeat_interval'],
         ]);
-
+        DutiesService::updateUserDuties($user);
         return Redirect::route('admin.users.patterns', ['user' => $user->id]);
     }
 

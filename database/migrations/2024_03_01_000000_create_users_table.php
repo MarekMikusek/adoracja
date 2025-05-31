@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone_number')->nullable();
             $table->string('password');
-            $table->foreignId('ways_of_contacts_id');
+            $table->integer('ways_of_contacts_id');
             $table->date('suspend_from')->nullable();
             $table->date('suspend_to')->nullable();
             $table->boolean('is_admin')->default(false);
-            $table->rememberToken()->after('password')->nullable();
+            $table->rememberToken()->nullable();
             $table->string('color', 7)->nullable();
             $table->timestamps();
         });

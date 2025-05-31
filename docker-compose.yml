@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Laravel App
+  # Laravel App (PHP-FPM)
   app:
     build:
       context: ./
@@ -10,15 +10,21 @@ services:
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./:/var/www
+      - ./:/var/www # Mount for development, for production consider a self-contained image
     networks:
       - app_network
+    depends_on:
+      - mysql
+    # No CMD here if PHP-FPM is the default command in Dockerfile and Nginx is handling web requests
+    # If not using Nginx directly, then keep `CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]`
+    # and adjust Dockerfile EXPOSE to 8080 and Nginx config if Nginx is still desired for other reasons.
 
-  # Vite development server
+  # Vite development server (for hot reloading in development)
   vite:
     image: node:latest
     container_name: laravel_vite
     working_dir: /var/www
+    # For development, run npm install and then npm run dev
     entrypoint: /bin/sh -c "npm install && npm run dev"
     ports:
       - "5173:5173"
@@ -35,45 +41,48 @@ services:
     ports:
       - "8020:80"
     volumes:
-      - ./:/var/www
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./:/var/www # Mount for Nginx to serve static files and proxy to PHP-FPM
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro # Mount your Nginx config read-only
+    networks:
+      - app_network
+    depends_on:
+      - app # Nginx depends on the app (PHP-FPM) to be ready
+
+  # MySQL Service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: adoracja
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3392:3306"
     networks:
       - app_network
 
-  # PostgreSQL Service
-#   db:
-#     image: postgres:15
-#     container_name: laravel_db
-#     restart: unless-stopped
-#     environment:
-#       POSTGRES_DB: ${DB_DATABASE}
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: your_password
-#     volumes:
-#       - pgdata:/var/lib/postgresql/data
-#     ports:
-#       - "5452:5432"
-#     networks:
-#       - app_network
-
-  # pgAdmin Service
-#   pgadmin:
-#     image: dpage/pgadmin4
-#     container_name: laravel_pgadmin
-#     restart: unless-stopped
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#       PGADMIN_DEFAULT_PASSWORD: admin
-#       POSTGRES_PASSWORD: your_password
-#       POSTGRES_USER: postgres
-#     ports:
-#       - "5051:80"
-#     networks:
-#       - app_network
+  # phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8041:80"
+    networks:
+      - app_network
 
 networks:
   app_network:
     driver: bridge
 
 volumes:
-  pgdata:
+  mysql_data:

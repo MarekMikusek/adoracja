@@ -1,6 +1,7 @@
-FROM php:8.2-fpm
+# Stage 1: Base PHP image
+FROM php:8.3-fpm
 
-# Install system dependencies
+# Install system dependencies and PHP extensions prerequisites
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -9,44 +10,54 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    nodejs \
-    npm \
     libsqlite3-dev \
-    sqlite3
+    sqlite3 \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    gnupg \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
-# Install PHP extensions (replacing pdo_pgsql with pdo_sqlite)
-RUN docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd
-
-# Get latest Composer
+# Install Composer from official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Node.js 20.x via NodeSource (recommended)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /var/www
 
-# Create symbolic link for pictures
-RUN mkdir -p public/pict
-RUN ln -s /var/www/resources/pict/adoracja.webp /var/www/public/pict/adoracja.webp
-
-# Copy existing application directory
+# Copy all application files to the working directory
+# This needs to happen *before* composer install so artisan is available
 COPY . .
 
-# Create SQLite DB file if it doesn't exist
-RUN mkdir -p database && touch database/database.sqlite && chmod -R 777 database
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-RUN php artisan config:cache
-RUN php artisan route:cache
-
+# Install Node dependencies and build assets
+COPY package.json package-lock.json 
 RUN npm install && npm run build
 
-# Set permissions
+# Create SQLite DB file if it doesn't exist and fix permissions
+RUN mkdir -p database && touch database/database.sqlite && chmod -R 777 database
+
+# Create symlink for image storage
+RUN mkdir -p public/pict && ln -sf /var/www/resources/pict/adoracja.webp /var/www/public/pict/adoracja.webp
+
+# Set ownership for Laravel files
 RUN chown -R www-data:www-data /var/www
 
-# Start with artisan serve for Cloud Run (exposes port 8080)
-EXPOSE 8080
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
+
+# Run PHP-FPM
+CMD ["php-fpm"]

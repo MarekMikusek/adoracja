@@ -1,14 +1,10 @@
 @extends('layouts.app')
 
-@section('navigation')
-    @include('layouts.navigation')
-@endsection
-
 @section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">
-                Twoje stałe posługi
+                Adoracja
             </div>
             <div class="card-body">
 
@@ -35,7 +31,7 @@
                     @else
                         <li class="list-group-item">
                             <div class="">
-                                Nie masz zaplanowanych żadnych dyżurów
+                                Nie masz zaplanowanych adoracji
                             </div>
                         </li>
                     @endif
@@ -52,7 +48,7 @@
         </div>
         <div class="card">
             <div class="card-header">
-                Zgłosiłaś/eś gotowość do adoracji:
+                Lista rezerwowa
             </div>
             <div class="card-body">
                 <ul class="list-group">
@@ -75,14 +71,14 @@
                             </li>
                         @endforeach
                     @else
-                        Nie zakrelarowałeś żadnych godzin
+                        Nie zakrelarowałeś godzin na liście rezerwowej
                     @endif
                 </ul>
                 <div class="row justify-content-between m-4">
                     <div class="col-auto">
                         <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addDutyModal" data-duty-type="gotowość">
-                            Dodaj godzinę gotowości
+                            Dodaj godzinę na liście rezerwowej
                         </button>
                     </div>
                 </div>

@@ -5,7 +5,7 @@
             <div class="col-md-5">
                 <div class="card shadow-lg">
                     <div class="card-body">
-                        <h3 class="text-center mb-4">Podaj swoje dane</h3>
+                        <h3 class="text-center mb-4">Moje dane</h3>
                         <form method="POST" action="{{ route('register') }}">
                             @csrf
 
@@ -55,7 +55,10 @@
                         </form>
 
                         <div class="text-center mt-3">
-                            <a href="{{ route('login') }}">Masz już konto, zaloguj się</a>
+                            <a href="{{ route('login') }}">Mam już konto, chcę się zalogować</a>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ route('password.request') }}">Mam konto, zapomniałem hasło</a>
                         </div>
                     </div>
                 </div>

@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\View as ViewFacade;
 class HomeController extends Controller
 {
     public const ADORACJA_COLOUR = '#328E6E';
-    public const REZERWA_COLOUR = '#D3CA79';
-    public const NO_DUTY_COLOUR = '#F7374F';
+    public const REZERWA_COLOUR  = '#FFE440';
+    public const NO_DUTY_COLOUR  = '#FFCAD4';
     /**
      * Create a new controller instance.
      */
@@ -32,14 +32,29 @@ class HomeController extends Controller
             $userId = Auth::user()->id;
         }
 
-        $upcomingDuties = DB::table('current_duties as cd')
+        if($user && $user->isAdmin()) {
+            return redirect('/admin/dashboard');
+        }
+
+        $leftJoinQuery = DB::table('current_duties as cd')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
-            ->where('date', '>=', Carbon::today())
-            ->join('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id', 'full')
-            ->orderBy('cd.date')
-            ->orderBy('cd.hour')
+            ->where('cd.date', '>=', Carbon::today())
+            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id');
+
+
+        $rightJoinQuery = DB::table('current_duties_users as cdu')
+            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
+            ->leftJoin('current_duties as cd', 'cd.id', '=', 'cdu.current_duty_id')
+            ->where('cd.date', '>=', Carbon::today())
+            ->whereNull('cd.id');
+
+
+        $upcomingDuties = $leftJoinQuery
+            ->unionAll($rightJoinQuery)
+            ->orderBy('date')
+            ->orderBy('hour')
             ->get();
-// dd($upcomingDuties);
+
         $duties = [];
         foreach ($upcomingDuties as $duty) {
             $dateFormatted = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
@@ -53,7 +68,7 @@ class HomeController extends Controller
                 foreach (Helper::DAY_HOURS as $hour) {
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
                     $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['rezerwa']   = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['rezerwa']      = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
                 }
             }
@@ -74,12 +89,12 @@ class HomeController extends Controller
         }
 
         return ViewFacade::make('home', [
-            'user'     => $user,
-            'duties'   => $duties,
-            'dayHours' => Helper::DAY_HOURS,
+            'user'           => $user,
+            'duties'         => $duties,
+            'dayHours'       => Helper::DAY_HOURS,
             'adoracjaColour' => self::ADORACJA_COLOUR,
-            'rezerwaColour' => self::REZERWA_COLOUR,
-            'noDutyColour' => self::NO_DUTY_COLOUR
+            'rezerwaColour'  => self::REZERWA_COLOUR,
+            'noDutyColour'   => self::NO_DUTY_COLOUR,
         ]);
     }
 }

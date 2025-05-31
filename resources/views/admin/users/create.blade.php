@@ -33,9 +33,10 @@
 
                         <div class="mb-3">
                             <label for="contact_preference" class="form-label">Powiadomienia</label>
-                            <select class="form-control" id="contact_preference" name="contact_preference" required>
-                                <option value="email">Email</option>
-                                <option value="sms">SMS</option>
+                            <select class="form-control" id="contact_preference" name="ways_of_contacts_id" required>
+                                <option value="1">Telefon</option>
+                                <option value="2">Email</option>
+                                <option value="3">SMS</option>
                             </select>
                         </div>
 

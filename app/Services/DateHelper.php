@@ -8,7 +8,7 @@ class DateHelper
 {
     public static function dayOfWeek(string $date)
     {
-        return mb_ucfirst(Carbon::createFromDate($date)->isoFormat('dddd'));
+        return mb_ucfirst(Carbon::createFromDate($date)->locale('pl')->isoFormat('dddd'));
     }
 
     public static function weekDayOffset($weekDay)

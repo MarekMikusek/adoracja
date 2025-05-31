@@ -45,7 +45,7 @@ class DutiesService
                 foreach ($userDutyPatternsArr[$currentDateDayOfWeek] as $hour => $duty) {
 
                     if ($duty->isDutyInWeek($currentDate)) {
-                        $currentDutyId              = $allDuties[$dateString][$hour]->id;
+                        $currentDutyId = $allDuties[$dateString][$hour]->id;
                         $userCurrentDutiesInserts[] = ['user_id' => $user->id, 'current_duty_id' => $currentDutyId, 'duty_type' => $duty->duty_type];
                     }
                 }
@@ -58,7 +58,7 @@ class DutiesService
 
     public static function getCurrentDuties(Carbon $startDate)
     {
-        $currentDuties = CurrentDuty::where('date', '>=', $startDate)->get();
+        $currentDuties = CurrentDuty::where('date', '>=', $startDate->format('Y-m-d'))->get();
         $ret           = [];
         foreach ($currentDuties as $duty) {
             $date = Carbon::create($duty->date)->format('Y-m-d');

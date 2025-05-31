@@ -12,9 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable //implements MustVerifyEmail
 {
     use Notifiable;
+
+    protected $table = 'users';
 
     protected $fillable = [
         'first_name',
@@ -39,6 +41,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'is_admin' => 'boolean',
     ];
+
+    public function isAdmin() {
+        return $this->is_admin == 1;
+    }
 
     public function AdminDutyPatterns(): HasMany
     {

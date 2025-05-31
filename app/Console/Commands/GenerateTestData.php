@@ -29,7 +29,7 @@ class GenerateTestData extends Command
             if($i ==1 ){
                 $user = User::create([
                     'first_name' => 'Marek',
-                    'last_name' => $faker->las,
+                    'last_name' => $faker->lastName,
                     'email' => 'mmikusek@o2.pl',
                     'password' => Hash::make('test'),
                     'ways_of_contacts_id' => rand(1, 5),

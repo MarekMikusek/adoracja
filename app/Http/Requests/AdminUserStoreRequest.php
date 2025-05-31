@@ -13,7 +13,7 @@ class AdminUserStoreRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users'],
             'phone_number' => ['nullable', 'string', 'max:255'],
-            'notification_preference' => ['required', 'in:email,sms'],
+            'ways_of_contacts_id' => ['required', 'string'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }

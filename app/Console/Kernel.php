@@ -9,7 +9,7 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('duties:generate')
+        $schedule->command('app:generate-current-duties --no_weeks=1')
             ->weeklyOn(0, '4:00')
             ->withoutOverlapping();
     }
@@ -19,4 +19,4 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
         require base_path('routes/console.php');
     }
-} 
+}

@@ -13,7 +13,10 @@ class AdminCurrentDutyController extends Controller
 {
     public function edit(CurrentDuty $duty)
     {
-        $users = User::all()->keyBy('id');
+        $users = User::orderBy('first_name')
+        ->orderBy('last_name')
+        ->get()
+        ->keyBy('id');
 
         $currentDuties = DB::table('current_duties as cd')
             ->selectRaw("
