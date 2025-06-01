@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
+use App\Services\DateHelper;
 use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -10,9 +11,10 @@ use Illuminate\Support\Facades\View as ViewFacade;
 
 class HomeController extends Controller
 {
-    public const ADORACJA_COLOUR = '#328E6E';
+    public const MY_DUTY_COLOUR = '#A7C7E7';
     public const REZERWA_COLOUR  = '#FFE440';
-    public const NO_DUTY_COLOUR  = '#FFCAD4';
+    public const NO_DUTY_COLOUR  = '#FFFFFF';
+    public const HAS_DUTY_COLOUR  = '#98FB98';
     /**
      * Create a new controller instance.
      */
@@ -61,14 +63,14 @@ class HomeController extends Controller
 
             if (! isset($duties[$dateFormatted])) {
 
-                $duties[$dateFormatted]               = [];
-                $duties[$dateFormatted]['dayName']    = Carbon::createFromDate($duty->date)->isoFormat('dddd');
+                $duties[$dateFormatted] = [];
+                $duties[$dateFormatted]['dayName'] = DateHelper::dayOfWeek($duty->date);
+                $duties[$dateFormatted]['dateFormatted'] = Carbon::createFromDate($duty->date)->format('d.m');
                 $duties[$dateFormatted]['timeFrames'] = [];
 
                 foreach (Helper::DAY_HOURS as $hour) {
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
                     $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['rezerwa']      = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
                 }
             }
@@ -81,20 +83,16 @@ class HomeController extends Controller
             if ($duty->user_id && $duty->duty_type == 'adoracja') {
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['adoracja']++;
             }
-
-            if ($duty->user_id && $duty->duty_type == 'rezerwa') {
-                $duties[$dateFormatted]['timeFrames'][$duty->hour]['rezerwa']++;
-            }
-
         }
-
+// dd($duties);
         return ViewFacade::make('home', [
             'user'           => $user,
             'duties'         => $duties,
             'dayHours'       => Helper::DAY_HOURS,
-            'adoracjaColour' => self::ADORACJA_COLOUR,
-            'rezerwaColour'  => self::REZERWA_COLOUR,
+            'myDutyColour' => self::MY_DUTY_COLOUR,
+            'myReserveColour'  => self::REZERWA_COLOUR,
             'noDutyColour'   => self::NO_DUTY_COLOUR,
+            'hasDutyColour' => self::HAS_DUTY_COLOUR
         ]);
     }
 }

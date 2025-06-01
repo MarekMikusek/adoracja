@@ -54,34 +54,37 @@
                                 <a class="nav-link active" href="{{ route('admin.intentions') }}">Intencje</a>
                             </li>
                         @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('home') }}">Adoracja</a>
+                            <li class="nav-item" title="Ilość adorujących na każdy dzień i godzinę">
+                                <a class="nav-link" href="{{ route('home') }}">Plan adoracji</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('patterns.index') }}">Moje stałe posługi</a>
+                            <li class="nav-item" title="Twoje zaklarowane posługi, można je dodać lub usunąć">
+                                <a class="nav-link" href="{{ route('patterns.index') }}">Moja deklaracja posługi</a>
+                            </li>
+                            <li class="nav-item" title="Twoje posługi, które przypadają w najbliższym czasie">
+                                <a class="nav-link" href="{{ route('current-duty.index') }}">Moje posługi</a>
                             </li>
                         @endif
                     </ul>
                 @endauth
                 <ul class="navbar-nav ms-auto">
                     @guest
-                        <li class="nav-item">
+                        <li class="nav-item" title="Intencje polecane w modliwie, można równieć dodać własną intencję.">
                             <a class="nav-link" href="{{ route('intentions') }}">Intencje modlitewne</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" title="Tu są informacje o Twoich posługach">
                             <a class="nav-link" href="{{ route('login') }}">Zaloguj się</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" title="Zajestruj się jeśli chcesz podjąć posługę i poinformowac o tym innych">
                             <a class="nav-link" href="{{ route('register') }}">Zarejestruj się</a>
                         </li>
                     @else
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('intentions') }}">Intencje modlitewne</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" title="Jeśli nie będziesz mógł służyc przez pewien czas poinformuj o tym innych">
                             <a class="nav-link" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" title="Tu moższesz sprawdzić i uaktualnić swoje dane">
                             <a class="nav-link" href="{{ route('profile.edit') }}">Moje konto</a>
                         </li>
                         <li class="nav-item">

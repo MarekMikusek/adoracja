@@ -6,15 +6,37 @@
             background-color: lightcoral
         }
 
-        .user-duty {
-            color: #23aa55
+        .my-duty {
+            background-color: {{ $myDutyColour }}!important;
+        }
+
+        .my-reserve {
+            background-color: {{ $myReserveColour }}!important;
+        }
+
+        .has-duty {
+            background-color: {{ $hasDutyColour }}!important;
+        }
+
+        .has-no-duty {
+            background-color: {{ $noDutyColour }}!important;
+        }
+
+        .explanation-button {
+            display: inline-block;
+            padding: 5px;
         }
 
         .table-container {
-            max-height: 500px;
+            max-height: 650px;
             /* Set max height to enable scrolling */
             overflow: auto;
             position: relative;
+            line-height: 1em;
+        }
+
+        .table-container td{
+            padding: 0.2em!important;
         }
 
         /* Sticky header */
@@ -157,12 +179,13 @@
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        Ilość osób adorujących i ilość osób na liście rezerwowej (w nawiasie)
+                        Ilość osób adorujących w najbliższym czasie
                         @auth
                             <span style="display:inline-block;">, znaczenie kolorów:</span>
-                             <span style="display:inline-block; padding:5px; background-color: {{ $adoracjaColour }}" class="ml-5">adoracja</span>
-                             <span style="display:inline-block; padding:5px; background-color: {{ $rezerwaColour }}" class="ml-5">lista rezerwowa</span>
-                             <span style="display:inline-block; padding:5px; background-color: {{ $noDutyColour }}" class="ml-5">brak posługujących</span>
+                            <span class="explanation-button ml-5 my-duty">Twoja adoracja</span>
+                            <span class="explanation-button ml-5 my-reserve">Jesteś na liście rezerwowej</span>
+                            <span class="explanation-button ml-5 has-duty">Są adorujący</span>
+                            <span class="explanation-button ml-5 has-no-duty">Brak adorujących</span>
                         @endauth
                     </div>
                     <div class="card-body table-wrapper">
@@ -172,7 +195,7 @@
                                     <tr>
                                         <th class="sticky-col no-wrap">Godziny</th>
                                         @foreach ($duties as $date => $duty)
-                                            <th>{{ $date }}</br>
+                                            <th>{{ $duty['dateFormatted'] }}</br>
                                                 {{ $duty['dayName'] }} </th>
                                         @endforeach
                                     </tr>
@@ -187,18 +210,20 @@
                                                     data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
-                                                    @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
-                                                        style="background-color: {{ $adoracjaColour }}"
-                                                        class="duty-cell" title="Posłguję adoracją"
-                                                    @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
-                                                        style="background-color: {{ $rezerwaColour }};"
-                                                        class="readiness-cell"  title="Jestem na liście rezerwowej"
-                                                        @else
-                                                        class="no-duty-cell"
-                                                    @endif @endauth
-                                                    @if ($duty['timeFrames'][$hour]['adoracja'] == 0) style="background-color: {{ $noDutyColour }}" title="Brak posługujących" @endif>
+                                                        @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
+                                                            class="my-duty" title="Posłguję adoracją"
+                                                        @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
+                                                            class="my-reserve"  title="Jestem na liście rezerwowej"
+                                                        @endif
+                                                    @endauth
+                                                    @if ($duty['timeFrames'][$hour]['adoracja'] == 0)
+                                                        class="has-no-duty add-duty" title="Brak adorujących"
+                                                    @elseif ($duty['timeFrames'][$hour]['adoracja'] > 0)
+                                                        class="has-duty add-duty" title="Jest {{ $duty['timeFrames'][$hour]['adoracja'] }} adorujący(ch)"
+                                                    @else
+                                                        class="no-duty-cell add-duty"
+                                                    @endif>
                                                     {{ $duty['timeFrames'][$hour]['adoracja'] }}
-                                                    ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
                                                 </td>
                                             @endforeach
 
@@ -250,35 +275,15 @@
     </div>
 
     <!-- Remove duty modal -->
-    <div class="modal fade" id="removeDutyModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Rezygnuję z posługi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="remove-duty-form">
-                        <div class="mb-4">
-                            <label for="remove-duty-date" class="form-label">Data</label>
-                            <input type="text" class="form-control" id="remove-duty-date" name="date" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="remove-duty-hour" class="form-label">Godzina</label>
-                            <input type="text" class="form-control" id="remove-duty-hour" readonly>
-                        </div>
-                        <input type="hidden" id="remove-duty-duty-id">
-                        <button type="submit" class="btn btn-primary">Zapisz</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+@include('current_duties.remove_duty_modal')
+
 @endsection
 
 @section('scripts')
+@include('current_duties.remove-duty')
     <script>
         $(document).ready(function() {
+
             $('#toggleMenu').click(function() {
                 $('#sidebar').toggleClass('hidden');
             });
@@ -296,7 +301,7 @@
             });
         });
 
-        $('.duty-cell').on('dblclick', function() {
+        $('.my-duty').on('dblclick', function() {
             const duty_id = $(this).data('duty_id');
             const date = $(this).data('date');
             const hour = $(this).data('hour');
@@ -308,7 +313,7 @@
             $('#removeDutyModal').modal('show');
         });
 
-        $('.readiness-cell').on('dblclick', function() {
+        $('.my-reserve').on('dblclick', function() {
             const date = $(this).data('date');
             const hour = $(this).data('hour');
             const duty_id = $(this).data('duty_id');
@@ -320,31 +325,8 @@
             $('#editModal').modal('show'); // Show modal
         });
 
-        $('#remove-duty-form').on('submit', function(e) {
-            e.preventDefault();
 
-            const duty_id = $('#remove-duty-duty-id').val();
-            const url = "{{ route('current-duty.remove') }}";
-
-            $('#removeDutyModal').modal('hide');
-
-            return $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    duty_id: duty_id,
-                },
-                success: function(response) {
-                    location.reload();
-                },
-                error: function(xhr) {
-                    alert('Błąd');
-                }
-            });
-        });
-
-        $('.no-duty-cell').dblclick(function() {
+        $('.add-duty').dblclick(function() {
             const date = $(this).data('date');
             const hour = $(this).data('hour');
             const duty_id = $(this).data('duty_id');

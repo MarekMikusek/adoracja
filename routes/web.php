@@ -57,6 +57,7 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('remove_account', [ProfileController::class, 'removeAccount'])->name('remove_account');
     Route::post('intention/is_prayer', [IntentionController::class, 'isPrayer'])->name('intentions.is_prayer');
+    Route::get('duties', [CurrentDutyController::class, 'index'])->name('current-duty.index');
     Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
     Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
     Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');

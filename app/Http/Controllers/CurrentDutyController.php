@@ -7,6 +7,7 @@ use App\Jobs\CurrentDutyAddedJob;
 use App\Models\CurrentDuty;
 use App\Models\CurrentDutyUser;
 use App\Models\User;
+use App\Services\DateHelper;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -23,19 +24,30 @@ class CurrentDutyController extends Controller
 
     public function index(Request $request): View
     {
-        $query = CurrentDuty::query()
-            ->with('user')
-            ->where('duty_date', '>=', Carbon::today());
+        $query = CurrentDutyUser::query()
+            ->join('current_duties as cd', 'cd.id', 'current_duties_users.current_duty_id')
+            ->join('users as u', 'u.id', 'current_duties_users.user_id')
+            ->where('cd.date', '>=', Carbon::today())
+            ->select(['current_duty_id', 'date', 'hour', 'duty_type']);
 
         if (! Auth::user()->is_admin) {
             $query->where('user_id', Auth::id());
         }
 
-        $duties = $query->orderBy('duty_date')
+        $duties = $query->orderBy('duty_type')
+            ->orderBy('date')
             ->orderBy('hour')
-            ->paginate(20);
+            ->get();
 
-        return ViewFacade::make('duties.index', [
+        foreach ($duties as $duty) {
+            $duty['name_of_day'] = DateHelper::dayOfWeek($duty['date']);
+        }
+
+        $duties = $duties->groupBy('duty_type');
+        $duties['Lista rezerwowa'] = $duties['rezerwa'];
+        unset($duties['rezerwa']);
+
+        return ViewFacade::make('current_duties.index', [
             'duties' => $duties,
         ]);
     }
@@ -56,8 +68,8 @@ class CurrentDutyController extends Controller
     public function destroy(RemoveCurrentDutyRequest $request): RedirectResponse
     {
         $duty = CurrentDutyUser::where('current_duty_id', $request->validated()['duty_id'])
-        ->where('user_id', Auth::user()->id)
-        ->delete();
+            ->where('user_id', Auth::user()->id)
+            ->delete();
 
         return Redirect::route('home')
             ->with('success', 'Dyżur został usunięty');
