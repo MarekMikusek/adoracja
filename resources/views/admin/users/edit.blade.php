@@ -10,6 +10,11 @@
                 @method('POST')
                 @csrf()
                 <div class="card-body">
+                    <div class="modal-footer">
+                        <a type="button" href="{{ route('admin.users') }}" class="btn btn-secondary">Anuluj</button>
+                        <a type="button" href="{{ route('admin.users.patterns', ['user' => $user->id]) }}" class="btn btn-success" data-user_id="">Posługi</a>
+                        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+                    </div>
                     <div class="mb-3">
                         <label for="first_name" class="form-label">Id</label>
                         <input type="text" class="form-control" id="id" name="id" required
@@ -56,11 +61,6 @@
                         <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin"  @if ($user->is_admin) checked  @endif>
                         <label class="form-check-label" for="is_admin">Koordynator</label>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <a type="button" href="{{ route('admin.users') }}" class="btn btn-secondary">Anuluj</button>
-                    <a type="button" href="{{ route('admin.users.patterns', ['user' => $user->id]) }}" class="btn btn-success" data-user_id="">Posługi</a>
-                    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
                 </div>
             </form>
         </div>

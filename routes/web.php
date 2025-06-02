@@ -30,11 +30,13 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::post('confirm-intention', [AdminController::class, 'confirmIntention'])->name('admin.confirm-intention');
     Route::post('intentions-remove', [AdminController::class, 'removeIntention'])->name('admin.intentions.remove');
 
+    Route::post('users/delete', [AdminUserController::class, 'destroy'])->name('admin.users.delete');
     Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::post('users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users');
     Route::post('verify-user', [AdminUserController::class, 'verifyUser'])->name('admin.user.verify');
     Route::get('users/create', [AdminUserController::class, 'createUser'])->name('admin.users.create');
+
     Route::post('users', [AdminController::class, 'storeUser'])->name('admin.users.store');
 
     Route::get('users/{user}/patterns', [AdminUserController::class, 'showUserDuties'])->name('admin.users.patterns');

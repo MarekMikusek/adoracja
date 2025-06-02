@@ -13,7 +13,7 @@
                         Moje posługi w najbliższym czasie
                     </div>
                     <div class="card-body">
-                        
+
                         @if (count($duties) == 0)
                             <div class="alert alert-info" role="alert">
                                 Brak przypisanych posług.
@@ -36,7 +36,7 @@
                                                     data-duty_id="{{ $duty['current_duty_id'] }}"
                                                     data-date="{{ $duty['date'] }}"
                                                     data-hour="{{ $duty['hour'] }}" title="Usuń posługę">
-                                                    <i class="fas fa-times"></i> {{-- Ikona 'x' z Font Awesome --}}
+                                                    <i class="fas fa-times"></i>
                                                 </button>
                                             </li>
                                         @endforeach
@@ -68,9 +68,7 @@
                 $('#remove-duty-hour').val(hour);
                 $('#remove-duty-date').val(date);
                 $('#remove-duty-duty-id').val(duty_id);
-console.log(duty_id);
-console.log(hour);
-console.log(date);
+
                 $('#removeDutyModal').modal('show');
             });
 

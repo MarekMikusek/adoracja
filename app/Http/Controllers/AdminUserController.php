@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminDeleteUserRequest;
 use App\Http\Requests\AdminUserUpdateRequest;
 use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\VerifyUserRequest;
@@ -11,6 +12,7 @@ use App\Services\DutiesService;
 use App\Services\Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -80,9 +82,11 @@ public function __construct()
             ->with('success', 'Dane użytkownika zostały zaktualizowane');
     }
 
-    public function destroy(string $id)
+    public function destroy(AdminDeleteUserRequest $request)
     {
-        //
+        $user = User::find($request->validated()['user']);
+        $user->delete();
+        return redirect()->route('admin.users');
     }
 
 
