@@ -169,6 +169,12 @@
                 max-height: 400px;
                 /* Decrease max height for smaller screens */
             }
+
+            .card-header {
+                font-size: 10px!important;
+                line-height: 10px;
+            }
+        }
         }
     </style>
 @endsection

@@ -44,7 +44,9 @@ class CurrentDutyController extends Controller
         }
 
         $duties = $duties->groupBy('duty_type');
-        $duties['Lista rezerwowa'] = $duties['rezerwa'];
+        $duties['adoracja'] = $duties['adoracja'] ?? [];
+        $duties['Lista rezerwowa'] = $duties['rezerwa'] ?? [];
+
         unset($duties['rezerwa']);
 
         return ViewFacade::make('current_duties.index', [
