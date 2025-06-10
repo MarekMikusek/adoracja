@@ -110,12 +110,9 @@
             .table th,
             .table td {
                 font-size: 12px;
-                /* Reduce font size for mobile */
                 padding: 8px;
-                /* Less padding for smaller screens */
             }
 
-            /* Sticky column adjustments for mobile */
             .table td:first-child,
             .table th:first-child {
                 /* position: relative; Make it non-sticky on small screens */

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('style')
+@section('styles')
     <style>
         a {
             text-decoration: none;
         }
 
         .table-container {
-            max-height: 500px;
+            max-height: 670px;
             /* Set max height to enable scrolling */
             overflow: auto;
             position: relative;
@@ -22,10 +22,9 @@
             /* Ensure the header is above the content */
         }
 
-        td,
-        th {
-            text-align: center!important;
-            vertical-align: middle!important;
+        .table-container td{
+            padding: 0.2em!important;
+            line-height: 1em!important;
         }
         /* Sticky first column */
         .table td:first-child,
@@ -72,7 +71,7 @@
                                 @foreach ($duties as $date => $duty)
                                     <td class="editable-cell align-middle text-center"
                                         style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color }};"
-                                        title="admin: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
+                                        title="koorynator: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
                                         data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
                                         {{ $duty['timeFrames'][$hour]['adoracja'] }}
                                         ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
