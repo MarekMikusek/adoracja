@@ -1,46 +1,13 @@
 @extends('layouts.app')
 
-@section('styles')
+@section('style')
     <style>
-        .no_user {
-            background-color: lightcoral
-        }
-
-        .my-duty {
-            background-color: {{ $myDutyColour }}!important;
-        }
-
-        .my-reserve {
-            background-color: {{ $myReserveColour }}!important;
-        }
-
-        /* Assuming $hasDutyColour is defined in your controller and passed to the view */
-        .has-duty {
-            background-color: {{ $hasDutyColour ?? '#d4edda' }}!important; /* Default green if not set */
-        }
-
-        .has-no-duty {
-            background-color: {{ $noDutyColour }}!important; /* Added !important for consistency */
-        }
-
-        /* Updated styling for the explanation badges/buttons */
-        .explanation-item {
-            display: inline-flex; /* Use inline-flex for better alignment of text and color block */
-            align-items: center; /* Vertically align items */
-            margin-right: 15px; /* Spacing between items */
-            font-size: 0.9em; /* Slightly smaller font for the legend */
-        }
-
-        .explanation-color-box {
-            width: 18px; /* Small square for color */
-            height: 18px;
-            border-radius: 3px; /* Slightly rounded corners */
-            margin-right: 5px; /* Space between color box and text */
-            border: 1px solid rgba(0,0,0,0.1); /* Subtle border for contrast */
+        a {
+            text-decoration: none;
         }
 
         .table-container {
-            max-height: 650px;
+            max-height: 500px;
             /* Set max height to enable scrolling */
             overflow: auto;
             position: relative;
@@ -57,10 +24,9 @@
 
         td,
         th {
-            text-align: center;
-            vertical-align: middle;
+            text-align: center!important;
+            vertical-align: middle!important;
         }
-
         /* Sticky first column */
         .table td:first-child,
         .table th:first-child {
@@ -81,247 +47,41 @@
         .no-wrap {
             white-space: nowrap;
         }
-
-        /* Sidebar Styling */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 220px;
-            height: 100%;
-            background-color: #f8f9fa;
-            padding-top: 20px;
-            transition: all 0.3s;
-        }
-
-        .sidebar ul {
-            padding-left: 20px;
-        }
-
-        .sidebar ul li {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .sidebar.hidden {
-            left: -220px;
-            /* Hide the sidebar */
-        }
-
-        /* Mobile-specific styles */
-        @media (max-width: 768px) {
-            .table-container {
-                overflow-x: auto;
-            }
-
-            .table th,
-            .table td {
-                font-size: 12px;
-                /* Reduce font size for mobile */
-                padding: 8px;
-                /* Less padding for smaller screens */
-            }
-
-            /* Sticky column adjustments for mobile */
-            .table td:first-child,
-            .table th:first-child {
-                /* position: relative; Make it non-sticky on small screens */
-                background-color: #f8f9fa;
-            }
-
-            /* Collapse sidebar for mobile */
-            .sidebar {
-                width: 100%;
-                height: 100%;
-                left: -100%;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .card {
-                margin-bottom: 20px;
-                /* Adjust margin for cards on mobile */
-            }
-
-            /* Modal adjustments */
-            .modal-dialog {
-                max-width: 100%;
-                /* Make modals full width on small screens */
-                margin: 10px;
-            }
-
-            .modal-body {
-                padding: 15px;
-            }
-
-            .btn-close {
-                padding: 0.2rem 0.5rem;
-                font-size: 1.5rem;
-            }
-
-            /* Adjust explanation legend for mobile */
-            .card-header .row {
-                flex-direction: column; /* Stack explanation items vertically */
-            }
-            .explanation-item {
-                margin-bottom: 5px; /* Add vertical spacing */
-                margin-right: 0; /* Remove horizontal spacing */
-            }
-        }
-
-        /* Smallest mobile screens */
-        @media (max-width: 480px) {
-
-            .table th,
-            .table td {
-                font-size: 10px;
-                /* Further reduce font size */
-            }
-
-            .table-container {
-                max-height: 400px;
-                /* Decrease max height for smaller screens */
-            }
     </style>
 @endsection
 
 @section('content')
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 col-12 mb-2 mb-md-0">
-                                Ilość osób adorujących w najbliższym czasie
-                            </div>
-                            @auth
-                                <div class="col-md-6 col-12 text-md-end text-start"> {{-- Align right on desktop, left on mobile --}}
-                                    <span style="display:inline-block;">Legenda:</span>
-                                    <div class="d-inline-block d-md-block"> {{-- Wrap items to allow stacking on mobile --}}
-                                        <div class="explanation-item">
-                                            <span class="explanation-color-box my-duty"></span> Twoja adoracja
-                                        </div>
-                                        <div class="explanation-item">
-                                            <span class="explanation-color-box my-reserve"></span> Rezerwa
-                                        </div>
-                                        <div class="explanation-item">
-                                            <span class="explanation-color-box has-duty"></span> Są adorujący
-                                        </div>
-                                        <div class="explanation-item">
-                                            <span class="explanation-color-box has-no-duty"></span> Brak adorujących
-                                        </div>
-                                    </div>
-                                </div>
-                            @endauth
-                        </div>
-                    </div>
-                    <div class="card-body table-wrapper">
-                        <div class="table-container">
-                            <table class="table" id="current_duty_table">
-                                <thead>
-                                    <tr>
-                                        <th class="sticky-col no-wrap">Godziny</th>
-                                        @foreach ($duties as $date => $duty)
-                                            <th>{{ $date }}</br>
-                                                {{ $duty['dayName'] }} </th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($dayHours as $hour)
-                                        <tr>
-                                            <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
-                                            </td>
-                                            @foreach ($duties as $date => $duty)
-                                                <td @auth
-                                                    data-date="{{ $date }}"
-                                                    data-hour="{{ $hour }}"
-                                                    data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
-                                                        @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
-                                                            class="my-duty" title="Posłguję adoracją"
-                                                        @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
-                                                            class="my-reserve"  title="Jestem na liście rezerwowej"
-                                                        @endif
-                                                    @endauth
-                                                    @if ($duty['timeFrames'][$hour]['adoracja'] == 0) class="has-no-duty" title="Brak posługujących"
-                                                    @elseif ($duty['timeFrames'][$hour]['adoracja'] > 0)
-                                                        class="has-duty" title="Są posługujący"
-                                                    @endif> {{-- Removed the redundant else block as default will apply if no condition matches --}}
-                                                    {{ $duty['timeFrames'][$hour]['adoracja'] }}
-                                                </td>
-                                            @endforeach
-
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ wpisuję się na listę rezerwową</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-duty-form">
-                        <div class="mb-4">
-                            <div class="flex gap-4 mb-2">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="duty_type" value="adoracja" class="form-radio" checked>
-                                    <span class="ml-2">Adoracja</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="duty_type" value="rezerwa" class="form-radio">
-                                    <span class="ml-2">Lista rezerwowa</span>
-                                </label>
-                            </div>
-                            <label for="new-duty-date" class="form-label">Data</label>
-                            <input type="text" class="form-control" id="new-duty-date" name="date" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-duty-hour" class="form-label">Godzina</label>
-                            <input type="text" class="form-control" id="new-duty-hour" readonly>
-                        </div>
-                        <input type="hidden" id="new-duty-duty-id">
-                        <button type="submit" class="btn btn-primary">Zapisz</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="removeDutyModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Rezygnuję z posługi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="remove-duty-form">
-                        <div class="mb-4">
-                            <label for="remove-duty-date" class="form-label">Data</label>
-                            <input type="text" class="form-control" id="remove-duty-date" name="date" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="remove-duty-hour" class="form-label">Godzina</label>
-                            <input type="text" class="form-control" id="remove-duty-hour" readonly>
-                        </div>
-                        <input type="hidden" id="remove-duty-duty-id">
-                        <button type="submit" class="btn btn-primary">Zapisz</button>
-                    </form>
-                </div>
+        <h1>Panel koorynatora</h1>
+        <div class="table-responsive">
+            <div class="table-container">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="sticky-col">Godziny</th>
+                            @foreach ($duties as $date => $duty)
+                                <th class="align-middle text-center">{{ $date }}</br>
+                                    {{ $duty['dayName'] }} </th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($dayHours as $hour)
+                            <tr>
+                                <td class="sticky-col text-nowrap no-wrap align-middle text-center">{{ $hour }}-{{ $hour + 1 }}</td>
+                                @foreach ($duties as $date => $duty)
+                                    <td class="editable-cell align-middle text-center"
+                                        style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color }};"
+                                        title="admin: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
+                                        data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
+                                        {{ $duty['timeFrames'][$hour]['adoracja'] }}
+                                        ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -330,64 +90,11 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-            $('#toggleMenu').click(function() {
-                $('#sidebar').toggleClass('hidden');
-            });
-
-            $("#scrollLeft").click(function() {
-                $(".table-container").animate({
-                    scrollLeft: "-=100px"
-                }, "fast");
-            });
-
-            $("#scrollRight").click(function() {
-                $(".table-container").animate({
-                    scrollLeft: "+=100px"
-                }, "fast");
-            });
+            $('td').on('dblclick', function() {
+                const l = $(this).data('href');
+                console.log(l);
+                window.location.href = $(this).data('href');
+            })
         });
-
-        // Use event delegation for click handlers on dynamically rendered cells
-        $('#current_duty_table').on('dblclick', '.my-duty', function() {
-            const duty_id = $(this).data('duty_id');
-            const date = $(this).data('date');
-            const hour = $(this).data('hour');
-
-            $('#remove-duty-hour').val(hour);
-            $('#remove-duty-date').val(date);
-            $('#remove-duty-duty-id').val(duty_id);
-
-            $('#removeDutyModal').modal('show');
-        });
-
-        $('#current_duty_table').on('dblclick', '.my-reserve', function() {
-            const date = $(this).data('date');
-            const hour = $(this).data('hour');
-            const duty_id = $(this).data('duty_id');
-
-            $('#new-duty-date').val(date);
-            $('#new-duty-hour').val(hour);
-            $('#new-duty-duty-id').val(duty_id);
-
-            $('#editModal').modal('show'); // Show modal
-        });
-
-        $('#remove-duty-form').on('submit', function(e) {
-            e.preventDefault();
-
-            const duty_id = $('#remove-duty-duty-id').val();
-            const url = "{{ route('current-duty.remove') }}";
-
-            $('#removeDutyModal').modal('hide');
-
-            return $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    duty_id: duty_id,
-                },
-                success: function(response) {
-                    location.reload();
-                },
-                error: function(xhr) {
+    </script>
+@endsection

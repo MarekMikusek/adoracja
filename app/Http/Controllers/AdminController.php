@@ -29,6 +29,11 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    public const MY_DUTY_COLOUR = '#A7C7E7';
+    public const REZERWA_COLOUR  = '#FFE440';
+    public const NO_DUTY_COLOUR  = '#FFFFFF';
+    public const HAS_DUTY_COLOUR  = '#98FB98';
+
     public function dashboard()
     {
         $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
@@ -74,6 +79,10 @@ class AdminController extends Controller
             'duties'   => $duties,
             'admins'   => collect(User::admins())->keyBy('id')->toArray(),
             'dayHours' => Helper::DAY_HOURS,
+            'myDutyColour' => self::MY_DUTY_COLOUR,
+            'myReserveColour'  => self::REZERWA_COLOUR,
+            'noDutyColour'   => self::NO_DUTY_COLOUR,
+            'hasDutyColour' => self::HAS_DUTY_COLOUR
         ]);
     }
 

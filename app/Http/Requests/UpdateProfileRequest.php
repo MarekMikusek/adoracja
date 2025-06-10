@@ -24,7 +24,7 @@ class UpdateProfileRequest extends FormRequest
                 Rule::unique('users')->ignore($this->user()->id)
             ],
             'phone_number' => ['nullable', 'string', 'max:255'],
-            'notification_preference' => ['required', 'in:email,sms'],
+            'ways_of_contacts_id' => ['required'],
         ];
     }
 
@@ -40,4 +40,4 @@ class UpdateProfileRequest extends FormRequest
             'notification_preference.in' => 'Nieprawidłowy sposób powiadomień.',
         ];
     }
-} 
+}

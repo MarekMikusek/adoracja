@@ -20,7 +20,7 @@ class AdminUserUpdateRequest extends FormRequest
             'phone_number' => ['nullable', 'string', 'max:255'],
             'suspend_from' => ['nullable', 'string'],
             'suspend_to' => ['nullable', 'string'],
-            'notification_preference' => ['required', 'in:email,sms'],
+            'ways_of_contacts_id' => ['required'],
             'is_admin' => ['string'],
         ];
     }
