@@ -222,10 +222,9 @@ class AdminController extends Controller
 
     public function dutyHours()
     {
-        $dutyHours = $this->getDutyHours(); // Assume this method retrieves duty hours
+        $dutyHours = $this->getDutyHours();
         $admins = User::where('is_admin', true)->get();
 
-        // dd($dutyHours);
         return view('admin.duty_hours', compact('dutyHours', 'admins'));
     }
 
