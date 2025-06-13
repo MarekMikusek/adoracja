@@ -24,7 +24,7 @@ class AdminDutyPattern extends Model
 
     public static function adminDutyPatterns()
     {
-        return self::join('users as u', 'admin_duty_patterns.admin_id', 'u.id')
+        return self::leftJoin('users as u', 'admin_duty_patterns.admin_id', 'u.id')
         ->selectRaw("hour, day, admin_id")
         ->orderBy('admin_duty_patterns.id')
         ->get()
