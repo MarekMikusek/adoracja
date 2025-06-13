@@ -243,7 +243,7 @@ class AdminController extends Controller
     public function getDutyHours()
     {
         $dutyHours = DB::table('admin_duty_patterns as adp')
-        ->join('users as u', 'u.id', 'adp.admin_id')
+        ->leftJoin('users as u', 'u.id', 'adp.admin_id')
         ->selectRaw("adp.day, adp.hour, adp.id, u.id as admin_id, concat(u.first_name, ' ', u.last_name) as admin_name")
         ->orderBy('adp.id')
         ->get();
