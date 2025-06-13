@@ -52,7 +52,7 @@ class AdminController extends Controller
         $duties = [];
 
         foreach ($currentDuties as $duty) {
-            $currentDate = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
+            $currentDate = Carbon::createFromDate($duty->date)->isoFormat('DD.MM');
 
             if (! isset($duties[$currentDate])) {
                 $dayName                            = DateHelper::dayOfWeek($duty->date);
@@ -88,7 +88,7 @@ class AdminController extends Controller
 
     public function intentions()
     {
-        return view('admin.intentions.index',['intentions' => Intention::orderBy('id', "DESC")->get()]);
+        return view('admin.intentions.index',['intentions' => Intention::orderBy('id', "DESC")->get() ?? []]);
     }
 
     public function confirmIntention(ConfirmIntentionRequest $request)
@@ -198,16 +198,6 @@ class AdminController extends Controller
         // TODO: Implement notification sending
 
         return response()->json(['message' => 'Powiadomienia zostały wysłane']);
-    }
-
-    public function storeUser(AdminUserStoreRequest $request): RedirectResponse
-    {
-        $validated                 = $request->validated();
-        $validated['password']     = Hash::make($validated['password']);
-
-        User::create($validated);
-
-        return Redirect::route('admin.users')->with('success', 'User added successfully.');
     }
 
     public function index()

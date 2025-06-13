@@ -14,6 +14,7 @@ class AdminUserStoreRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:users'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'ways_of_contacts_id' => ['required', 'string'],
+            'is_admin' => ['string'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }

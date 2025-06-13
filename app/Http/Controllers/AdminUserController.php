@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminDeleteUserRequest;
+use App\Http\Requests\AdminUserStoreRequest;
 use App\Http\Requests\AdminUserUpdateRequest;
 use App\Http\Requests\PatternStoreRequest;
+use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\VerifyUserRequest;
 use App\Models\DutyPattern;
 use App\Models\User;
@@ -12,18 +13,17 @@ use App\Services\DutiesService;
 use App\Services\Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 
 class AdminUserController extends Controller
 {
 
-public function __construct()
-{
+    public function __construct()
+    {
 
-}
+    }
     public function index()
     {
         $users = User::orderBy('first_name')
@@ -54,9 +54,17 @@ public function __construct()
 
     }
 
-    public function store(Request $request)
+
+    public function store(AdminUserStoreRequest $request): RedirectResponse
     {
-        //
+        $validated = $request->validated();
+
+        $validated['password'] = Hash::make($validated['password']);
+        $validated['is_admin'] = $validated['is_admin'] === 'on' ? 1 : 0;
+
+        User::create($validated);
+
+        return Redirect::route('admin.users')->with('success', 'User added successfully.');
     }
 
     public function show(string $id)
@@ -71,8 +79,8 @@ public function __construct()
 
     public function update(AdminUserUpdateRequest $request, User $user): RedirectResponse
     {
-        $validated                 = $request->validated();
-        $validated['is_admin']     = (isset($validated['is_admin']) && $validated['is_admin'] == "on") ? true : false;
+        $validated             = $request->validated();
+        $validated['is_admin'] = (isset($validated['is_admin']) && $validated['is_admin'] == "on") ? true : false;
         $validated['suspend_from'] == $validated['suspend_from'] ?? null;
         $validated['suspend_to'] == $validated['suspend_to'] ?? null;
 
@@ -89,17 +97,16 @@ public function __construct()
         return redirect()->route('admin.users');
     }
 
-
     public function showUserDuties(User $user)
     {
         $patterns = DutyPattern::query()
-        ->select(['hour', 'day', 'id','duty_type', 'repeat_interval'])
-        ->where('user_id', $user->id)
-        ->get()
-        ->groupBy('duty_type');
+            ->select(['hour', 'day', 'id', 'duty_type', 'repeat_interval'])
+            ->where('user_id', $user->id)
+            ->get()
+            ->groupBy('duty_type');
 
-        $weekDays = Helper::getWeekDays();
-        $hours = Helper::getHours();
+        $weekDays  = Helper::getWeekDays();
+        $hours     = Helper::getHours();
         $intervals = Helper::getIntervals();
 
         return view('admin.users.user-patterns', compact('user', 'patterns', 'weekDays', 'hours', 'intervals'));
@@ -108,7 +115,7 @@ public function __construct()
     public function userPatternsStore(User $user, PatternStoreRequest $pattern)
     {
         $pattern = $pattern->validated();
-        $duty = DutyPattern::query()->create([
+        $duty    = DutyPattern::query()->create([
             'user_id'         => $user->id,
             'day'             => $pattern['day'],
             'hour'            => $pattern['hour'],
@@ -117,6 +124,11 @@ public function __construct()
         ]);
         DutiesService::updateUserDuties($user);
         return Redirect::route('admin.users.patterns', ['user' => $user->id]);
+    }
+
+    public function searchUser(SearchUserRequest $request)
+    {
+        dd($request->validated());
     }
 
 }

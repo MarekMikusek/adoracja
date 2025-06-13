@@ -36,8 +36,8 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users');
     Route::post('verify-user', [AdminUserController::class, 'verifyUser'])->name('admin.user.verify');
     Route::get('users/create', [AdminUserController::class, 'createUser'])->name('admin.users.create');
-
-    Route::post('users', [AdminController::class, 'storeUser'])->name('admin.users.store');
+    Route::post('users/search', [AdminUserController::class, 'searchUser'])->name('admin.users.search');
+    Route::post('users', [AdminUserController::class, 'store'])->name('admin.users.store');
 
     Route::get('users/{user}/patterns', [AdminUserController::class, 'showUserDuties'])->name('admin.users.patterns');
     Route::post('users/{user}/patterns', [AdminUserController::class, 'userPatternsStore'])->name('admin.user.patterns.store');
