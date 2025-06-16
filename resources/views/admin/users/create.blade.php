@@ -17,7 +17,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="last_name" class="form-label">Nazwisko<small>&nbsp;(nieobowiązkowe, wpisz coś co pozwoli odróżnić od innych osób o tym samym imieniu)</small></label>
+                                <label for="last_name" class="form-label">Nazwisko<small>&nbsp;(nieobowiązkowe, wpisz coś co
+                                        pozwoli odróżnić od innych osób o tym samym imieniu)</small></label>
                                 <input type="text" class="form-control" id="last_name" name="last_name" required>
                             </div>
 
@@ -52,14 +53,34 @@
                             </div>
 
                             <div class="form-check mb-3">
-                                <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin"
-                                <label class="form-check-label" for="is_admin">Koordynator</label>
+                                <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" <label
+                                    class="form-check-label" for="is_admin">Koordynator</label>
                             </div>
-                            <button type="submit" class="btn btn-primary">Dodaj</button>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" <label
+                                    class="form-check-label" for="rodo_clause">Potwierdzam, że odebrałam/em klauzulę RODO</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="create_user_submit_btn"
+                                disabled>Dodaj</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#rodo_clause').on('click', function() {
+                if ($(this).is(':checked')) {
+                    $('#create_user_submit_btn').prop('disabled', false);
+                } else {
+                    $('#create_user_submit_btn').prop('disabled', true);
+                };
+
+            })
+        });
+    </script>
 @endsection

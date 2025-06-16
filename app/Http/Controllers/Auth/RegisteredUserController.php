@@ -41,7 +41,12 @@ class RegisteredUserController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'ways_of_contacts_id' => $data['ways_of_contacts_id'],
+            'rodo_clause' => 1,
+            'added_by' => 0
         ]);
+
+        $user['added_by'] = $user->id;
+        $user->save();
 
         Auth::loginUsingId($user->id);
 

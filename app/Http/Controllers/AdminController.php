@@ -66,7 +66,7 @@ class AdminController extends Controller
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]  = 0;
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value] = 0;
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::SUSPEND->value] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_id'] = $adminDutyPatterns[$dayName][$duty->hour]['admin_id'];
+                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_id'] = $adminDutyPatterns[$dayName][$duty->hour]['admin_id'] ?? null;
                 $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id'] = $duty->duty_id;
             }
 

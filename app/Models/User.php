@@ -30,7 +30,9 @@ class User extends Authenticatable //implements MustVerifyEmail
         'ways_of_contacts_id',
         'google_token',
         'color',
-        'password'
+        'password',
+        'added_by',
+        'rodo_clause'
     ];
 
     protected $hidden = [

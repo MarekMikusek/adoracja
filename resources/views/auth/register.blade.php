@@ -16,7 +16,7 @@
 
                             <div class="mb-3">
                                 <label for="last_name" class="form-label">Nazwisko <small class="muted">
-                                        (nieobowiązkowe)</small></label>
+                                        (nieobowiązkowe, wpisz coś co Cię odróżni od innych osób o tym samym imieniu)</small></label>
                                 <input type="text" id="last_name" name="last_name" class="form-control">
                             </div>
 
@@ -51,7 +51,12 @@
                                 <input type="password" id="password_confirmation" name="password_confirmation"
                                     class="form-control" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Utwórz konto</button>
+
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" <label
+                                    class="form-check-label" for="rodo_clause">Potwierdzam klauzulę RODO</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="create_user_submit_btn" disabled>Utwórz konto</button>
                         </form>
 
                         <div class="text-center mt-3">
@@ -70,8 +75,16 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+            $('#rodo_clause').on('click', function() {
+                if ($(this).is(':checked')) {
+                    $('#create_user_submit_btn').prop('disabled', false);
+                } else {
+                    $('#create_user_submit_btn').prop('disabled', true);
+                };
+
+            });
+
             $('#email').on('focusout', function() {
-                console.log('out');
                 var errorText = $('#email_error_message');
                 errorText.hide();
                 var email = $(this).val();

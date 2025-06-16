@@ -3,8 +3,11 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-between mb-4">
-            <div class="col-9">
+            <div class="col-4">
                 <h2>Użytkownicy</h2>
+            </div>
+            <div class="col-3 form-group d-flex align-items-center">
+                <input class="form-control flex-grow-1" id="user_search" type="text" placeholder="Szukaj">
             </div>
             <div class="col-3">
                 <a href="{{ route('admin.users.create') }}">
@@ -84,33 +87,58 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-            $('.delete-user').on('click', function() {
+                    $('.delete-user').on('click', function() {
 
-                $('#user_name_to_delete').val($(this).data('user_name'));
-                $('#remove-user-id').val($(this).data('user_id'));
-                $('#removeUserModal').modal('show');
-            });
+                        $('#user_name_to_delete').val($(this).data('user_name'));
+                        $('#remove-user-id').val($(this).data('user_id'));
+                        $('#removeUserModal').modal('show');
+                    });
 
-            // $('#remove-user-form').on('submit', function(e) {
-            //     e.preventDefault();
-            //     const url = "{{ route('admin.users.delete') }}";
-            //     const user = $('#remove-user-id').val();
+                    $('#user_search').on('keyup', function() {
 
-            //     return $.ajax({
-            //         url: url,
-            //         type: 'POST',
-            //         data: {
-            //             _token: "{{ csrf_token() }}",
-            //             user: user
-            //         },
-            //         success: function(response) {
-            //             location.reload();
-            //         },
-            //         error: function(xhr, status, error) {
-            //             alert('An error occurred: ' + error);
-            //         }
-            //     });
-            // })
-        });
+                        const query = $(this).val();
+
+                        const url= "{{ route('admin.users.search') }}";
+                        
+                        if (query.length >= 3) {
+                            return $.ajax({
+                                    url: url,
+                                    type: 'POST',
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        query: query
+                                    },
+                                    success: function(response) {
+                                        location.reload();
+                                    },
+                                    error: function(xhr, status, error) {
+                                        alert('An error occurred: ' + error);
+                                    }
+                                }
+
+
+                            });
+
+                        // $('#remove-user-form').on('submit', function(e) {
+                        //     e.preventDefault();
+                        //     const url = "{{ route('admin.users.delete') }}";
+                        //     const user = $('#remove-user-id').val();
+
+                        // return $.ajax({
+                        //     url: url,
+                        //     type: 'POST',
+                        //     data: {
+                        //         _token: "{{ csrf_token() }}",
+                        //         user: user
+                        //     },
+                        //     success: function(response) {
+                        //         location.reload();
+                        //     },
+                        //     error: function(xhr, status, error) {
+                        //         alert('An error occurred: ' + error);
+                        //     }
+                        //     });
+                        // })
+                    });
     </script>
 @endsection

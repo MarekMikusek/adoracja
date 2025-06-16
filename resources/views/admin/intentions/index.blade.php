@@ -31,25 +31,33 @@
                     </div>
                     <div class="card-content">
                         <table class="table table-striped">
+                            @if (count($intentions) > 0)
                             <thead>
                                 <th>Intencja</th>
                                 <th>Potwierdź</th>
                                 <th>Usuń</th>
                             </thead>
+                            @endif
                             <tbody>
-                                @foreach ($intentions as $intention)
+                                @if (count($intentions) > 0)
+                                    @foreach ($intentions as $intention)
+                                        <tr>
+                                            <td>{{ $intention->intention }}</td>
+                                            <td>
+                                                @if (!$intention->user_id)
+                                                    <button class="btn btn-sm btn-success confirm-intention"
+                                                        data-intention_id="{{ $intention->id }}">Potwierdź intencję</button>
+                                                @endif
+                                            </td>
+                                            <td><span class="remove-intention" data-intention_id="{{ $intention->id }}"><i
+                                                        class="fas fa-trash"></i></span></td>
+                                        </tr>
+                                    @endforeach
+                                @else
                                     <tr>
-                                        <td>{{ $intention->intention }}</td>
-                                        <td>
-                                            @if (!$intention->user_id)
-                                                <button class="btn btn-sm btn-success confirm-intention"
-                                                    data-intention_id="{{ $intention->id }}">Potwierdź intencję</button>
-                                            @endif
-                                        </td>
-                                        <td><span class="remove-intention" data-intention_id="{{ $intention->id }}"><i
-                                                    class="fas fa-trash"></i></span></td>
+                                        <td>Nie ma intencji</td>
                                     </tr>
-                                @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -87,7 +95,7 @@
 
                 if (confirm("Czy chcesz usunąć intencję?")) {
                     const intention_id = $(this).data('intention_id');
-                    const url = "{{ route('admin.intentions.remove', ['intention' => $intention->id]) }}";
+                    const url = "{{ route('admin.intentions.remove') }}";
 
                     $.ajax({
                         url: url,

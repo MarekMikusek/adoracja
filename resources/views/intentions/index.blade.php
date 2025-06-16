@@ -22,7 +22,7 @@
                         @endauth
                     </thead>
                     <tbody>
-                        @foreach ($intentions as $intention_id => $intention)
+                        @forelse ($intentions as $intention_id => $intention)
                             <tr>
                                 <td>{{ $intention['intention'] }}</td>
                                 <td><input type="checkbox" onclick="return false;" @if(isset($intention['user_id']) && $intention['user_id'] == $user_id) checked @endif></td>
@@ -32,7 +32,9 @@
                                             @if ($intention['isMyIntention']) checked="true" @endif></td>
                                 @endauth
                             </tr>
-                        @endforeach
+                            @empty
+                            <tr><td>Brak intencji</td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

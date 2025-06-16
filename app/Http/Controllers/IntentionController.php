@@ -13,49 +13,49 @@ class IntentionController extends Controller
 {
     public function index()
     {
-        $user       = Auth::user();
+        $user      = Auth::user();
         $firstPart = DB::table('intentions_users as iu')
-        ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
-        ->leftJoin('intentions as i', 'iu.intention_id', '=', 'i.id');
+            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
+            ->leftJoin('intentions as i', 'iu.intention_id', '=', 'i.id');
 
-    $secondPart = DB::table('intentions as i')
-        ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
-        ->leftJoin('intentions_users as iu', 'i.id', '=', 'iu.intention_id')
-        ->whereNull('iu.intention_id');
+        $secondPart = DB::table('intentions as i')
+            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
+            ->leftJoin('intentions_users as iu', 'i.id', '=', 'iu.intention_id')
+            ->whereNull('iu.intention_id');
 
-    $unionQuery = $firstPart->unionAll($secondPart);
+        $unionQuery = $firstPart->unionAll($secondPart);
 
-
-    $intentions = DB::query()
-        ->fromSub($unionQuery, 'combined_results')
-        ->whereNotNull('user_id')
-        ->orderBy('created_at_intention', 'DESC')
-        ->get();
+        $intentions = DB::query()
+            ->fromSub($unionQuery, 'combined_results')
+            ->whereNotNull('user_id')
+            ->orderBy('created_at_intention', 'DESC')
+            ->get();
 
         $return = [];
+        if ($intentions->count() > 0) {
+            foreach ($intentions as $intention) {
 
-        foreach ($intentions as $intention) {
+                if (! isset($return[$intention->intention_id])) {
+                    $return[$intention->intention_id]                  = [];
+                    $return[$intention->intention_id]['intention']     = $intention->intention;
+                    $return[$intention->intention_id]['users']         = 0;
+                    $return[$intention->intention_id]['user_id']       = $intention->user_id;
+                    $return[$intention->intention_id]['isMyIntention'] = false;
+                }
 
-            if (! isset($return[$intention->intention_id])) {
-                $return[$intention->intention_id]                  = [];
-                $return[$intention->intention_id]['intention']     = $intention->intention;
-                $return[$intention->intention_id]['users']         = 0;
-                $return[$intention->intention_id]['user_id']       = $intention->user_id;
-                $return[$intention->intention_id]['isMyIntention'] = false;
-            }
+                if ($intention->user_id) {
+                    $return[$intention->intention_id]['users']++;
+                }
 
-            if($intention->user_id){
-                $return[$intention->intention_id]['users']++;
-            }
-
-            if ($user && $user->id == $intention->user_id) {
-                $return[$intention->intention_id]['isMyIntention'] = true;
+                if ($user && $user->id == $intention->user_id) {
+                    $return[$intention->intention_id]['isMyIntention'] = true;
+                }
             }
         }
 
         return ViewFacade::make('intentions.index', [
             'intentions' => $return,
-            'user_id' => Auth::user()->id ?? null
+            'user_id'    => Auth::user()->id ?? null,
         ]);
     }
 
@@ -65,7 +65,7 @@ class IntentionController extends Controller
 
         $data['user_id'] = Auth::user() ? Auth::user()->id : null;
 
-        if($user = Auth::user()){
+        if ($user = Auth::user()) {
             $data['user_id'] = $user->id;
         }
 
@@ -74,7 +74,7 @@ class IntentionController extends Controller
 
     public function isPrayer(IsPrayerRequest $request)
     {
-        $data = $request->validated();
+        $data   = $request->validated();
         $userId = Auth::user()->id;
 
         if ($data['is_prayer'] == 0) {

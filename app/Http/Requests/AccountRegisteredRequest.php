@@ -15,6 +15,7 @@ class AccountRegisteredRequest extends FormRequest
             'last_name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'ways_of_contacts_id' => ['required', 'string'],
+            'rodo_clause' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }

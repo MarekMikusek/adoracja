@@ -11,8 +11,8 @@ use App\Models\DutyPattern;
 use App\Models\User;
 use App\Services\DutiesService;
 use App\Services\Helper;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -60,7 +60,9 @@ class AdminUserController extends Controller
         $validated = $request->validated();
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['is_admin'] = $validated['is_admin'] === 'on' ? 1 : 0;
+        $validated['is_admin'] = (isset($validated['is_admin']) && $validated['is_admin']) === 'on' ? 1 : 0;
+        $validated['added_by'] = Auth::id();
+        $validated['rodo_clause'] = $validated['rodo_clause'] === 'on' ? 1 : 0;
 
         User::create($validated);
 
