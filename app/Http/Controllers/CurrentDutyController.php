@@ -24,17 +24,13 @@ class CurrentDutyController extends Controller
 
     public function index(Request $request): View
     {
-        $query = CurrentDutyUser::query()
+        $duties = CurrentDutyUser::query()
             ->join('current_duties as cd', 'cd.id', 'current_duties_users.current_duty_id')
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
             ->where('cd.date', '>=', Carbon::today())
-            ->select(['current_duty_id', 'date', 'hour', 'duty_type']);
-
-        if (! Auth::user()->is_admin) {
-            $query->where('user_id', Auth::id());
-        }
-
-        $duties = $query->orderBy('duty_type')
+            ->where('user_id', Auth::id())
+            ->select(['current_duty_id', 'date', 'hour', 'duty_type'])
+            ->orderBy('duty_type')
             ->orderBy('date')
             ->orderBy('hour')
             ->get();

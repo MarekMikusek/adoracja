@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 class DutiesService
 {
+    public static function getCurrentDutyMostDistantDate(): Carbon
+    {
+        return Carbon::createFromDate(DB::table('current_duties')->max('date'));
+    }
+
     public static function updateUserDuties(User $user)
     {
         $oldDuties = (new CurrentDutyUser())->findUserDuties($user)->get();
