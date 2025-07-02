@@ -2,16 +2,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
-use App\Http\Requests\AdminUserStoreRequest;
 use App\Http\Requests\AssignAdminRequest;
 use App\Http\Requests\ConfirmIntentionRequest;
-use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\RemoveIntentionRequest;
 use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
 use App\Models\Intention;
-use App\Models\IntentionUser;
 use App\Models\ReservePattern;
 use App\Models\User;
 use App\Services\Helper;
@@ -19,12 +16,13 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
 use WeekDays;
 use App\Services\DateHelper;
+use App\Services\DutiesService;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -39,6 +37,10 @@ class AdminController extends Controller
         $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
 
         $startDate = Carbon::now()->subDay();
+
+        if(DutiesService::getCurrentDutyMostDistantDate()->diffInWeeks($startDate) < 5 ){
+            Artisan::call('app:generate-current-duties --no_weeks=1');
+        }
 
         $currentDuties = DB::table('current_duties as cd')
             ->selectRaw("cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, u.first_name || ' ' || u.last_name as name")
