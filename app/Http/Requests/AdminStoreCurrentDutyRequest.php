@@ -11,7 +11,7 @@ class AdminStoreCurrentDutyRequest extends FormRequest
         return [
             'user_id' => 'required|string',
             'current_duty_id' => 'required|string',
-            'duty_type' => 'required|in:gotowość,adoracja',
+            'duty_type' => 'required|in:rezerwa,adoracja',
         ];
     }
 }
