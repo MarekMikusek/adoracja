@@ -20,8 +20,9 @@ Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/intentions', [IntentionController::class, 'index'])->name('intentions');
-Route::post('/intention', [IntentionController::class, 'save'])->name('intention.save');
+Route::get('intentions', [IntentionController::class, 'index'])->name('intentions');
+Route::post('intention', [IntentionController::class, 'save'])->name('intention.save');
+Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

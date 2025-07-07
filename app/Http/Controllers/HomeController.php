@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\View as ViewFacade;
 
 class HomeController extends Controller
 {
-    public const MY_DUTY_COLOUR = '#A7C7E7';
+    public const MY_DUTY_COLOUR  = '#A7C7E7';
     public const REZERWA_COLOUR  = '#FFE440';
     public const NO_DUTY_COLOUR  = '#FFFFFF';
-    public const HAS_DUTY_COLOUR  = '#98FB98';
+    public const HAS_DUTY_COLOUR = '#98FB98';
     /**
      * Create a new controller instance.
      */
@@ -34,22 +34,16 @@ class HomeController extends Controller
             $userId = Auth::user()->id;
         }
 
-        if($user && $user->isAdmin()) {
-            return redirect('/admin/dashboard');
-        }
-
         $leftJoinQuery = DB::table('current_duties as cd')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
             ->where('cd.date', '>=', Carbon::today())
             ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id');
-
 
         $rightJoinQuery = DB::table('current_duties_users as cdu')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
             ->leftJoin('current_duties as cd', 'cd.id', '=', 'cdu.current_duty_id')
             ->where('cd.date', '>=', Carbon::today())
             ->whereNull('cd.id');
-
 
         $upcomingDuties = $leftJoinQuery
             ->unionAll($rightJoinQuery)
@@ -63,10 +57,10 @@ class HomeController extends Controller
 
             if (! isset($duties[$dateFormatted])) {
 
-                $duties[$dateFormatted] = [];
-                $duties[$dateFormatted]['dayName'] = DateHelper::dayOfWeek($duty->date);
+                $duties[$dateFormatted]                  = [];
+                $duties[$dateFormatted]['dayName']       = DateHelper::dayOfWeek($duty->date);
                 $duties[$dateFormatted]['dateFormatted'] = Carbon::createFromDate($duty->date)->format('d.m');
-                $duties[$dateFormatted]['timeFrames'] = [];
+                $duties[$dateFormatted]['timeFrames']    = [];
 
                 foreach (Helper::DAY_HOURS as $hour) {
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
@@ -86,13 +80,19 @@ class HomeController extends Controller
         }
 // dd($duties);
         return ViewFacade::make('home', [
-            'user'           => $user,
-            'duties'         => $duties,
-            'dayHours'       => Helper::DAY_HOURS,
-            'myDutyColour' => self::MY_DUTY_COLOUR,
-            'myReserveColour'  => self::REZERWA_COLOUR,
-            'noDutyColour'   => self::NO_DUTY_COLOUR,
-            'hasDutyColour' => self::HAS_DUTY_COLOUR
+            'user'            => $user,
+            'duties'          => $duties,
+            'dayHours'        => Helper::DAY_HOURS,
+            'myDutyColour'    => self::MY_DUTY_COLOUR,
+            'myReserveColour' => self::REZERWA_COLOUR,
+            'noDutyColour'    => self::NO_DUTY_COLOUR,
+            'hasDutyColour'   => self::HAS_DUTY_COLOUR,
         ]);
     }
+
+    public function rodo()
+    {
+        return ViewFacade::make('rodo');
+    }
+
 }
