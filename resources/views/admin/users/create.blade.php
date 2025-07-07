@@ -53,13 +53,16 @@
                             </div>
 
                             <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" required
+                                    <label class="form-check-label" for="rodo_clause">Potwierdzam, że odebrałam/em klauzulę
+                                RODO w wersji papierowej</label>
+                            </div>
+
+                            <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" <label
                                     class="form-check-label" for="is_admin">Koordynator</label>
                             </div>
-                            <div class="form-check mb-3">
-                                <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" <label
-                                    class="form-check-label" for="rodo_clause">Potwierdzam, że odebrałam/em klauzulę RODO</label>
-                            </div>
+
                             <button type="submit" class="btn btn-primary" id="create_user_submit_btn"
                                 disabled>Dodaj</button>
                         </form>

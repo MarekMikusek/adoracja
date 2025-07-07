@@ -56,6 +56,9 @@
                                 <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" <label
                                     class="form-check-label" for="rodo_clause">Potwierdzam klauzulę RODO</label>
                             </div>
+                            <div class="form-check mb-3">
+                                <a href="{{ route('rodo') }}" target="_blank">Tu znajdziesz informację na temat przetwarzania Twoich danych osobowych</a>
+                            </div>
                             <button type="submit" class="btn btn-primary w-100" id="create_user_submit_btn" disabled>Utwórz konto</button>
                         </form>
 
