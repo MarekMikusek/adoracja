@@ -15,19 +15,19 @@ class DateHelper
     {
         switch (strtolower($weekDay)) {
             case 'niedziela':
-                return 0;
-            case 'poniedziałek':
-                return 1;
-            case 'wtorek':
-                return 2;
-            case 'środa':
-                return 3;
-            case 'czwartek':
-                return 4;
-            case 'piątek':
-                return 5;
-            case 'sobota':
                 return 6;
+            case 'poniedziałek':
+                return 0;
+            case 'wtorek':
+                return 1;
+            case 'środa':
+                return 2;
+            case 'czwartek':
+                return 3;
+            case 'piątek':
+                return 4;
+            case 'sobota':
+                return 5;
         }
 
     }
