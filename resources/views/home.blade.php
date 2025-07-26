@@ -210,7 +210,7 @@
                                             <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
                                             </td>
                                             @foreach ($duties as $date => $duty)
-                                                <td title="Koordynator godziny: {{ $admins[$duty['timeFrames'][$hour]['adminId']]->name ?? ' - brak' }}"
+                                                <td title="Koordynator godziny {{ $admins[$duty['timeFrames'][$hour]['adminId']]->name ?? ' - brak' }}"
                                                     @auth
                                                     data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
