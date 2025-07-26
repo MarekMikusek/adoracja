@@ -203,13 +203,15 @@
                                         @endforeach
                                     </tr>
                                 </thead>
+                                {{-- @dd($admins) --}}
                                 <tbody>
                                     @foreach ($dayHours as $hour)
                                         <tr>
                                             <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
                                             </td>
                                             @foreach ($duties as $date => $duty)
-                                                <td @auth
+                                                <td title="Koordynator godziny: {{ $admins[$duty['timeFrames'][$hour]['adminId']]->name ?? ' - brak' }}"
+                                                    @auth
                                                     data-date="{{ $date }}"
                                                     data-hour="{{ $hour }}"
                                                     data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"

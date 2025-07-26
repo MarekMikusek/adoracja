@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
+use App\Models\AdminDutyPattern;
+use App\Models\User;
 use App\Services\DateHelper;
 use App\Services\Helper;
 use Carbon\Carbon;
@@ -51,6 +53,8 @@ class HomeController extends Controller
             ->orderBy('hour')
             ->get();
 
+        $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
+
         $duties = [];
         foreach ($upcomingDuties as $duty) {
             $dateFormatted = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
@@ -66,6 +70,7 @@ class HomeController extends Controller
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
                     $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
+                    $duties[$dateFormatted]['timeFrames'][$hour]['adminId'] = $adminDutyPatterns[$duties[$dateFormatted]['dayName']][$hour]['admin_id'] ?? null;
                 }
             }
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId'] = $duty->duty_id;
@@ -78,10 +83,12 @@ class HomeController extends Controller
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['adoracja']++;
             }
         }
-// dd($duties);
+        // dd($duties);
+
         return ViewFacade::make('home', [
             'user'            => $user,
             'duties'          => $duties,
+            'admins'   => collect(User::admins())->keyBy('id')->toArray(),
             'dayHours'        => Helper::DAY_HOURS,
             'myDutyColour'    => self::MY_DUTY_COLOUR,
             'myReserveColour' => self::REZERWA_COLOUR,
