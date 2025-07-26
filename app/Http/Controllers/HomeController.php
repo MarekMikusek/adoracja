@@ -17,13 +17,6 @@ class HomeController extends Controller
     public const REZERWA_COLOUR  = '#FFE440';
     public const NO_DUTY_COLOUR  = '#FFFFFF';
     public const HAS_DUTY_COLOUR = '#98FB98';
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth')->except(['index', 'rodo']);
-    }
 
     /**
      * Show the application dashboard.
@@ -100,6 +93,13 @@ class HomeController extends Controller
     public function rodo()
     {
         return ViewFacade::make('rodo');
+    }
+
+    public function admins()
+    {
+        $admins = User::admins();
+        
+        return ViewFacade::make('admins.index', compact('admins'));
     }
 
 }

@@ -23,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('intentions', [IntentionController::class, 'index'])->name('intentions');
 Route::post('intention', [IntentionController::class, 'save'])->name('intention.save');
 Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
+Route::get('admins', [HomeController::class, 'admins'])->name('admins');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
