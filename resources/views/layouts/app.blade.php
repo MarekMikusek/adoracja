@@ -91,6 +91,9 @@
                         <li class="nav-item" title="Twoje posługi, które przypadają w najbliższym czasie">
                             <a class="nav-link" href="{{ route('current-duty.index') }}">Moje posługi</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admins') }}">Koordynatorzy</a>
+                        </li>
                     @endauth
                     @guest
                         <li class="nav-item">
