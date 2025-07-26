@@ -12,7 +12,6 @@
                         <thead>
                             <tr>
                                 <th>Imię i nazwisko</th>
-                                <th>Email</th>
                                 <th>Numer telefonu</th>
                             </tr>
                         </thead>
@@ -20,7 +19,6 @@
                             @foreach ($admins as $admin)
                                 <tr>
                                     <td>{{ $admin->name }}</td>
-                                    <td>{{ $admin->email }}</td>
                                     <td>{{ $admin->phone_number }}</td>
                                 </tr>
                             @endforeach

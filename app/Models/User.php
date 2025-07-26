@@ -90,6 +90,6 @@ class User extends Authenticatable //implements MustVerifyEmail
 
     public static function admins()
     {
-        return DB::select("select id, concat(first_name, ' ', last_name) as name, color, email, phone_number from users where is_admin = true");
+        return DB::select("select id, concat(first_name, ' ', last_name) as name, color, phone_number from users where is_admin = true");
     }
 }
