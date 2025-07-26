@@ -37,8 +37,8 @@ class AdminController extends Controller
         $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
 
         $startDate = Carbon::now()->subDay();
-
-        if(DutiesService::getCurrentDutyMostDistantDate()->diffInWeeks($startDate) < 5 ){
+        
+        if($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 5 ){
             Artisan::call('app:generate-current-duties --no_weeks=1');
         }
 
