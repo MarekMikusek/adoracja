@@ -23,7 +23,7 @@
         }
 
         .table-container td{
-            padding: 0.2em!important;
+            padding: 0.25em!important;
             line-height: 1em!important;
         }
         /* Sticky first column */
@@ -70,8 +70,8 @@
                                 <td class="sticky-col text-nowrap no-wrap align-middle text-center">{{ $hour }}-{{ $hour + 1 }}</td>
                                 @foreach ($duties as $date => $duty)
                                     <td class="editable-cell align-middle text-center"
-                                        style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color }};"
-                                        title="koorynator: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name }}"
+                                        style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color ?? 'white' }};"
+                                        title="koorynator: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name ?? '' }}"
                                         data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
                                         {{ $duty['timeFrames'][$hour]['adoracja'] }}
                                         ({{ $duty['timeFrames'][$hour]['rezerwa'] }})

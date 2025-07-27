@@ -16,29 +16,23 @@
     <style>
         .nav-link.active {
             color: #fff !important;
-            background-color: #4b5157 !important;
-            /* Using a darker shade for active link for better contrast */
+            background-color: #374554 !important;
             border-radius: 0.25rem;
             font-weight: bold;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
 
-        /* Optional: Add some padding to the nav links for better touch targets on mobile */
         .navbar-nav .nav-item .nav-link {
             padding: 0.5rem 1rem;
         }
 
-        /* Adjust button link styling for consistency */
         .btn-link.nav-link {
             color: rgba(0, 0, 0, .55);
-            /* Bootstrap's default nav-link color */
             padding: 0.5rem 1rem;
-            /* Match nav-link padding */
         }
 
         .btn-link.nav-link:hover {
             color: rgba(0, 0, 0, .7);
-            /* Bootstrap's default nav-link hover color */
             text-decoration: underline;
         }
     </style>
@@ -66,53 +60,51 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <ul class="navbar-nav me-auto"> {{-- Use me-auto to push right part to the end --}}
+                <ul class="navbar-nav me-auto">
                     @auth
                         @if (Auth::user()->is_admin)
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">Panel koordynatora</a>
+                                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                                    href="{{ route('admin.dashboard') }}">Panel koordynatora</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.users') }}">Użytkownicy</a>
+                                <a class="nav-link {{ request()->routeIs('admin.users') ? 'active' : '' }}"
+                                    href="{{ route('admin.users') }}">Użytkownicy</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.admins') }}">Koordynatorzy</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.intentions') }}">Intencje</a>
+                                <a class="nav-link {{ request()->routeIs('admin.intentions') ? 'active' : '' }}"
+                                    href="{{ route('admin.intentions') }}">Intencje</a>
                             </li>
                         @endif
                         <li class="nav-item" title="Ilość adorujących na każdy dzień i godzinę">
-                            <a class="nav-link" href="{{ route('home') }}">Plan adoracji</a>
+                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                                href="{{ route('home') }}">Plan adoracji</a>
                         </li>
                         <li class="nav-item" title="Twoje zaklarowane posługi, można je dodać lub usunąć">
-                            <a class="nav-link" href="{{ route('patterns.index') }}">Moja deklaracja posługi</a>
+                            <a class="nav-link {{ request()->routeIs('patterns.index') ? 'active' : '' }}"
+                                href="{{ route('patterns.index') }}">Moja deklaracja posługi</a>
                         </li>
                         <li class="nav-item" title="Twoje posługi, które przypadają w najbliższym czasie">
-                            <a class="nav-link" href="{{ route('current-duty.index') }}">Moje posługi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admins') }}">Koordynatorzy</a>
+                            <a class="nav-link {{ request()->routeIs('current-duty.index') ? 'active' : '' }}"
+                                href="{{ route('current-duty.index') }}">Moje posługi</a>
                         </li>
                     @endauth
-                    @guest
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admins') }}">Koordynatorzy</a>
-                        </li>
-                    @endguest
                 </ul>
 
-                <ul class="navbar-nav"> {{-- ms-auto is no longer needed here if me-auto was used on the left --}}
+                <ul class="navbar-nav">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('intentions') }}">Intencje modlitewne</a>
+                            <a class="nav-link {{ request()->routeIs('intentions') ? 'active' : '' }}"
+                                href="{{ route('intentions') }}">Intencje modlitewne</a>
                         </li>
                         <li class="nav-item"
                             title="Jeśli nie będziesz mógł służyc przez pewien czas poinformuj o tym innych">
-                            <a class="nav-link" href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
+                            <a class="nav-link {{ request()->routeIs('profile.edit-suspend') ? 'active' : '' }}"
+                                href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
                         </li>
                         <li class="nav-item" title="Tu moższesz sprawdzić i uaktualnić swoje dane">
-                            <a class="nav-link" href="{{ route('profile.edit') }}">Moje konto</a>
+                            <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
+                                href="{{ route('profile.edit') }}">Moje konto</a>
                         </li>
                         <li class="nav-item">
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
@@ -126,13 +118,16 @@
                     @endauth
                     @guest
                         <li class="nav-item" title="Intencje polecane w modliwie, można równieć dodać własną intencję.">
-                            <a class="nav-link" href="{{ route('intentions') }}">Intencje modlitewne</a>
+                            <a class="nav-link {{ request()->routeIs('intentions') ? 'active' : '' }}"
+                                href="{{ route('intentions') }}">Intencje modlitewne</a>
                         </li>
                         <li class="nav-item" title="Tu są informacje o Twoich posługach">
-                            <a class="nav-link" href="{{ route('login') }}">Zaloguj się</a>
+                            <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
+                                href="{{ route('login') }}">Zaloguj się</a>
                         </li>
                         <li class="nav-item" title="Zajestruj się jeśli chcesz podjąć posługę i poinformowac o tym innych">
-                            <a class="nav-link" href="{{ route('register') }}">Zarejestruj się</a>
+                            <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}"
+                                href="{{ route('register') }}">Zarejestruj się</a>
                         </li>
                     @endguest
                 </ul>
@@ -164,32 +159,5 @@
 </body>
 
 </html>
-
-<script>
-    $(document).ready(function() {
-        var currentUrl = window.location.href;
-
-        // Function to set active link
-        function setActiveNavLink() {
-            $('.nav-link').each(function() {
-                var linkUrl = this.href;
-
-                // Match full URL or if current URL starts with link URL (for sub-routes)
-                if (currentUrl === linkUrl || (currentUrl.startsWith(linkUrl) && linkUrl !== '')) {
-                    // Remove active from all and then add to the current one
-                    $('.nav-link').removeClass('active');
-                    $(this).addClass('active');
-                }
-            });
-        }
-
-        // Call on initial load
-        setActiveNavLink();
-
-        // Optional: If you have dynamic content or SPA-like navigation,
-        // you might need to re-run this function after a page load or URL change.
-        // For standard multi-page apps, $(document).ready is sufficient.
-    });
-</script>
 
 @yield('scripts')

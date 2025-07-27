@@ -95,11 +95,4 @@ class HomeController extends Controller
         return ViewFacade::make('rodo');
     }
 
-    public function admins()
-    {
-        $admins = User::admins();
-        
-        return ViewFacade::make('admins.index', compact('admins'));
-    }
-
 }
