@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
 use App\Models\AdminDutyPattern;
+use App\Models\MonthlyCoordinatorPattern;
 use App\Models\User;
 use App\Services\DateHelper;
 use App\Services\Helper;
@@ -46,11 +47,12 @@ class HomeController extends Controller
             ->orderBy('hour')
             ->get();
 
-        $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
+        $adminDutyPatterns = MonthlyCoordinatorPattern::coordinatorsResponsible();
 
         $duties = [];
         foreach ($upcomingDuties as $duty) {
-            $dateFormatted = Carbon::createFromDate($duty->date)->isoFormat('D MMMM');
+            $currentDateAsCarbon = Carbon::createFromDate($duty->date);
+            $dateFormatted = $currentDateAsCarbon->isoFormat('D MMMM');
 
             if (! isset($duties[$dateFormatted])) {
 
@@ -63,7 +65,7 @@ class HomeController extends Controller
                     $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
                     $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
-                    $duties[$dateFormatted]['timeFrames'][$hour]['adminId'] = $adminDutyPatterns[$duties[$dateFormatted]['dayName']][$hour]['admin_id'] ?? null;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['adminName'] = $adminDutyPatterns[(int)$currentDateAsCarbon->format('j')] ?? null;
                 }
             }
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId'] = $duty->duty_id;

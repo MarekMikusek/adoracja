@@ -1,22 +1,22 @@
 <?php
 
-use App\Http\Controllers\CurrentDutyController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PatternController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReserveController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCurrentDutyController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\CurrentDutyController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IntentionController;
+use App\Http\Controllers\MonthlyCoordinatorPatternController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PatternController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReserveController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Route;
 
-Route::get('mailto', function(){
-Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
+Route::get('mailto', function () {
+    Mail::to('mmikusek2211@gmail.com')->send(new TestEmail());
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -27,6 +27,11 @@ Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    Route::post('/toggle-view', function (Illuminate\Http\Request $request) {
+        $request->session()->put('admin_view', $request->input('view'));
+        return response()->json(['success' => true]);
+    })->name('toggle-view');
 
     Route::get('intentions', [AdminController::class, 'intentions'])->name('admin.intentions');
     Route::post('confirm-intention', [AdminController::class, 'confirmIntention'])->name('admin.confirm-intention');
@@ -47,6 +52,9 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('current-duty/{duty}/edit', [AdminCurrentDutyController::class, 'edit'])->name('admin.current-duty.edit');
     Route::post('current-duty', [AdminCurrentDutyController::class, 'addUser'])->name('admin.current-duty.store');
     Route::post('delete-current-duty', [AdminCurrentDutyController::class, 'removeCurrentDuty'])->name('admin.current-duty.delete');
+
+    Route::get('/coordinators', [MonthlyCoordinatorPatternController::class, 'index'])->name('coordinators.index');
+    Route::post('/coordinators/update', [MonthlyCoordinatorPatternController::class, 'update'])->name('coordinators.update');
 
     Route::post('messages', [NotificationController::class, 'sendMessages'])->name('admin.messages');
     Route::get('admins', [AdminController::class, 'index'])->name('admin.admins');

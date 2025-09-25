@@ -9,6 +9,7 @@ use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
 use App\Models\Intention;
+use App\Models\MonthlyCoordinatorPattern;
 use App\Models\ReservePattern;
 use App\Models\User;
 use App\Services\Helper;
@@ -24,6 +25,7 @@ use App\Services\DateHelper;
 use App\Services\DutiesService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Types\Relations\Car;
 
 class AdminController extends Controller
 {
@@ -34,12 +36,12 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        $adminDutyPatterns = AdminDutyPattern::adminDutyPatterns();
+        $adminDutyPatterns = MonthlyCoordinatorPattern::coordinatorsResponsible();
 
         $startDate = Carbon::now()->subDay();
-        
+
         if($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 5 ){
-            Artisan::call('app:generate-current-duties --no_weeks=1');
+            Artisan::call('app:generate-current-duties --no_weeks=4');
         }
 
         $currentDuties = DB::table('current_duties as cd')
@@ -54,7 +56,8 @@ class AdminController extends Controller
         $duties = [];
 
         foreach ($currentDuties as $duty) {
-            $currentDate = Carbon::createFromDate($duty->date)->isoFormat('DD.MM');
+            $currentDateAsCarbon = Carbon::createFromDate($duty->date);
+            $currentDate = $currentDateAsCarbon->isoFormat('DD.MM');
 
             if (! isset($duties[$currentDate])) {
                 $dayName                            = DateHelper::dayOfWeek($duty->date);
@@ -68,13 +71,14 @@ class AdminController extends Controller
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]  = 0;
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value] = 0;
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::SUSPEND->value] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_id'] = $adminDutyPatterns[$dayName][$duty->hour]['admin_id'] ?? null;
+                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name'] = $adminDutyPatterns[(int)$currentDateAsCarbon->format('j')] ?? null;
                 $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id'] = $duty->duty_id;
             }
 
             if ($duty->user_id) {
                 $duties[$currentDate]['timeFrames'][$duty->hour][$duty->duty_type]++;
             }
+
         }
 
         return view('admin.dashboard', [

@@ -70,8 +70,7 @@
                                 <td class="sticky-col text-nowrap no-wrap align-middle text-center">{{ $hour }}-{{ $hour + 1 }}</td>
                                 @foreach ($duties as $date => $duty)
                                     <td class="editable-cell align-middle text-center"
-                                        style="background-color:{{ $admins[$duty['timeFrames'][$hour]['admin_id']]->color ?? 'white' }};"
-                                        title="koorynator: {{ $admins[$duty['timeFrames'][$hour]['admin_id']]->name ?? '' }}"
+                                        title="koorynator: {{ $duty['timeFrames'][$hour]['admin_name'] ?? '-' }}"
                                         data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
                                         {{ $duty['timeFrames'][$hour]['adoracja'] }}
                                         ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
