@@ -11,9 +11,9 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Day</th>
-                <th>Coordinator</th>
-                <th>Action</th>
+                <th>Dzień</th>
+                <th>Koordynator</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -35,7 +35,7 @@
                         </select>
                 </td>
                 <td>
-                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Zapisz</button>
                     </form>
                 </td>
             </tr>

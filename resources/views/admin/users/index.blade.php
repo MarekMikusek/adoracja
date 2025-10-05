@@ -99,7 +99,7 @@
                         const query = $(this).val();
 
                         const url= "{{ route('admin.users.search') }}";
-                        
+
                         if (query.length >= 3) {
                             return $.ajax({
                                     url: url,
@@ -114,9 +114,7 @@
                                     error: function(xhr, status, error) {
                                         alert('An error occurred: ' + error);
                                     }
-                                }
-
-
+                                })
                             });
 
                         // $('#remove-user-form').on('submit', function(e) {
