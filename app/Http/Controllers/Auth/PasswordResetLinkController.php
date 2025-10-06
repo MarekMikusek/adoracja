@@ -6,36 +6,37 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View; // Zmieniamy z Inertia na View
 
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Display the password reset link request view (Formularz 1).
      */
-    public function create(): View
+    public function create(): View // Zmieniony typ zwracany na View
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password', [ // Używamy funkcji view()
+            'status' => session('status'),
+        ]);
     }
 
     /**
-     * Handle an incoming password reset link request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Handle an incoming password reset link request (POST, Wysyłanie emaila).
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
+        // ... (Reszta kodu jest poprawna, bo jest standardowa dla Laravela)
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        if ($status == Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status));
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [trans($status)],
         ]);
-
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
-
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
     }
 }

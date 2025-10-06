@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -17,23 +16,14 @@ use Illuminate\Validation\Rules;
 
 class ResetPasswordController extends Controller
 {
-    use ResetsPasswords;
-
-    /**
-     * Where to redirect users after resetting their password.
-     *
-     * @var string
-     */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      */
-    public function showResetForm(Request $request): View
+    public function create(Request $request): View // Zmieniono nazwę metody na 'create'
     {
-        return ViewFacade::make('auth.passwords.reset')->with(
+        return ViewFacade::make('auth.reset-password')->with(
             ['token' => $request->route()->parameter('token'),
              'email' => $request->email]
         );
@@ -63,8 +53,8 @@ class ResetPasswordController extends Controller
         );
 
         return $status == Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))
+            ? redirect()->route('login')
             : back()->withInput($request->only('email'))
                     ->withErrors(['email' => __($status)]);
     }
-} 
+}
