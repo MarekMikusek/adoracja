@@ -63,8 +63,7 @@ class IntentionController extends Controller
                 WHERE iu_count.intention_id = i.id
             ) as users_count'
         );
-$intensions = $query->orderBy('i.id', 'desc')->get();
-dd($intensions);
+
         return ViewFacade::make('intentions.index', [
             'intentions' => $query->orderBy('i.id', 'desc')->get(),
             'user_id'    => Auth::user()->id ?? null,
