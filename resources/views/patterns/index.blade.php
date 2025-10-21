@@ -21,8 +21,7 @@
                                         <form method="POST"
                                             action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
                                             @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger ml-5 remove-duty">Rezygnuję</button>
+                                            <button class="btn btn-danger ml-5">Rezygnuję</button>
                                         </form>
                                     </div>
                                 </div>

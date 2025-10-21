@@ -16,12 +16,7 @@ use Illuminate\Validation\Rules;
 
 class ResetPasswordController extends Controller
 {
-    /**
-     * Display the password reset view for the given token.
-     *
-     * If no token is present, display the link request form.
-     */
-    public function create(Request $request): View // Zmieniono nazwę metody na 'create'
+    public function create(Request $request): View
     {
         return ViewFacade::make('auth.reset-password')->with(
             ['token' => $request->route()->parameter('token'),
@@ -29,9 +24,6 @@ class ResetPasswordController extends Controller
         );
     }
 
-    /**
-     * Reset the given user's password.
-     */
     public function reset(Request $request): RedirectResponse
     {
         $request->validate([

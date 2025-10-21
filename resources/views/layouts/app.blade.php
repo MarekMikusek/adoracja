@@ -112,6 +112,17 @@
                             </li>
                         @endif
                     @endauth
+                    @guest
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                                    href="{{ route('home') }}">Adoracja w najbliższym czasie</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('main-coordinator') ? 'active' : '' }}"
+                                    href="{{ route('main-coordinator') }}">Kontakt do koorynatorów</a>
+                            </li>
+
+                    @endguest
                 </ul>
 
                 <ul class="navbar-nav">

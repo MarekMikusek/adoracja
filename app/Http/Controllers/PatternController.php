@@ -12,7 +12,6 @@ use App\Services\Helper;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -97,7 +96,8 @@ class PatternController extends Controller
      */
     public function destroy(DutyPattern $dutyPattern): RedirectResponse
     {
-        if (($dutyPattern->user_id !== Auth::id() && ! Auth::user()->is_admin)) {
+
+        if (($dutyPattern->user_id != Auth::id() && (!Auth::user()->is_admin))) {
             return Redirect::route('patterns.index')
                 ->with('error', 'Brak uprawnień do usunięcia tego dyżuru');
         }

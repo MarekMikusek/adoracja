@@ -15,21 +15,25 @@
                 <table class="table">
                     <thead>
                         <th>Intencja</th>
+                        @auth
                         <th>Moje intencje</th>
+                        @endauth
                         <th>Ilość osób <br>modlących się</th>
                         @auth
                             <th>Modlę się</th>
                         @endauth
                     </thead>
                     <tbody>
-                        @forelse ($intentions as $intention_id => $intention)
+                        @forelse ($intentions as $intention)
                             <tr>
-                                <td>{{ $intention['intention'] }}</td>
-                                <td><input type="checkbox" onclick="return false;" @if(isset($intention['user_id']) && $intention['user_id'] == $user_id) checked @endif></td>
-                                <td>{{ $intention['users'] }}</td>
+                                <td>{{ $intention->intention }}</td>
                                 @auth
-                                    <td><input type="checkbox" class="intention_pray" data-intention_id="{{ $intention_id }}"
-                                            @if ($intention['isMyIntention']) checked="true" @endif></td>
+                                <td><input type="checkbox" disabled @if($intention->is_creator) checked @endif></td>
+                                @endauth
+                                <td>{{ $intention->users_count }}</td>
+                                @auth
+                                    <td><input type="checkbox" class="intention_pray" data-intention_id="{{ $intention->id }}"
+                                            @if (isset($intention->is_user_praying) && $intention->is_user_praying) checked="true" @endif></td>
                                 @endauth
                             </tr>
                             @empty
@@ -97,7 +101,7 @@
 
                 $('.intention_pray').on('change', function() {
                     const intention_id = $(this).data('intention_id');
-                    const is_prayer = $(this).prop('checked') === true ? 1 : 0;
+                    const is_prayer = $(this).prop('checked') === true ? "1" : "0";
                     const url = "{{ route('intentions.is_prayer') }}"
 
                     $.ajax({

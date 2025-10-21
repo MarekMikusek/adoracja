@@ -8,53 +8,65 @@ use App\Models\IntentionUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View as ViewFacade;
+use Illuminate\Support\Facades\Log;
 
 class IntentionController extends Controller
 {
     public function index()
     {
-        $user      = Auth::user();
-        $firstPart = DB::table('intentions_users as iu')
-            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
-            ->leftJoin('intentions as i', 'iu.intention_id', '=', 'i.id');
+        $isAuthenticated = Auth::check();
+        $userId          = $isAuthenticated ? Auth::id() : null;
 
-        $secondPart = DB::table('intentions as i')
-            ->select('i.id as intention_id', 'i.intention', 'i.user_id as user_id', 'i.created_at as created_at_intention')
-            ->leftJoin('intentions_users as iu', 'i.id', '=', 'iu.intention_id')
-            ->whereNull('iu.intention_id');
+        $query = DB::table('intentions as i')
+            ->select(
+                'i.id',
+                'i.intention',
+                'i.user_id',
+                'i.created_at',
+                'i.updated_at'
+            );
 
-        $unionQuery = $firstPart->unionAll($secondPart);
+        // Dynamiczne budowanie zapytania dla kolumn specyficznych dla zalogowanego użytkownika
+        if ($isAuthenticated) {
+            $query->selectRaw('
+                -- I. Czy zalogowany użytkownik jest twórcą intencji
+                CASE
+                    WHEN i.user_id = ? THEN TRUE
+                    ELSE FALSE
+                END as is_creator',
+                [$userId]
+            );
 
-        $intentions = DB::query()
-            ->fromSub($unionQuery, 'combined_results')
-            ->whereNotNull('user_id')
-            ->orderBy('created_at_intention', 'DESC')
-            ->get();
+            $query->selectRaw('
+                -- II. Czy zalogowany użytkownik jest w intensions_users
+                EXISTS (
+                    SELECT 1
+                    FROM intentions_users as iu_check
+                    WHERE iu_check.intention_id = i.id
+                    AND iu_check.user_id = ?
+                ) as is_user_joined',
+                [$userId]
+            );
 
-        $return = [];
-        if ($intentions->count() > 0) {
-            foreach ($intentions as $intention) {
-
-                if (! isset($return[$intention->intention_id])) {
-                    $return[$intention->intention_id]                  = [];
-                    $return[$intention->intention_id]['intention']     = $intention->intention;
-                    $return[$intention->intention_id]['users']         = 0;
-                    $return[$intention->intention_id]['user_id']       = $intention->user_id;
-                    $return[$intention->intention_id]['isMyIntention'] = false;
-                }
-
-                if ($intention->user_id) {
-                    $return[$intention->intention_id]['users']++;
-                }
-
-                if ($user && $user->id == $intention->user_id) {
-                    $return[$intention->intention_id]['isMyIntention'] = true;
-                }
-            }
+        } else {
+            // Dla niezalogowanego użytkownika ustawiamy te kolumny na FALSE (0)
+            $query->selectRaw('FALSE as is_creator');
+            $query->selectRaw('FALSE as is_user_joined');
         }
 
+        // To zliczenie jest niezależne od zalogowanego użytkownika, więc dodajemy je zawsze
+        $query->selectRaw('
+            -- III. Liczba użytkowników powiązanych z intencją
+            (
+                SELECT COUNT(*)
+                FROM intentions_users as iu_count
+                WHERE iu_count.intention_id = i.id
+            ) as users_count'
+        );
+$intensions = $query->orderBy('i.id', 'desc')->get();
+dd($intensions);
         return ViewFacade::make('intentions.index', [
-            'intentions' => $return,
+            'intentions' => $query->orderBy('i.id', 'desc')->get(),
             'user_id'    => Auth::user()->id ?? null,
         ]);
     }
@@ -74,15 +86,19 @@ class IntentionController extends Controller
 
     public function isPrayer(IsPrayerRequest $request)
     {
+        Log::info('request', ['req'=> $request]);
         $data   = $request->validated();
+        Log::info('data', ['data'=>$data]);
         $userId = Auth::user()->id;
 
-        if ($data['is_prayer'] == 0) {
-            return IntentionUser::where('user_id', $userId)
-                ->where('intention_id', $data['intention_id'])
+        if ($data['is_prayer'] === "1") {
+Log::info('if', ['data' => $data['is_prayer']]);
+            return IntentionUser::create(['intention_id' => $data['intention_id'], 'user_id' => $userId]);
+        } else {
+                return IntentionUser::where('user_id', $userId)
+                ->where('intention_id', intval($data['intention_id']))
                 ->delete();
         }
 
-        return IntentionUser::create(['intention_id' => $data['intention_id'], 'user_id' => $userId]);
     }
 }

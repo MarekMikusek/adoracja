@@ -23,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('intentions', [IntentionController::class, 'index'])->name('intentions');
 Route::post('intention', [IntentionController::class, 'save'])->name('intention.save');
 Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
+Route::get('main-coordinator', [HomeController::class, 'mainCoordinator'])->name('main-coordinator');
 // Route::get('admins', [HomeController::class, 'admins'])->name('admins');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
@@ -72,7 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::get('duties', [CurrentDutyController::class, 'index'])->name('current-duty.index');
     Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
     Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
-    Route::delete('patterns/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');
+    Route::post('patterns/delete/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');
     Route::post('patterns', [PatternController::class, 'store'])->name('patterns.store');
     Route::get('patterns', [PatternController::class, 'index'])->name('patterns.index');
     Route::post('suspend_patterns', [PatternController::class, 'suspend'])->name('patterns.suspend');

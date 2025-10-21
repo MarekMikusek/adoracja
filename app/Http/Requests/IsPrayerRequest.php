@@ -9,7 +9,7 @@ class IsPrayerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_prayer' => 'required|int',
+            'is_prayer' => 'required|string',
             'intention_id' => 'required|string'
         ];
     }

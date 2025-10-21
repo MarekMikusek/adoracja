@@ -97,4 +97,9 @@ class HomeController extends Controller
         return ViewFacade::make('rodo');
     }
 
+    public function mainCoordinator()
+    {
+        return ViewFacade::make('main-coordinator');
+    }
+
 }
