@@ -44,7 +44,7 @@
                                         <tr>
                                             <td>{{ $intention->intention }}</td>
                                             <td>
-                                                @if (!$intention->user_id)
+                                                @if ($intention->is_confirmed != 1)
                                                     <button class="btn btn-sm btn-success confirm-intention"
                                                         data-intention_id="{{ $intention->id }}">Potwierdź intencję</button>
                                                 @endif

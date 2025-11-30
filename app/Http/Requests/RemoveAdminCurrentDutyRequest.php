@@ -4,12 +4,12 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SearchUserRequest extends FormRequest
+class RemoveAdminCurrentDutyRequest extends FormRequest
 {
     public function rules(): array
     {
         return [
-            'query' => ['required', 'string']
+            'duty_id' => ['required', 'string']
         ];
     }
 }

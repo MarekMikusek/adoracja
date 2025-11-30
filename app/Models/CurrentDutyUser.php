@@ -11,7 +11,7 @@ class CurrentDutyUser extends Model
     protected $fillable = [
         'user_id',
         'duty_type',
-        'duty_id',
+        'current_duty_id',
     ];
 
     public function scopeFindUserDuties(Builder $query, User $user)

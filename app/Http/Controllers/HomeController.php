@@ -2,7 +2,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
-use App\Models\AdminDutyPattern;
 use App\Models\MonthlyCoordinatorPattern;
 use App\Models\User;
 use App\Services\DateHelper;
@@ -31,12 +30,12 @@ class HomeController extends Controller
         }
 
         $leftJoinQuery = DB::table('current_duties as cd')
-            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
+            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, cd.inactive as inactive')
             ->where('cd.date', '>=', Carbon::today())
             ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id');
 
         $rightJoinQuery = DB::table('current_duties_users as cdu')
-            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type')
+            ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, cd.inactive as inactive')
             ->leftJoin('current_duties as cd', 'cd.id', '=', 'cdu.current_duty_id')
             ->where('cd.date', '>=', Carbon::today())
             ->whereNull('cd.id');
@@ -62,14 +61,20 @@ class HomeController extends Controller
                 $duties[$dateFormatted]['timeFrames']    = [];
 
                 foreach (Helper::DAY_HOURS as $hour) {
-                    $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['hour'] = $duty->hour;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['dutyId'] = null;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['inactive'] = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['adoracja'] = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
                     $duties[$dateFormatted]['timeFrames'][$hour]['adminName'] = $adminDutyPatterns[(int)$currentDateAsCarbon->format('j')] ?? null;
                 }
             }
+
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId'] = $duty->duty_id;
 
+            if($duty->inactive == 1){
+                $duties[$dateFormatted]['timeFrames'][$duty->hour]['inactive'] = 1;
+            }
             if (isset($userId) && $duty->user_id && $duty->user_id == $user->id && $duty->duty_type != DutyType::SUSPEND) {
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['userDutyType'] = $duty->duty_type;
             }
@@ -78,7 +83,6 @@ class HomeController extends Controller
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['adoracja']++;
             }
         }
-        // dd($duties);
 
         return ViewFacade::make('home', [
             'user'            => $user,

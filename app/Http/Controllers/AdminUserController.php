@@ -5,12 +5,17 @@ use App\Http\Requests\AdminDeleteUserRequest;
 use App\Http\Requests\AdminUserStoreRequest;
 use App\Http\Requests\AdminUserUpdateRequest;
 use App\Http\Requests\PatternStoreRequest;
+use App\Http\Requests\RemoveAdminCurrentDutyRequest;
 use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\VerifyUserRequest;
+use App\Models\CurrentDuty;
+use App\Models\CurrentDutyUser;
 use App\Models\DutyPattern;
 use App\Models\User;
+use App\Services\DateHelper;
 use App\Services\DutiesService;
 use App\Services\Helper;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +37,44 @@ class AdminUserController extends Controller
 
         return View::make('admin.users.index', [
             'users' => $users,
+        ]);
+    }
+
+    public function removeDuty(RemoveAdminCurrentDutyRequest $request)
+    {
+        $data = $request->validated();
+
+        $currentDury = CurrentDuty::find($data['duty_id']);
+        $currentDury->delete();
+
+    }
+
+    public function duties(User $user)
+    {
+        $duties = CurrentDutyUser::query()
+            ->join('current_duties as cd', 'cd.id', 'current_duties_users.current_duty_id')
+            ->join('users as u', 'u.id', 'current_duties_users.user_id')
+            ->where('cd.date', '>=', Carbon::today())
+            ->where('user_id', $user->id)
+            ->select(['current_duty_id', 'date', 'hour', 'duty_type', 'cd.inactive'])
+            ->orderBy('duty_type')
+            ->orderBy('date')
+            ->orderBy('hour')
+            ->get();
+
+        foreach ($duties as $duty) {
+            $duty['name_of_day'] = DateHelper::dayOfWeek($duty['date']);
+        }
+
+        $duties = $duties->groupBy('duty_type');
+        $duties['adoracja'] = $duties['adoracja'] ?? [];
+        $duties['lista_rezerwowa'] = $duties['rezerwa'] ?? [];
+
+        unset($duties['rezerwa']);
+
+        return View::make('admin.users.duties', [
+            'duties' => $duties,
+            'user' => $user
         ]);
     }
 

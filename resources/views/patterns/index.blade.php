@@ -51,8 +51,8 @@
             </div>
             <div class="card-body">
                 <ul class="list-group">
-                    @if (!empty($duties['gotowość']))
-                        @foreach ($duties['gotowość'] as $duty)
+                    @if (!empty($duties['rezerwa']))
+                        @foreach ($duties['rezerwa'] as $duty)
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -62,7 +62,6 @@
                                         <form method="POST"
                                             action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
                                             @csrf
-                                            @method('DELETE')
                                             <button class="btn btn-danger ml-5 remove-duty">Rezygnuję</button>
                                         </form>
                                     </div>
@@ -76,13 +75,66 @@
                 <div class="row justify-content-between m-4">
                     <div class="col-auto">
                         <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addDutyModal" data-duty-type="gotowość">
+                            data-bs-target="#addDutyModal" data-duty-type="rezerwa">
                             Dodaj godzinę na liście rezerwowej
                         </button>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Jednorazowa posługa
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-between m-4">
+                    <div class="col-auto">
+                        <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addOnceDutyModal" data-duty-type="rezerwa">
+                            Dodaj posługę jednorazową
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!--modal dodaj posługę jednorazową -->
+    <div class="modal fade" id="addOnceDutyModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ wpisuję się na listę rezerwową</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-once-duty-form">
+                        <div class="mb-4">
+                            <div class="flex gap-4 mb-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="once_duty_type" value="adoracja" class="form-radio" checked>
+                                    <span class="ml-2">Adoracja</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="once_duty_type" value="rezerwa" class="form-radio">
+                                    <span class="ml-2">Lista rezerwowa</span>
+                                </label>
+                            </div>
+                            <label for="new-duty-date" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="new-once-duty-date" name="date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-once-duty-hour" class="form-label">Godzina</label>
+                            <select class="form-control" id="new-once-duty-hour" name="hour_range">
+                                @for ($i = 0; $i < 24; $i++)
+                                    <option value="{{ $i }}">{{ $i }}.00 - {{ $i + 1 }}.00</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Zapisz</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -125,7 +177,6 @@
                         <div id="modal-start-date" class="d-none">
                             <div class="mb-3">
                                 <input type="hidden" name="id" id="suspend_id">
-
                                 <label for="start_date" class="form-label mr-5">Data pierwszej posługi</label>
                                 <input id="start_date" type="date" name="start_date" value="">
                             </div>
@@ -135,18 +186,16 @@
                                     <input id="duty-type-input" type="text" name="duty_type" value="" readonly>
                                 </label>
                             </div>
-
-
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
                             <button type="submit" class="btn btn-primary">Zapisz</button>
                         </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
-
 @endsection
 
 
@@ -188,11 +237,39 @@
             });
             $('#add_duty_repeat_interval').on('change', () => {
                 const interval = $('#add_duty_repeat_interval option:selected').val();
-                if(interval==1){
+                if (interval == 1) {
                     $('#modal-start-date').addClass('d-none');
                 } else {
                     $('#modal-start-date').removeClass('d-none');
                 };
+            });
+            $('#add-once-duty-form').on('submit', function (e){
+                e.preventDefault();
+
+                const url = "{{ route('once-duty.store') }}";
+                const duty_type = $('input[name="once_duty_type"]:checked').val();
+                const hour = $('#new-once-duty-hour').val();
+                const date = $('#new-once-duty-date').val();
+                const redirectUrl = "{{ route('current-duty.index') }}";
+
+                $('#editModal').modal('hide');
+
+                return $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date: date,
+                        hour: hour,
+                        duty_type: duty_type
+                    },
+                    success: function(response) {
+                        window.location.href = redirectUrl;
+                    },
+                    error: function(xhr) {
+                        alert('Błąd');
+                    }
+                });
             });
         });
     </script>

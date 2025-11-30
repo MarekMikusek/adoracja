@@ -6,6 +6,7 @@
                 <div class="card shadow-lg">
                     <div class="card-body">
                         <h3 class="text-center mb-4">Moje dane</h3>
+                        <p>Dane są dostępne tylko dla koordynatorów adoracji.</p>
                         <form method="POST" action="{{ route('register') }}">
                             @csrf
 
@@ -28,7 +29,7 @@
 
                             <div class="mb-3">
                                 <label for="phone" class="form-label">Numer telefonu</label>
-                                <input type="tel" id="phone" name="phone" class="form-control">
+                                <input type="tel" id="phone" name="phone" class="form-control" required>
                             </div>
 
                             <div class="mb-3">
@@ -54,7 +55,7 @@
 
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="rodo_clause" name="rodo_clause" <label
-                                    class="form-check-label" for="rodo_clause">Potwierdzam klauzulę RODO</label>
+                                    class="form-check-label" for="rodo_clause">Potwierdzam, że zapoznałam/em się z klauzulą RODO.</label>
                             </div>
                             <div class="form-check mb-3">
                                 <a href="{{ route('rodo') }}" target="_blank">Tu znajdziesz informację na temat przetwarzania Twoich danych osobowych</a>

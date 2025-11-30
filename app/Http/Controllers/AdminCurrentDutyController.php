@@ -43,7 +43,7 @@ class AdminCurrentDutyController extends Controller
         foreach ($currentDuties as $duty) {
             $duties[$duty->duty_type][] = $duty->user_id;
         }
-// dd($duties);
+
         return view('admin.hours.duty', [
             'duties' => $duties,
             'duty'   => $duty,

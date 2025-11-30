@@ -1,18 +1,16 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\VerifyEmailNotification;
-use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 
-class User extends Authenticatable //implements MustVerifyEmail
+class User extends Authenticatable//implements MustVerifyEmail
+
 {
     use Notifiable;
 
@@ -32,7 +30,7 @@ class User extends Authenticatable //implements MustVerifyEmail
         'color',
         'password',
         'added_by',
-        'rodo_clause'
+        'rodo_clause',
     ];
 
     protected $hidden = [
@@ -44,7 +42,8 @@ class User extends Authenticatable //implements MustVerifyEmail
         'is_admin' => 'boolean',
     ];
 
-    public function isAdmin() {
+    public function isAdmin()
+    {
         return $this->is_admin == 1;
     }
 
@@ -71,7 +70,7 @@ class User extends Authenticatable //implements MustVerifyEmail
     protected static function booted()
     {
         static::created(function ($user) {
-            if (!$user->hasVerifiedEmail()) {
+            if (! $user->hasVerifiedEmail()) {
                 $user->sendEmailVerificationNotification();
             }
         });
@@ -79,9 +78,9 @@ class User extends Authenticatable //implements MustVerifyEmail
 
     public function isSuspended(Carbon $date): bool
     {
-                $suspendFrom = Carbon::parse($this->suspend_from);
-        $suspendTo = Carbon::parse($this->suspend_to);
-        if($date->between($suspendFrom, $suspendTo) || ($date >= $suspendFrom && !$suspendTo)) {
+        $suspendFrom = Carbon::parse($this->suspend_from);
+        $suspendTo   = Carbon::parse($this->suspend_to);
+        if ($date->between($suspendFrom, $suspendTo) || ($date >= $suspendFrom && ! $suspendTo)) {
             return true;
         }
 

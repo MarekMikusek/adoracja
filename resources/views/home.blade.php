@@ -7,19 +7,19 @@
         }
 
         .my-duty {
-            background-color: {{ $myDutyColour }}!important;
+            background-color: {{ $myDutyColour }} !important;
         }
 
         .my-reserve {
-            background-color: {{ $myReserveColour }}!important;
+            background-color: {{ $myReserveColour }} !important;
         }
 
         .has-duty {
-            background-color: {{ $hasDutyColour }}!important;
+            background-color: {{ $hasDutyColour }} !important;
         }
 
         .has-no-duty {
-            background-color: {{ $noDutyColour }}!important;
+            background-color: {{ $noDutyColour }} !important;
         }
 
         .explanation-button {
@@ -35,8 +35,8 @@
             line-height: 1em;
         }
 
-        .table-container td{
-            padding: 0.2em!important;
+        .table-container td {
+            padding: 0.2em !important;
         }
 
         /* Sticky header */
@@ -168,7 +168,7 @@
             }
 
             .card-header {
-                font-size: 10px!important;
+                font-size: 10px !important;
                 line-height: 10px;
             }
         }
@@ -203,32 +203,51 @@
                                         @endforeach
                                     </tr>
                                 </thead>
-                                {{-- @dd($admins) --}}
                                 <tbody>
                                     @foreach ($dayHours as $hour)
                                         <tr>
                                             <td class="sticky-col no-wrap">{{ $hour }}.00 - {{ $hour + 1 }}.00
                                             </td>
                                             @foreach ($duties as $date => $duty)
-                                                <td title="Koordynator dnia: {{ $duty['timeFrames'][$hour]['adminName'] ?? ' brak' }}"
-                                                    @auth
-                                                    data-date="{{ $date }}"
-                                                    data-hour="{{ $hour }}"
-                                                    data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}"
-                                                        @if ($duty['timeFrames'][$hour]['userDutyType'] == 'adoracja')
-                                                            class="my-duty" title="Posłguję adoracją"
-                                                        @elseif ($duty['timeFrames'][$hour]['userDutyType'] == 'rezerwa')
-                                                            class="my-reserve"  title="Jestem na liście rezerwowej"
-                                                        @endif
-                                                    @endauth
-                                                    @if ($duty['timeFrames'][$hour]['adoracja'] == 0)
-                                                        class="has-no-duty add-duty" title="Brak adorujących"
-                                                    @elseif ($duty['timeFrames'][$hour]['adoracja'] > 0)
-                                                        class="has-duty add-duty" title="Jest {{ $duty['timeFrames'][$hour]['adoracja'] }} adorujący(ch)"
+                                                <td @php
+        $classes = [];
+
+        // --- PRIORYTET 1: jeśli komórka należy do użytkownika ---
+        if ($duty['timeFrames'][$hour]['inactive'] == 0 && auth()->check()) {
+
+            $userType = $duty['timeFrames'][$hour]['userDutyType'];
+
+            if ($userType === 'adoracja') {
+                $classes[] = 'my-duty';
+            } elseif ($userType === 'rezerwa') {
+                $classes[] = 'my-reserve';
+            } else {
+                $classes[] = 'add-duty';
+            }
+        }
+
+        // --- PRIORYTET 2: jeśli NIE ma my-duty ani my-reserve ---
+        if (!in_array('my-duty', $classes) && !in_array('my-reserve', $classes)) {
+
+            if ($duty['timeFrames'][$hour]['inactive'] == 0) {
+                if ($duty['timeFrames'][$hour]['adoracja'] == 0) {
+                    $classes[] = 'has-no-duty';
+                } elseif ($duty['timeFrames'][$hour]['adoracja'] > 0) {
+                    $classes[] = 'has-duty';
+                } else {
+                    $classes[] = 'no-duty-cell';
+                }
+            }
+        } @endphp
+                                                    class="{{ implode(' ', $classes) }}"
+                                                    @if ($duty['timeFrames'][$hour]['inactive'] == 0 && auth()->check()) data-date="{{ $date }}"
+        data-hour="{{ $hour }}"
+        data-duty_id="{{ $duty['timeFrames'][$hour]['dutyId'] }}" @endif>
+                                                    @if ($duty['timeFrames'][$hour]['inactive'] == 1)
+                                                        -
                                                     @else
-                                                        class="no-duty-cell add-duty"
-                                                    @endif>
-                                                    {{ $duty['timeFrames'][$hour]['adoracja'] }}
+                                                        {{ $duty['timeFrames'][$hour]['adoracja'] }}
+                                                    @endif
                                                 </td>
                                             @endforeach
 
@@ -280,12 +299,11 @@
     </div>
 
     <!-- Remove duty modal -->
-@include('current_duties.remove_duty_modal')
-
+    @include('current_duties.remove_duty_modal')
 @endsection
 
 @section('scripts')
-@include('current_duties.remove-duty')
+    @include('current_duties.remove-duty')
     <script>
         $(document).ready(function() {
 

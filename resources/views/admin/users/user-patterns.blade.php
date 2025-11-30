@@ -20,7 +20,6 @@
                                     <form method="POST"
                                         action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
                                         @csrf
-                                        @method('DELETE')
                                         <button class="btn btn-danger ml-5 remove-duty">Usuń</button>
                                     </form>
                                 </div>
@@ -30,7 +29,7 @@
                 @else
                     <li class="list-group-item">
                         <div class="">
-                            Nie masz zaplanowanych żadnych dyżurów
+                            Brak dyżurów
                         </div>
                     </li>
                 @endif
@@ -47,7 +46,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-            Wpisałeś się na listę rezerwową:
+            Lista rezerwowa:
         </div>
         <div class="card-body">
             <ul class="list-group">
@@ -59,8 +58,11 @@
                                     {{ $duty['day'] }}, godz. {{ $duty['hour'] }}.00
                                 </div>
                                 <div class="col-md-6">
-                                    <button class="btn btn-danger ml-5 remove-duty"
-                                        data-id="{{ $duty['id'] }}">Usuń</button>
+                                     <form method="POST"
+                                        action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                        @csrf
+                                        <button class="btn btn-danger ml-5 remove-duty">Usuń</button>
+                                    </form>
                                 </div>
                             </div>
                         </li>

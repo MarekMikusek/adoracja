@@ -11,8 +11,9 @@
                 @csrf()
                 <div class="card-body">
                     <div class="modal-footer">
-                        <a type="button" href="{{ route('admin.users') }}" class="btn btn-secondary">Anuluj</button>
-                        <a type="button" href="{{ route('admin.users.patterns', ['user' => $user->id]) }}" class="btn btn-success" data-user_id="">Posługi</a>
+                        <a type="button" href="{{ route('admin.users') }}" class="btn btn-secondary">Anuluj</a>
+                        <a type="button" href="{{ route('admin.users.duties', ['user' => $user->id]) }}" class="btn btn-info" data-user_id="">Posługi zaplanowane</a>
+                        <a type="button" href="{{ route('admin.users.patterns', ['user' => $user->id]) }}" class="btn btn-success" data-user_id="">Posługi stałe</a>
                         <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
                     </div>
                     <div class="mb-3">

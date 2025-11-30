@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RemoveCurrentDutyRequest;
 use App\Http\Requests\StoreCurrentDutyRequest;
+use App\Http\Requests\StoreOnceDutyRequest;
 use App\Jobs\CurrentDutyAddedJob;
 use App\Models\CurrentDuty;
 use App\Models\CurrentDutyUser;
@@ -29,7 +30,7 @@ class CurrentDutyController extends Controller
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
             ->where('cd.date', '>=', Carbon::today())
             ->where('user_id', Auth::id())
-            ->select(['current_duty_id', 'date', 'hour', 'duty_type'])
+            ->select(['current_duty_id', 'date', 'hour', 'duty_type', 'cd.inactive'])
             ->orderBy('duty_type')
             ->orderBy('date')
             ->orderBy('hour')
@@ -41,7 +42,7 @@ class CurrentDutyController extends Controller
 
         $duties = $duties->groupBy('duty_type');
         $duties['adoracja'] = $duties['adoracja'] ?? [];
-        $duties['Lista rezerwowa'] = $duties['rezerwa'] ?? [];
+        $duties['lista_rezerwowa'] = $duties['rezerwa'] ?? [];
 
         unset($duties['rezerwa']);
 
@@ -71,5 +72,17 @@ class CurrentDutyController extends Controller
 
         return Redirect::route('home')
             ->with('success', 'Dyżur został usunięty');
+    }
+
+    public function onceDuty(StoreOnceDutyRequest $request)
+    {
+        $data          = $request->validated();
+        $currentDutyId = CurrentDuty::where('date', $data['date'])->where('hour', $data['hour'])->first()->id;
+
+        $cdu = CurrentDutyUser::create([
+            'current_duty_id' => $currentDutyId,
+            'user_id'         => Auth::user()->id,
+            'duty_type'       => $data['duty_type']]
+        );
     }
 }

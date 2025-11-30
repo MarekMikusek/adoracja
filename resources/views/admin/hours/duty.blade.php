@@ -30,17 +30,8 @@
                                     Brak
                                 @endforelse
 
-                                <div class="form-group">
-                                    <label for="userSelect">Dodaj użytkownika:</label>
-                                    <select id="user-select-duty" class="form-control" data-duty_id="{{ $duty->duty_id }}">
-                                        <option value="">-- wybierz --</option>
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->first_name }}
-                                                {{ $user->last_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <x-user-select id="user-select-duty" :users="$users" :duty_id="$duty->duty_id" duty_type="adoracja" label="Dodaj użytkownika do adoracji:" />
+
                             </div>
                         </div>
                     </div>
@@ -63,18 +54,8 @@
                                     Brak
                                 @endforelse
 
-                                <div class="form-group ml-3">
-                                    <label for="user-select-ready">Dodaj użytkownika:</label>
-                                    <select id="user-select-ready" class="form-control"
-                                        data-duty_id="{{ $duty->duty_id }}">
-                                        <option value="">-- wybierz --</option>
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->first_name }}
-                                                {{ $user->last_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                               <x-user-select id="user-select-ready" :users="$users" :duty_id="$duty->duty_id" duty_type="rezerwa" label="Dodaj użytkownika do rezerwy:" />
+
                             </div>
                         </div>
                     </div>
@@ -149,43 +130,15 @@
                     },
                     success: function(response) {
                         location.reload();
-                    }
-                });
-            });
-
-            function addUserToDuty(user_id, duty_id, duty_type) {
-                $.ajax({
-                    url: "{{ route('admin.current-duty.store') }}",
-                    method: 'POST',
-                    data: {
-                        current_duty_id: duty_id,
-                        user_id: user_id,
-                        duty_type: duty_type,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        location.reload();
-
                     },
                     error: function(xhr, status, error) {
-                        // Handle error response
-                        alert('An error occurred: ' + error);
-                        console.log(xhr.responseText);
+                        alert('Błąd przy usuwaniu: ' + error);
                     }
                 });
-            }
-
-            $('#user-select-duty').on('change', function() {
-                const duty_id = $(this).data('duty_id');
-                addUserToDuty($(this).val(), duty_id, 'adoracja');
-                $("#user-select-duty option:first").prop("selected", true);
             });
 
-            $('#user-select-ready').on('change', function() {
-                const duty_id = $(this).data('duty_id');
-                addUserToDuty($(this).val(), duty_id, 'rezerwa');
-                $("#user-select-ready option:first").prop("selected", true);
-            });
+            // Funkcja addUserToDuty już nie jest konieczna jeśli komponent robi AJAX samodzielnie.
+            // Jeśli wolisz, możesz pozostawić i wywołać ją zamiast używania AJAX w komponencie.
 
             $('#sendMessages').on('click', function() {
 

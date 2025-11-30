@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CurrentDutyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IntentionController;
+use App\Http\Controllers\MainCoordinatorsController;
 use App\Http\Controllers\MonthlyCoordinatorPatternController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatternController;
@@ -23,7 +24,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('intentions', [IntentionController::class, 'index'])->name('intentions');
 Route::post('intention', [IntentionController::class, 'save'])->name('intention.save');
 Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
-Route::get('main-coordinator', [HomeController::class, 'mainCoordinator'])->name('main-coordinator');
+Route::post('main-coordinator-email', [MainCoordinatorsController::class, 'sendEmail'])->name('main-coordinator-email');
+Route::get('main-coordinator', [MainCoordinatorsController::class, 'index'])->name('main-coordinator');
+Route::get('instruction', function () {
+    return view('instruction');})->name('instruction');
+
 // Route::get('admins', [HomeController::class, 'admins'])->name('admins');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
@@ -39,12 +44,15 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::post('intentions-remove', [AdminController::class, 'removeIntention'])->name('admin.intentions.remove');
 
     Route::post('users/delete', [AdminUserController::class, 'destroy'])->name('admin.users.delete');
+    Route::post('users/remove-duty', [AdminUserController::class, 'removeDuty'])->name('admin.users.remove-duty');
     Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::post('users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users');
     Route::post('verify-user', [AdminUserController::class, 'verifyUser'])->name('admin.user.verify');
+
     Route::get('users/create', [AdminUserController::class, 'createUser'])->name('admin.users.create');
     Route::post('users/search', [AdminUserController::class, 'searchUser'])->name('admin.users.search');
+    Route::get('users/{user}/duties', [AdminUserController::class, 'duties'])->name('admin.users.duties');
     Route::post('users', [AdminUserController::class, 'store'])->name('admin.users.store');
 
     Route::get('users/{user}/patterns', [AdminUserController::class, 'showUserDuties'])->name('admin.users.patterns');
@@ -72,6 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::post('intention/is_prayer', [IntentionController::class, 'isPrayer'])->name('intentions.is_prayer');
     Route::get('duties', [CurrentDutyController::class, 'index'])->name('current-duty.index');
     Route::post('current-duty', [CurrentDutyController::class, 'store'])->name('current-duty.store');
+    Route::post('once-duty', [CurrentDutyController::class, 'onceDuty'])->name('once-duty.store');
     Route::post('current-duty-remove', [CurrentDutyController::class, 'destroy'])->name('current-duty.remove');
     Route::post('patterns/delete/{dutyPattern}', [PatternController::class, 'destroy'])->name('patterns.delete');
     Route::post('patterns', [PatternController::class, 'store'])->name('patterns.store');

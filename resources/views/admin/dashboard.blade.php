@@ -8,25 +8,22 @@
 
         .table-container {
             max-height: 670px;
-            /* Set max height to enable scrolling */
             overflow: auto;
             position: relative;
         }
 
-        /* Sticky header */
         .table th {
             position: sticky;
             top: 0;
             background-color: #f8f9fa;
             z-index: 1;
-            /* Ensure the header is above the content */
         }
 
-        .table-container td{
-            padding: 0.25em!important;
-            line-height: 1em!important;
+        .table-container td {
+            padding: 0.25em !important;
+            line-height: 1em !important;
         }
-        /* Sticky first column */
+
         .table td:first-child,
         .table th:first-child {
             position: sticky;
@@ -34,10 +31,8 @@
             background-color: #f8f9fa;
 
             z-index: 2;
-            /* Ensure the first column is above other cells */
         }
 
-        /* Optional: Add a border to separate the first column */
         .table td:first-child,
         .table th:first-child {
             border-right: 2px solid #ddd;
@@ -45,6 +40,10 @@
 
         .no-wrap {
             white-space: nowrap;
+        }
+
+        .my-duty {
+            background-color: yellow !important;
         }
     </style>
 @endsection
@@ -64,16 +63,26 @@
                             @endforeach
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach ($dayHours as $hour)
                             <tr>
-                                <td class="sticky-col text-nowrap no-wrap align-middle text-center">{{ $hour }}-{{ $hour + 1 }}</td>
+                                <td class="sticky-col text-nowrap no-wrap align-middle text-center">
+                                    {{ $hour }}-{{ $hour + 1 }}</td>
                                 @foreach ($duties as $date => $duty)
-                                    <td class="editable-cell align-middle text-center"
-                                        title="koorynator: {{ $duty['timeFrames'][$hour]['admin_name'] ?? '-' }}"
-                                        data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}">
-                                        {{ $duty['timeFrames'][$hour]['adoracja'] }}
-                                        ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
+                                    <td @if ($duty['timeFrames'][$hour]['inactive'] != 1) title="koorynator: {{ $duty['timeFrames'][$hour]['admin_name'] ?? '-' }}"
+                                        @if ($duty['timeFrames'][$hour]['my_day'] === 1)
+                                        class="editable-cell align-middle text-center my-duty"
+                                        @else
+                                        class="editable-cell align-middle text-center" @endif
+                                        data-href="{{ route('admin.current-duty.edit', ['duty' => $duty['timeFrames'][$hour]['duty_id']]) }}"
+                                        @endif>
+                                        @if ($duty['timeFrames'][$hour]['inactive'] != 1)
+                                            {{ $duty['timeFrames'][$hour]['adoracja'] }}
+                                            ({{ $duty['timeFrames'][$hour]['rezerwa'] }})
+                                        @else
+                                            -
+                                        @endif
                                     </td>
                                 @endforeach
                             </tr>

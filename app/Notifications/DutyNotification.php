@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\Vonage\VonageMessage;
 use NotificationChannels\Vonage\VonageChannel;
 
-class DutyNotification extends Notification implements ShouldQueue
+class DutyNotification extends Notification
 {
     use Queueable;
 
@@ -36,7 +36,7 @@ class DutyNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable): array
     {
-        return $notifiable->notification_preference === 'sms' 
+        return $notifiable->notification_preference === 'sms'
             ? [VonageChannel::class]
             : ['mail'];
     }
@@ -65,4 +65,4 @@ class DutyNotification extends Notification implements ShouldQueue
         return (new VonageMessage)
             ->content($this->message);
     }
-} 
+}

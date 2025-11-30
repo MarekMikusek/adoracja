@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('intention');
             $table->foreignId('user_id')->nullable();
+            $table->tinyInteger('is_confirmed')->default(0);
             $table->timestamps();
         });
     }

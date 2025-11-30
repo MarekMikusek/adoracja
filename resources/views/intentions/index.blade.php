@@ -63,7 +63,7 @@
                         <small>Prosimy nie podawać w intencjach informacji umożliwiających identyfikację osób: nazwisk, zbyt
                             dokładnych opisów sytuacji, itp. Prosimy o możliwie krótkie intencje:
                             np. w intencji uzdrowienia z choroby serca dla Anny, o poprawę relacji z żoną dla
-                            Zbigniewa. Intencje dodane przez osóby niezalogowane będą wyświetlane po zatwierdzeniu przez koorodynatora. </small>
+                            Zbigniewa. Intencje będą wyświetlane po zatwierdzeniu przez koorodynatora. </small>
                     </div>
                 </div>
             </div>
