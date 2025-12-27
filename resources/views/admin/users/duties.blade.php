@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('styles')
+    <style>
+        .historical {
+            color: grey !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -21,23 +26,26 @@
                         @else
                             @foreach ($duties as $dutyType => $duties)
                                 <div class="card mb-4">
-                                    <div class="card-header bg-primary text-white"> {{-- Dostosuj kolor tła i tekstu nagłówka --}}
-                                        <h2 class="h5 mb-0 text-capitalize">{{ $dutyType }}</h2> {{-- Wyświetla typ posługi (np. Adoracja, Rezerwa) z kapitalizacją pierwszej litery --}}
+                                    <div class="card-header bg-primary text-white">
+                                        <h2 class="h5 mb-0 text-capitalize">{{ $dutyType }}</h2>
                                     </div>
                                     <ul class="list-group list-group-flush">
                                         @foreach ($duties as $duty)
                                             <li class="list-group-item d-flex justify-content-between align-items-center"
                                                 duty-id="{{ $duty['current_duty_id'] }}">
-                                                <div>{{ $duty['date'] }}, {{ strtolower($duty['name_of_day']) }},
+                                                <div @if ($duty['historical']) class="historical" @endif>
+                                                    {{ $duty['date'] }}, {{ strtolower($duty['name_of_day']) }},
                                                     <span class="ml-3 font-weight-bold">godziny </span>
                                                     {{ $duty['hour'] }}.00 -{{ $duty['hour'] + 1 }}.00
                                                 </div>
-                                                <button type="button" class="btn btn-sm btn-danger delete-duty-btn"
-                                                    data-duty_id="{{ $duty['current_duty_id'] }}"
-                                                    data-date="{{ $duty['date'] }}" data-hour="{{ $duty['hour'] }}"
-                                                    title="Usuń posługę">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
+                                                @if (!$duty['historical'])
+                                                    <button type="button" class="btn btn-sm btn-danger delete-duty-btn"
+                                                        data-duty_id="{{ $duty['current_duty_id'] }}"
+                                                        data-date="{{ $duty['date'] }}" data-hour="{{ $duty['hour'] }}"
+                                                        title="Usuń posługę">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                @endif
                                             </li>
                                         @endforeach
                                     </ul>
@@ -89,7 +97,7 @@
                 const url = "{{ route('admin.users.remove-duty') }}";
 
                 $('#removeUserDutyModal').modal('hide');
-                
+
                 return $.ajax({
                     url: url,
                     type: 'POST',

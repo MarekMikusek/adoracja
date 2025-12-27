@@ -34,7 +34,7 @@ class AdminCurrentDutyController extends Controller
             ->orderBy('cd.date')
             ->orderBy('cd.hour')
             ->get();
-// dd($currentDuties);
+
         $duties                         = [];
         $duties[DutyType::DUTY->value]  = [];
         $duties[DutyType::READY->value] = [];

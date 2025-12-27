@@ -91,4 +91,9 @@ class User extends Authenticatable//implements MustVerifyEmail
     {
         return DB::select("select id, concat(first_name, ' ', last_name) as name, color, phone_number from users where is_admin = true");
     }
+
+    public function testimonies()
+    {
+        return $this->hasMany(Testimony::class);
+    }
 }

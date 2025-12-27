@@ -54,7 +54,7 @@ class AdminUserController extends Controller
         $duties = CurrentDutyUser::query()
             ->join('current_duties as cd', 'cd.id', 'current_duties_users.current_duty_id')
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
-            ->where('cd.date', '>=', Carbon::today())
+            ->where('cd.date', '>=', Carbon::today()->subWeeks(2))
             ->where('user_id', $user->id)
             ->select(['current_duty_id', 'date', 'hour', 'duty_type', 'cd.inactive'])
             ->orderBy('duty_type')
@@ -64,6 +64,7 @@ class AdminUserController extends Controller
 
         foreach ($duties as $duty) {
             $duty['name_of_day'] = DateHelper::dayOfWeek($duty['date']);
+            $duty['historical'] = $duty['date'] < Carbon::today();
         }
 
         $duties = $duties->groupBy('duty_type');

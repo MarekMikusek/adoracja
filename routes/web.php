@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCurrentDutyController;
+use App\Http\Controllers\AdminTestimonyController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CurrentDutyController;
 use App\Http\Controllers\HomeController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatternController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReserveController;
+use App\Http\Controllers\TestimonyController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Mail;
@@ -26,10 +28,10 @@ Route::post('intention', [IntentionController::class, 'save'])->name('intention.
 Route::get('rodo', [HomeController::class, 'rodo'])->name('rodo');
 Route::post('main-coordinator-email', [MainCoordinatorsController::class, 'sendEmail'])->name('main-coordinator-email');
 Route::get('main-coordinator', [MainCoordinatorsController::class, 'index'])->name('main-coordinator');
+Route::resource('testimonies', TestimonyController::class);
 Route::get('instruction', function () {
-    return view('instruction');})->name('instruction');
-
-// Route::get('admins', [HomeController::class, 'admins'])->name('admins');
+    return view('instruction');
+})->name('instruction');
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -65,6 +67,11 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('/coordinators', [MonthlyCoordinatorPatternController::class, 'index'])->name('coordinators.index');
     Route::post('/coordinators/update', [MonthlyCoordinatorPatternController::class, 'update'])->name('coordinators.update');
 
+    Route::post('/testimonies/delete', [AdminTestimonyController::class, 'destroy'])->name('admin.testimonies.remove');
+    Route::get('/testimonies/{testimony}', [AdminTestimonyController::class, 'show'])->name('admin.testimonies.show');
+    Route::get('/testimonies', [AdminTestimonyController::class, 'index'])->name('admin.testimonies.index');
+    Route::post('/testimonies/confirm', [AdminTestimonyController::class, 'confirm'])->name('admin.testimonies.confirm');
+
     Route::post('messages', [NotificationController::class, 'sendMessages'])->name('admin.messages');
     Route::get('admins', [AdminController::class, 'index'])->name('admin.admins');
     Route::post('admins/update-duty-hours', [AdminController::class, 'updateDutyHours'])->name('admin.admins.updateDutyHours');
@@ -95,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 });
 
 require __DIR__ . '/auth.php';

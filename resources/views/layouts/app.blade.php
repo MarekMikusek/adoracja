@@ -47,15 +47,12 @@
 
 <body class="font-sans antialiased">
     <div class="row">
-            {{-- Grafika dla dużych ekranów --}}
-    <img src="{{ asset('images/adoracja.jpg') }}"
-         class="img-fluid d-none d-md-block"
-         alt="Widok kaplicy adoracji">
+        {{-- Grafika dla dużych ekranów --}}
+        <img src="{{ asset('images/adoracja.jpg') }}" class="img-fluid d-none d-md-block" alt="Widok kaplicy adoracji">
 
-    {{-- Grafika dla urządzeń mobilnych --}}
-    <img src="{{ asset('images/adoracja_mobile.jpg') }}"
-         class="img-fluid d-block d-md-none"
-         alt="Widok kaplicy adoracji (mobile)">
+        {{-- Grafika dla urządzeń mobilnych --}}
+        <img src="{{ asset('images/adoracja_mobile.jpg') }}" class="img-fluid d-block d-md-none"
+            alt="Widok kaplicy adoracji (mobile)">
     </div>
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -93,8 +90,10 @@
                                 <a class="nav-link {{ request()->routeIs('admin.intentions') ? 'active' : '' }} coordinator-link"
                                     href="{{ route('admin.intentions') }}">Intencje</a>
                             </li>
-
-                            {{-- adorator links (shown when view = adorator) --}}
+                            <li class="nav-item coordinator-link">
+                                <a class="nav-link {{ request()->routeIs('admin.testimonies') ? 'active' : '' }} coordinator-link"
+                                    href="{{ route('admin.testimonies.index') }}">Świadectwa</a>
+                            </li>
                             <li class="nav-item adorator-link">
                                 <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }} adorator-link default-adorator-link"
                                     href="{{ route('home') }}">Plan adoracji</a>
@@ -124,23 +123,27 @@
                     @endauth
 
                     @guest
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
-                                    href="{{ route('home') }}">Adoracja w najbliższym czasie</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('main-coordinator') ? 'active' : '' }}"
-                                    href="{{ route('main-coordinator') }}">Kontakt do koorynatorów</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                                href="{{ route('home') }}">Adoracja w najbliższym czasie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('main-coordinator') ? 'active' : '' }}"
+                                href="{{ route('main-coordinator') }}">Kontakt do koorynatorów</a>
+                        </li>
                     @endguest
                     <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('instruction') ? 'active' : '' }}"
-                                    href="{{ route('instruction') }}">Instrukcja</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('rodo') ? 'active' : '' }}"
-                                    href="{{ route('rodo') }}">RODO</a>
-                            </li>
+                        <a class="nav-link {{ request()->routeIs('instruction') ? 'active' : '' }}"
+                            href="{{ route('instruction') }}">Instrukcja</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('rodo') ? 'active' : '' }}"
+                            href="{{ route('rodo') }}">RODO</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('testimonies.index') ? 'active' : '' }}"
+                            href="{{ route('testimonies.index') }}">Świadectwa</a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">
@@ -149,7 +152,8 @@
                             <a class="nav-link {{ request()->routeIs('intentions') ? 'active' : '' }} adorator-link"
                                 href="{{ route('intentions') }}">Intencje modlitewne</a>
                         </li>
-                        <li class="nav-item" title="Jeśli nie będziesz mógł służyc przez pewien czas poinformuj o tym innych">
+                        <li class="nav-item"
+                            title="Jeśli nie będziesz mógł służyc przez pewien czas poinformuj o tym innych">
                             <a class="nav-link {{ request()->routeIs('profile.edit-suspend') ? 'active' : '' }} adorator-link"
                                 href="{{ route('profile.edit-suspend') }}">Zawieś posługę</a>
                         </li>
@@ -177,7 +181,8 @@
                             <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
                                 href="{{ route('login') }}">Zaloguj się</a>
                         </li>
-                        <li class="nav-item" title="Zajestruj się jeśli chcesz podjąć posługę i poinformowac o tym innych">
+                        <li class="nav-item"
+                            title="Zajestruj się jeśli chcesz podjąć posługę i poinformowac o tym innych">
                             <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}"
                                 href="{{ route('register') }}">Zarejestruj się</a>
                         </li>

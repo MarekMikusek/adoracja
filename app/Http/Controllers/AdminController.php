@@ -40,11 +40,11 @@ class AdminController extends Controller
 
         $startDate = Carbon::now()->subDay();
         $adminName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
-/*
+
         if($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 5 ){
             Artisan::call('app:generate-current-duties --no_weeks=4');
         }
-*/
+
         $currentDuties = DB::table('current_duties as cd')
             ->selectRaw("cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, u.first_name || ' ' || u.last_name as name, cd.inactive as inactive")
             ->where('date', '>=', $startDate)
