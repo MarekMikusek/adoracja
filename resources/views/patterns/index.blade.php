@@ -1,0 +1,276 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Adoracja
+            </div>
+            <div class="card-body">
+
+                <ul class="list-group">
+                    @if (!empty($duties['adoracja']))
+                        @foreach ($duties['adoracja'] as $duty)
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ $duty['day'] }}, zaczynasz o godz. {{ $duty['hour'] }}.00,
+                                        {{ $intervals[$duty['repeat_interval']]['name'] }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <form method="POST"
+                                            action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                            @csrf
+                                            <button class="btn btn-danger ml-5">Rezygnuję</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    @else
+                        <li class="list-group-item">
+                            <div class="">
+                                Nie masz zaplanowanych adoracji
+                            </div>
+                        </li>
+                    @endif
+                </ul>
+                <div class="row justify-content-between m-4 ">
+                    <div class="col-auto">
+                        <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addDutyModal" data-duty-type="adoracja">
+                            Dodaj godzinę adoracji
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Lista rezerwowa
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    @if (!empty($duties['rezerwa']))
+                        @foreach ($duties['rezerwa'] as $duty)
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ $duty['day'] }}, godz. {{ $duty['hour'] }}.00
+                                    </div>
+                                    <div class="col-md-6">
+                                        <form method="POST"
+                                            action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                            @csrf
+                                            <button class="btn btn-danger ml-5 remove-duty">Rezygnuję</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    @else
+                        Nie zakrelarowałeś godzin na liście rezerwowej
+                    @endif
+                </ul>
+                <div class="row justify-content-between m-4">
+                    <div class="col-auto">
+                        <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addDutyModal" data-duty-type="rezerwa">
+                            Dodaj godzinę na liście rezerwowej
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Jednorazowa posługa
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-between m-4">
+                    <div class="col-auto">
+                        <button type="button" class="add-duty btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addOnceDutyModal" data-duty-type="rezerwa">
+                            Dodaj posługę jednorazową
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--modal dodaj posługę jednorazową -->
+    <div class="modal fade" id="addOnceDutyModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Podejmuję adorację/ wpisuję się na listę rezerwową</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-once-duty-form">
+                        <div class="mb-4">
+                            <div class="flex gap-4 mb-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="once_duty_type" value="adoracja" class="form-radio" checked>
+                                    <span class="ml-2">Adoracja</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="once_duty_type" value="rezerwa" class="form-radio">
+                                    <span class="ml-2">Lista rezerwowa</span>
+                                </label>
+                            </div>
+                            <label for="new-duty-date" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="new-once-duty-date" name="date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-once-duty-hour" class="form-label">Godzina</label>
+                            <select class="form-control" id="new-once-duty-hour" name="hour_range">
+                                @for ($i = 0; $i < 24; $i++)
+                                    <option value="{{ $i }}">{{ $i }}.00 - {{ $i + 1 }}.00</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Zapisz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Duty Modal -->
+    <div class="modal fade" id="addDutyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj posługę</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('patterns.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Dzień</label>
+                            <select class="form-select" id="add_pattern_day" name="day" required>
+                                @foreach ($weekDays as $day)
+                                    <option value="{{ $day }}">{{ $day }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hour" class="form-label">Godzina</label>
+                            <select class="form-select" id="add_pattern_hour" name="hour" required>
+                                @foreach ($hours as $hour)
+                                    <option value="{{ $hour }}">{{ sprintf('%02d:00', $hour) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="repeat_pattern" class="form-label">Powtarzanie</label>
+                            <select class="form-select" id="add_duty_repeat_interval" name="repeat_interval" required>
+                                @foreach ($intervals as $interval)
+                                    <option value="{{ $interval['value'] }}">{{ $interval['name'] }}</option>
+                                @endforeach
+
+                            </select>
+                        </div>
+                        <div id="modal-start-date" class="d-none">
+                            <div class="mb-3">
+                                <input type="hidden" name="id" id="suspend_id">
+                                <label for="start_date" class="form-label mr-5">Data pierwszej posługi</label>
+                                <input id="start_date" type="date" name="start_date" value="">
+                            </div>
+                            <div class="mb-3">
+                                <label class="inline-flex items-center">
+                                    <span class="mr-2">Rodzaj posługi: </span>
+                                    <input id="duty-type-input" type="text" name="duty_type" value="" readonly>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                            <button type="submit" class="btn btn-primary">Zapisz</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
+
+@section('styles')
+    <style>
+        .duty-cell {
+            min-width: 150px;
+            height: 60px;
+            vertical-align: middle;
+        }
+
+        .duty-item {
+            padding: 4px 8px;
+            margin: 2px 0;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .duty-mine {
+            background-color: #e8f5e9;
+        }
+
+        .delete-duty {
+            padding: 0 6px;
+            line-height: 1.2;
+        }
+    </style>
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('.add-duty').click(function() {
+                const dutyType = $(this).data('duty-type');
+                $('#duty-type-input').val(dutyType);
+            });
+            $('#add_duty_repeat_interval').on('change', () => {
+                const interval = $('#add_duty_repeat_interval option:selected').val();
+                if (interval == 1) {
+                    $('#modal-start-date').addClass('d-none');
+                } else {
+                    $('#modal-start-date').removeClass('d-none');
+                };
+            });
+            $('#add-once-duty-form').on('submit', function (e){
+                e.preventDefault();
+
+                const url = "{{ route('once-duty.store') }}";
+                const duty_type = $('input[name="once_duty_type"]:checked').val();
+                const hour = $('#new-once-duty-hour').val();
+                const date = $('#new-once-duty-date').val();
+                const redirectUrl = "{{ route('current-duty.index') }}";
+
+                $('#editModal').modal('hide');
+
+                return $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        date: date,
+                        hour: hour,
+                        duty_type: duty_type
+                    },
+                    success: function(response) {
+                        window.location.href = redirectUrl;
+                    },
+                    error: function(xhr) {
+                        alert('Błąd');
+                    }
+                });
+            });
+        });
+    </script>
+@endsection

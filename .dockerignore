@@ -1,0 +1,14 @@
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env.backup
+.env.example
+.DS_Store
+*.log
+*.sqlite3
+*.sqlite
+*.bak
+.idea
+.vscode
+tests/

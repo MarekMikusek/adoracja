@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # Laravel App (PHP-FPM)
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www # Mount for development, for production consider a self-contained image
+    networks:
+      - app_network
+    depends_on:
+      - mysql
+    # No CMD here if PHP-FPM is the default command in Dockerfile and Nginx is handling web requests
+    # If not using Nginx directly, then keep `CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]`
+    # and adjust Dockerfile EXPOSE to 8080 and Nginx config if Nginx is still desired for other reasons.
+
+  # Vite development server (for hot reloading in development)
+  vite:
+    image: node:latest
+    container_name: laravel_vite
+    working_dir: /var/www
+    # For development, run npm install and then npm run dev
+    entrypoint: /bin/sh -c "npm install && npm run dev"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./:/var/www
+    networks:
+      - app_network
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8020:80"
+    volumes:
+      - ./:/var/www # Mount for Nginx to serve static files and proxy to PHP-FPM
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro # Mount your Nginx config read-only
+    networks:
+      - app_network
+    depends_on:
+      - app # Nginx depends on the app (PHP-FPM) to be ready
+
+  # MySQL Service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: adoracja
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3392:3306"
+    networks:
+      - app_network
+
+  # phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8041:80"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
