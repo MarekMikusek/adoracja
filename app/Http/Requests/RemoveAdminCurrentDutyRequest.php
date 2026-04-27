@@ -9,7 +9,7 @@ class RemoveAdminCurrentDutyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'duty_id' => ['required', 'string']
+            'id' => ['required', 'string']
         ];
     }
 }

@@ -9,46 +9,46 @@ use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
 use App\Models\Intention;
-use App\Models\MonthlyCoordinatorPattern;
 use App\Models\ReservePattern;
 use App\Models\User;
+use App\Services\DateHelper;
+use App\Services\DutiesService;
 use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
 use WeekDays;
-use App\Services\DateHelper;
-use App\Services\DutiesService;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Types\Relations\Car;
 
 class AdminController extends Controller
 {
-    public const MY_DUTY_COLOUR = '#A7C7E7';
+    public const MY_DUTY_COLOUR  = '#A7C7E7';
     public const REZERWA_COLOUR  = '#FFE440';
     public const NO_DUTY_COLOUR  = '#FFFFFF';
-    public const HAS_DUTY_COLOUR  = '#98FB98';
+    public const HAS_DUTY_COLOUR = '#98FB98'; //11202   9863
 
     public function dashboard()
     {
-        $adminDutyPatterns = MonthlyCoordinatorPattern::coordinatorsResponsible();
-
         $startDate = Carbon::now()->subDay();
+
         $adminName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
 
-        if($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 5 ){
+        if ($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 6) {
             Artisan::call('app:generate-current-duties --no_weeks=4');
         }
 
         $currentDuties = DB::table('current_duties as cd')
             ->selectRaw("cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, u.first_name || ' ' || u.last_name as name, cd.inactive as inactive")
             ->where('date', '>=', $startDate)
-            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', 'cd.id')
+            ->leftJoin('current_duties_users as cdu', function ($join) {
+                $join->on('cdu.current_duty_id', '=', 'cd.id')
+                    ->whereNull('cdu.deleted_at');
+            })
             ->leftJoin('users as u', 'cdu.user_id', 'u.id')
             ->orderBy('cd.date')
             ->orderBy('cd.hour')
@@ -58,7 +58,7 @@ class AdminController extends Controller
 
         foreach ($currentDuties as $duty) {
             $currentDateAsCarbon = Carbon::createFromDate($duty->date);
-            $currentDate = $currentDateAsCarbon->isoFormat('DD.MM');
+            $currentDate         = $currentDateAsCarbon->isoFormat('DD.MM');
 
             if (! isset($duties[$currentDate])) {
                 $dayName                            = DateHelper::dayOfWeek($duty->date);
@@ -68,50 +68,50 @@ class AdminController extends Controller
             }
 
             if (! isset($duties[$currentDate]['timeFrames'][$duty->hour])) {
-                $duties[$currentDate]['timeFrames'][$duty->hour] = [];
-                $duties[$currentDate]['timeFrames'][$duty->hour]['inactive'] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['my_day'] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]  = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value] = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour]                           = [];
+                $duties[$currentDate]['timeFrames'][$duty->hour]['inactive']               = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour]['my_day']                 = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]    = 0;
+                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value]   = 0;
                 $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::SUSPEND->value] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name'] = $adminDutyPatterns[(int)$currentDateAsCarbon->format('j')] ?? null;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id'] = $duty->duty_id;
+                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name']             = AdminDutyPattern::getAdmin($duty);
+                $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id']                = $duty->duty_id;
             }
 
             if ($duty->user_id) {
                 $duties[$currentDate]['timeFrames'][$duty->hour][$duty->duty_type]++;
             }
 
-            if($adminName == $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name']){
+            if ($adminName == $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name']) {
                 $duties[$currentDate]['timeFrames'][$duty->hour]['my_day'] = 1;
             }
 
-            if($duty->inactive == 1){
+            if ($duty->inactive == 1) {
                 $duties[$currentDate]['timeFrames'][$duty->hour]['inactive'] = 1;
             }
         }
 
         return view('admin.dashboard', [
-            'duties'   => $duties,
-            'admins'   => collect(User::admins())->keyBy('id')->toArray(),
-            'dayHours' => Helper::DAY_HOURS,
-            'myDutyColour' => self::MY_DUTY_COLOUR,
-            'myReserveColour'  => self::REZERWA_COLOUR,
-            'noDutyColour'   => self::NO_DUTY_COLOUR,
-            'hasDutyColour' => self::HAS_DUTY_COLOUR,
-            'userName' => Auth::user()->first_name . ' ' . Auth::user()->last_name
+            'duties'          => $duties,
+            'admins'          => collect(User::admins())->keyBy('id')->toArray(),
+            'dayHours'        => Helper::DAY_HOURS,
+            'myDutyColour'    => self::MY_DUTY_COLOUR,
+            'myReserveColour' => self::REZERWA_COLOUR,
+            'noDutyColour'    => self::NO_DUTY_COLOUR,
+            'hasDutyColour'   => self::HAS_DUTY_COLOUR,
+            'userName'        => Auth::user()->first_name . ' ' . Auth::user()->last_name,
         ]);
     }
 
     public function intentions()
     {
-        return view('admin.intentions.index',['intentions' => Intention::orderBy('id', "DESC")->get() ?? []]);
+        return view('admin.intentions.index', ['intentions' => Intention::orderBy('id', "DESC")->get() ?? []]);
     }
 
     public function confirmIntention(ConfirmIntentionRequest $request)
     {
-        $intention = Intention::find($request->validated()['intention']);
-        $intention->user_id = Auth::user()->id;
+        $intention               = Intention::find($request->validated()['intention']);
+        $intention->user_id      = Auth::user()->id;
         $intention->is_confirmed = 1;
 
         return $intention->save();
@@ -227,11 +227,11 @@ class AdminController extends Controller
     public function updateDutyHours(Request $request)
     {
         $request->validate([
-            'admin_id' => 'required|exists:users,id',
+            'admin_id'   => 'required|exists:users,id',
             'duty_hours' => 'nullable|string',
         ]);
 
-        $admin = User::findOrFail($request->admin_id);
+        $admin             = User::findOrFail($request->admin_id);
         $admin->duty_hours = explode(',', $request->duty_hours);
         $admin->save();
 
@@ -241,7 +241,7 @@ class AdminController extends Controller
     public function dutyHours()
     {
         $dutyHours = $this->getDutyHours();
-        $admins = User::where('is_admin', true)->get();
+        $admins    = User::where('is_admin', true)->get();
 
         return view('admin.duty_hours', compact('dutyHours', 'admins'));
     }
@@ -260,10 +260,10 @@ class AdminController extends Controller
     public function getDutyHours()
     {
         $dutyHours = DB::table('admin_duty_patterns as adp')
-        ->leftJoin('users as u', 'u.id', 'adp.admin_id')
-        ->selectRaw("adp.day, adp.hour, adp.id, u.id as admin_id, concat(u.first_name, ' ', u.last_name) as admin_name")
-        ->orderBy('adp.id')
-        ->get();
+            ->leftJoin('users as u', 'u.id', 'adp.admin_id')
+            ->selectRaw("adp.day, adp.hour, adp.id, u.id as admin_id, concat(u.first_name, ' ', u.last_name) as admin_name")
+            ->orderBy('adp.id')
+            ->get();
 
         return $dutyHours;
     }
@@ -272,10 +272,10 @@ class AdminController extends Controller
     {
         $request->validate([
             'admin_id' => 'required|exists:users,id',
-            'color' => 'required|string|size:7', // Ensure it's a valid hex color
+            'color'    => 'required|string|size:7', // Ensure it's a valid hex color
         ]);
 
-        $admin = User::findOrFail($request->admin_id);
+        $admin        = User::findOrFail($request->admin_id);
         $admin->color = $request->color;
         $admin->save();
 

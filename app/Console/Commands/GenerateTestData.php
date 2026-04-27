@@ -34,6 +34,7 @@ class GenerateTestData extends Command
                     'password' => Hash::make('test'),
                     'ways_of_contacts_id' => rand(1, 5),
                     'phone_number' => '600075041',
+                    'added_by' => -1
                 ]);
             } else {
                 $user = User::create([
@@ -43,6 +44,7 @@ class GenerateTestData extends Command
                     'password' => Hash::make('test'),
                     'ways_of_contacts_id' => rand(1, 5),
                     'phone_number' => null,
+                    'added_by' => -1
                 ]);
             }
 
@@ -83,7 +85,8 @@ class GenerateTestData extends Command
             'ways_of_contacts_id' => rand(1, 5),
             'is_admin' => true,
             'phone_number' => null,
-            'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
+            'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF)),
+            'added_by' => -1
         ]);
         // Generate admin users
         for ($i = 1; $i <= 4; $i++) {
@@ -95,7 +98,8 @@ class GenerateTestData extends Command
                 'ways_of_contacts_id' => rand(1, 5),
                 'is_admin' => true,
                 'phone_number' => null,
-                'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF))
+                'color' => sprintf("#%06X", mt_rand(0, 0xFFFFFF)),
+                'added_by' => -1
             ]);
 
             $admindIds[] = $adminId->id;

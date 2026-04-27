@@ -65,7 +65,8 @@ class DutyPatternController extends Controller
             'day_of_week' => $validated['day_of_week'],
             'hour' => $validated['hour'],
             'repeat_pattern' => $validated['repeat_pattern'],
-            'is_admin_duty' => true
+            'is_admin_duty' => true,
+            'added_by' => Auth::user()->id
         ]);
 
         return Redirect::route('duty-patterns.index')

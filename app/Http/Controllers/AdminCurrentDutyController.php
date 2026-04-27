@@ -14,9 +14,9 @@ class AdminCurrentDutyController extends Controller
     public function edit(CurrentDuty $duty)
     {
         $users = User::orderBy('first_name')
-        ->orderBy('last_name')
-        ->get()
-        ->keyBy('id');
+            ->orderBy('last_name')
+            ->get()
+            ->keyBy('id');
 
         $currentDuties = DB::table('current_duties as cd')
             ->selectRaw("
@@ -29,15 +29,18 @@ class AdminCurrentDutyController extends Controller
                 cdu.current_duty_id"
             )
             ->where('cd.id', $duty->id)
-            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', 'cd.id')
+            ->leftJoin('current_duties_users as cdu', function ($join) {
+                $join->on('cdu.current_duty_id', '=', 'cd.id')
+                    ->whereNull('cdu.deleted_at');
+            })
             ->leftJoin('users as u', 'cdu.user_id', 'u.id')
             ->orderBy('cd.date')
             ->orderBy('cd.hour')
             ->get();
 
-        $duties                         = [];
-        $duties[DutyType::DUTY->value]  = [];
-        $duties[DutyType::READY->value] = [];
+        $duties                           = [];
+        $duties[DutyType::DUTY->value]    = [];
+        $duties[DutyType::READY->value]   = [];
         $duties[DutyType::SUSPEND->value] = [];
 
         foreach ($currentDuties as $duty) {

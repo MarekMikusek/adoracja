@@ -25,7 +25,8 @@
                         <th>Email</th>
                         <th>Telefon</th>
                         <th>Posługi zaplanowane</th>
-                        <th>Posługi stałe</th>
+                        <th>Adoracja stała</th>
+                        <th>Rezerwa stała</th>
                         <th>Edytuj</th>
                         <th>Usuń</th>
                     </tr>
@@ -40,8 +41,13 @@
                                 placeholder="Email"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input" data-col="4"
                                 placeholder="Telefon"></th>
+                                <th></th>
+                        <th><input type="text" class="form-control form-control-sm filter-input" data-col="6"
+                                placeholder="Szukaj dnia/godziny..."></th>
+                        <th><input type="text" class="form-control form-control-sm filter-input" data-col="7"
+                                placeholder="Szukaj dnia/godziny..."></th>
 
-                        <th colspan="4" class="text-end">
+                        <th colspan="2" class="text-end">
                             <button id="clearFilters" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-eraser me-1"></i> Wyczyść filtry
                             </button>
@@ -51,26 +57,46 @@
                 <tbody>
                     @foreach ($users as $user)
                         <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->first_name }}</td>
-                            <td>{{ $user->last_name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone_number ?? '-' }}</td>
+                            <td>{{ $user['id'] }}</td>
+                            <td>{{ $user['first_name'] }}</td>
+                            <td>{{ $user['last_name'] }}</td>
+                            <td>{{ $user['email'] }}</td>
+                            <td>{{ $user['phone_number'] ?? '-' }}</td>
 
-                            <td> <a type="button" href="{{ route('admin.users.duties', ['user' => $user->id]) }}"
+                            <td> <a type="button" href="{{ route('admin.users.duties', ['user' => $user['id']]) }}"
                                     class="btn btn-info btn-sm" data-user_id="">Zaplanowane</a></td>
-                            <td><a type="button" href="{{ route('admin.users.patterns', ['user' => $user->id]) }}"
-                                    class="btn btn-success btn-sm" data-user_id="">Stałe</a></td>
                             <td>
-                                <a href="{{ route('admin.users.edit', ['user' => $user->id]) }}" role="button"
+                                @if ($user['adoracja'])
+                                    <ul>
+                                        @foreach ($user['adoracja'] as $adoracja)
+                                            <li>{{ $adoracja['day'] }}, {{ $adoracja['hour'] }}-{{ $adoracja['hour'] + 1 }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($user['rezerwa'])
+                                    <ul>
+                                        @foreach ($user['rezerwa'] as $adoracja)
+                                            <li>{{ $adoracja['day'] }},
+                                                {{ $adoracja['hour'] }}-{{ $adoracja['hour'] + 1 }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </td>
+                            <td></td>
+                            <td>
+                                <a href="{{ route('admin.users.edit', ['user' => $user['id']]) }}" role="button"
                                     class="btn btn-sm btn-primary edit-user">
                                     Edytuj
                                 </a>
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-danger delete-user" title="Usuń użytkownika"
-                                    data-user_name="{{ $user->first_name }} {{ $user->last_name }}"
-                                    data-user_id="{{ $user->id }}">
+                                    data-user_name="{{ $user['first_name'] }} {{ $user['last_name'] }}"
+                                    data-user_id="{{ $user['id'] }}">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </td>
@@ -117,24 +143,31 @@
                 function applyFilters() {
                     const filters = {};
 
-                    $('.filters input, .filters select').each(function() {
+                    $('.filter-input').each(function() {
                         const colIndex = $(this).data('col');
                         const value = $(this).val().toLowerCase().trim();
-                        if (value) filters[colIndex] = value;
+                        if (value) {
+                            filters[colIndex] = value;
+                        }
                     });
 
                     $('#users_table tbody tr').each(function() {
-                        let visible = true;
-                        $(this).find('td').each(function(index) {
-                            if (filters[index]) {
-                                const cellText = $(this).text().toLowerCase();
-                                if (!cellText.includes(filters[index])) {
-                                    visible = false;
-                                    return false;
-                                }
+                        let isVisible = true;
+                        const $row = $(this);
+
+                        // Sprawdzamy każdy aktywny filtr dla danego wiersza
+                        $.each(filters, function(colIndex, filterValue) {
+                            // Pobieramy komórkę o danym indeksie
+                            const $cell = $row.find('td').eq(colIndex);
+                            const cellText = $cell.text().toLowerCase().trim();
+
+                            if (cellText.indexOf(filterValue) === -1) {
+                                isVisible = false;
+                                return false; // Przerwij pętlę $.each dla tego wiersza
                             }
                         });
-                        $(this).toggle(visible);
+
+                        $row.toggle(isVisible);
                     });
                 }
 

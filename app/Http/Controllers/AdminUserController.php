@@ -8,7 +8,6 @@ use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\RemoveAdminCurrentDutyRequest;
 use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\VerifyUserRequest;
-use App\Models\CurrentDuty;
 use App\Models\CurrentDutyUser;
 use App\Models\DutyPattern;
 use App\Models\User;
@@ -16,8 +15,8 @@ use App\Services\DateHelper;
 use App\Services\DutiesService;
 use App\Services\Helper;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -31,9 +30,19 @@ class AdminUserController extends Controller
     }
     public function index()
     {
-        $users = User::orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+        $users = User::all()
+            ->keyBy('id')
+            ->toArray();
+        foreach ($users as &$user) {
+            $user['adoracja'] = [];
+            $user['rezerwa']  = [];
+        }
+
+        $dutyPatterns = DutyPattern::all();
+        foreach ($dutyPatterns as $dutyPattern) {
+            $users[$dutyPattern['user_id']][$dutyPattern['duty_type']][] = ['day' => $dutyPattern['day'], 'hour' => $dutyPattern['hour']];
+
+        }
 
         return View::make('admin.users.index', [
             'users' => $users,
@@ -44,8 +53,10 @@ class AdminUserController extends Controller
     {
         $data = $request->validated();
 
-        $currentDury = CurrentDuty::find($data['duty_id']);
-        $currentDury->delete();
+        $currentDuty = CurrentDutyUser::find($data['id']);
+        $currentDuty->changed_by = Auth::user()->id;
+        $currentDuty->save();
+        $currentDuty->delete();
 
     }
 
@@ -56,7 +67,7 @@ class AdminUserController extends Controller
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
             ->where('cd.date', '>=', Carbon::today()->subWeeks(2))
             ->where('user_id', $user->id)
-            ->select(['current_duty_id', 'date', 'hour', 'duty_type', 'cd.inactive'])
+            ->select(['current_duties_users.id as id', 'date', 'hour', 'duty_type', 'cd.inactive'])
             ->orderBy('duty_type')
             ->orderBy('date')
             ->orderBy('hour')
@@ -64,18 +75,18 @@ class AdminUserController extends Controller
 
         foreach ($duties as $duty) {
             $duty['name_of_day'] = DateHelper::dayOfWeek($duty['date']);
-            $duty['historical'] = $duty['date'] < Carbon::today();
+            $duty['historical']  = $duty['date'] < Carbon::today();
         }
 
-        $duties = $duties->groupBy('duty_type');
-        $duties['adoracja'] = $duties['adoracja'] ?? [];
+        $duties                    = $duties->groupBy('duty_type');
+        $duties['adoracja']        = $duties['adoracja'] ?? [];
         $duties['lista_rezerwowa'] = $duties['rezerwa'] ?? [];
 
         unset($duties['rezerwa']);
 
         return View::make('admin.users.duties', [
             'duties' => $duties,
-            'user' => $user
+            'user'   => $user,
         ]);
     }
 
@@ -98,14 +109,13 @@ class AdminUserController extends Controller
 
     }
 
-
     public function store(AdminUserStoreRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['is_admin'] = (isset($validated['is_admin']) && $validated['is_admin']) === 'on' ? 1 : 0;
-        $validated['added_by'] = Auth::id();
+        $validated['password']    = Hash::make($validated['password']);
+        $validated['is_admin']    = (isset($validated['is_admin']) && $validated['is_admin']) === 'on' ? 1 : 0;
+        $validated['added_by']    = Auth::id();
         $validated['rodo_clause'] = $validated['rodo_clause'] === 'on' ? 1 : 0;
 
         User::create($validated);
@@ -125,12 +135,17 @@ class AdminUserController extends Controller
 
     public function update(AdminUserUpdateRequest $request, User $user): RedirectResponse
     {
-        $validated             = $request->validated();
+        $validated = $request->validated();
         $validated['is_admin'] = (isset($validated['is_admin']) && $validated['is_admin'] == "on") ? true : false;
         $validated['suspend_from'] == $validated['suspend_from'] ?? null;
         $validated['suspend_to'] == $validated['suspend_to'] ?? null;
 
         $user->update($validated);
+
+
+        if($validated['suspend_from'] || $validated['suspend_to']){
+            DutiesService::applySuspension($user, Carbon::parse($validated['suspend_from']), Carbon::parse($validated['suspend_to']));
+        }
 
         return Redirect::route('admin.users')
             ->with('success', 'Dane użytkownika zostały zaktualizowane');
@@ -167,14 +182,62 @@ class AdminUserController extends Controller
             'hour'            => $pattern['hour'],
             'duty_type'       => $pattern['duty_type'],
             'repeat_interval' => $pattern['repeat_interval'],
+            'added_by' => Auth::id()
         ]);
+
         DutiesService::updateUserDuties($user);
+        return Redirect::route('admin.users.patterns', ['user' => $user->id]);
+    }
+
+    public function userPatternDestroy(DutyPattern $dutyPattern)
+    {
+        $user = $dutyPattern->user;
+        $dutyPattern->delete();
+        DutiesService::updateUserDuties($user);
+
         return Redirect::route('admin.users.patterns', ['user' => $user->id]);
     }
 
     public function searchUser(SearchUserRequest $request)
     {
         dd($request->validated());
+    }
+
+    public function weekDutyPattern()
+    {
+        $days  = Helper::getWeekDays();
+        $hours = Helper::getHours();
+
+        $patterns = DutyPattern::where('repeat_interval', 1)->get();
+
+        $users = User::all()->keyBy('id')->toArray();
+
+
+        $stats = [
+            'adoracja' => [],
+            'rezerwa'  => [],
+        ];
+
+        // Inicjalizacja pustej struktury, aby uniknąć błędów w widoku
+        foreach (['adoracja', 'rezerwa'] as $type) {
+            foreach ($hours as $hour) {
+                foreach ($days as $day) {
+                    $stats[$type][$hour][$day] = [
+                        'count' => 0,
+                        'names' => [],
+                    ];
+                }
+            }
+        }
+
+        // Wypełnianie danymi
+        foreach ($patterns as $pattern) {
+            $stats[$pattern['duty_type']][$pattern['hour']][$pattern['day']]['count']++;
+            $stats[$pattern['duty_type']][$pattern['hour']][$pattern['day']]['names'][] =
+            $users[$pattern['user_id']]['first_name'] . ' ' . $users[$pattern['user_id']]['last_name'];
+        }
+
+        return view('admin.users.week-duty-pattern', compact('stats', 'days', 'hours'));
     }
 
 }

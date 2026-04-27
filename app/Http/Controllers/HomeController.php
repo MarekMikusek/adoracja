@@ -2,7 +2,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DutyType;
-use App\Models\MonthlyCoordinatorPattern;
 use App\Models\User;
 use App\Services\DateHelper;
 use App\Services\Helper;
@@ -31,13 +30,19 @@ class HomeController extends Controller
 
         $leftJoinQuery = DB::table('current_duties as cd')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, cd.inactive as inactive')
+            ->leftJoin('current_duties_users as cdu', function ($join) {
+                $join->on('cdu.current_duty_id', '=', 'cd.id')
+                    ->whereNull('cdu.deleted_at');
+            })
             ->where('cd.date', '>=', Carbon::today())
-            ->leftJoin('current_duties_users as cdu', 'cdu.current_duty_id', '=', 'cd.id');
+            ->whereNull('cdu.deleted_at')
+        ;
 
         $rightJoinQuery = DB::table('current_duties_users as cdu')
             ->selectRaw('cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, cd.inactive as inactive')
             ->leftJoin('current_duties as cd', 'cd.id', '=', 'cdu.current_duty_id')
             ->where('cd.date', '>=', Carbon::today())
+            ->whereNull('cdu.deleted_at')
             ->whereNull('cd.id');
 
         $upcomingDuties = $leftJoinQuery
@@ -45,13 +50,11 @@ class HomeController extends Controller
             ->orderBy('date')
             ->orderBy('hour')
             ->get();
-
-        $adminDutyPatterns = MonthlyCoordinatorPattern::coordinatorsResponsible();
-
+// dd($upcomingDuties);
         $duties = [];
         foreach ($upcomingDuties as $duty) {
             $currentDateAsCarbon = Carbon::createFromDate($duty->date);
-            $dateFormatted = $currentDateAsCarbon->isoFormat('D MMMM');
+            $dateFormatted       = $currentDateAsCarbon->isoFormat('D MMMM');
 
             if (! isset($duties[$dateFormatted])) {
 
@@ -61,18 +64,17 @@ class HomeController extends Controller
                 $duties[$dateFormatted]['timeFrames']    = [];
 
                 foreach (Helper::DAY_HOURS as $hour) {
-                    $duties[$dateFormatted]['timeFrames'][$hour]['hour'] = $duty->hour;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['dutyId'] = null;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['inactive'] = 0;
-                    $duties[$dateFormatted]['timeFrames'][$hour]['adoracja'] = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['hour']         = $duty->hour;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['dutyId']       = null;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['inactive']     = 0;
+                    $duties[$dateFormatted]['timeFrames'][$hour]['adoracja']     = 0;
                     $duties[$dateFormatted]['timeFrames'][$hour]['userDutyType'] = '';
-                    $duties[$dateFormatted]['timeFrames'][$hour]['adminName'] = $adminDutyPatterns[(int)$currentDateAsCarbon->format('j')] ?? null;
                 }
             }
 
             $duties[$dateFormatted]['timeFrames'][$duty->hour]['dutyId'] = $duty->duty_id;
 
-            if($duty->inactive == 1){
+            if ($duty->inactive == 1) {
                 $duties[$dateFormatted]['timeFrames'][$duty->hour]['inactive'] = 1;
             }
             if (isset($userId) && $duty->user_id && $duty->user_id == $user->id && $duty->duty_type != DutyType::SUSPEND) {
@@ -87,7 +89,7 @@ class HomeController extends Controller
         return ViewFacade::make('home', [
             'user'            => $user,
             'duties'          => $duties,
-            'admins'   => collect(User::admins())->keyBy('id')->toArray(),
+            'admins'          => collect(User::admins())->keyBy('id')->toArray(),
             'dayHours'        => Helper::DAY_HOURS,
             'myDutyColour'    => self::MY_DUTY_COLOUR,
             'myReserveColour' => self::REZERWA_COLOUR,

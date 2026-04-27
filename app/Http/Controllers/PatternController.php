@@ -82,7 +82,8 @@ class PatternController extends Controller
             'hour'            => $validated['hour'],
             'duty_type'       => $validated['duty_type'],
             'repeat_interval' => $validated['repeat_interval'],
-            'start_date' => $validated['start_date'] ?? Carbon::now()
+            'start_date' => $validated['start_date'] ?? Carbon::now(),
+            'added_by' => $user->id
         ]);
 
         DutiesService::updateUserDuties($user);

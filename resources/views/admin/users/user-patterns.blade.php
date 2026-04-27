@@ -18,7 +18,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <form method="POST"
-                                        action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                        action={{ route('admin.users.pattern.destroy', ['dutyPattern' => $duty['id']]) }}>
                                         @csrf
                                         <button class="btn btn-danger ml-5 remove-duty">Usuń</button>
                                     </form>
@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-md-6">
                                      <form method="POST"
-                                        action={{ route('patterns.delete', ['dutyPattern' => $duty['id']]) }}>
+                                        action={{ route('admin.users.pattern.destroy', ['dutyPattern' => $duty['id']]) }}>
                                         @csrf
                                         <button class="btn btn-danger ml-5 remove-duty">Usuń</button>
                                     </form>

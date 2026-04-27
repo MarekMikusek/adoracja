@@ -52,7 +52,7 @@ class User extends Authenticatable//implements MustVerifyEmail
         return $this->hasMany(AdminDutyPattern::class, 'admin_id');
     }
 
-    public function dutyPatterns()
+    public function dutyPatterns(): HasMany
     {
         return $this->hasMany(DutyPattern::class);
     }
@@ -95,5 +95,10 @@ class User extends Authenticatable//implements MustVerifyEmail
     public function testimonies()
     {
         return $this->hasMany(Testimony::class);
+    }
+
+    public function scopeHasPattern($query)
+    {
+        return $query->has('dutyPatterns');
     }
 }

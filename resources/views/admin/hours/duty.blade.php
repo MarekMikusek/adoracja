@@ -8,9 +8,15 @@
             </div>
 
             <div class="card-body">
-
-                <p id="dutyModalDate">Data: <b>{{ $duty->date }}</b></p>
-                <p id="dutyModalHour">Godzina: <b>{{ $duty->hour }}.00 - {{ $duty->hour + 1 }}.00</b></p>
+                <div class="row">
+                    <div class="col-6">
+                        <p id="dutyModalDate">Data: <b>{{ $duty->date }}</b></p>
+                        <p id="dutyModalHour">Godzina: <b>{{ $duty->hour }}.00 - {{ $duty->hour + 1 }}.00</b></p>
+                    </div>
+                    <div class="col-6">
+                        <p>Koordynator odpowiedzialny: {{ $admin }}</p>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="container mt-3 col-4">
@@ -30,7 +36,8 @@
                                     Brak
                                 @endforelse
 
-                                <x-user-select id="user-select-duty" :users="$users" :duty_id="$duty->duty_id" duty_type="adoracja" label="Dodaj użytkownika do adoracji:" />
+                                <x-user-select id="user-select-duty" :users="$users" :duty_id="$duty->duty_id"
+                                    duty_type="adoracja" label="Dodaj użytkownika do adoracji:" />
 
                             </div>
                         </div>
@@ -54,7 +61,8 @@
                                     Brak
                                 @endforelse
 
-                               <x-user-select id="user-select-ready" :users="$users" :duty_id="$duty->duty_id" duty_type="rezerwa" label="Dodaj użytkownika do rezerwy:" />
+                                <x-user-select id="user-select-ready" :users="$users" :duty_id="$duty->duty_id"
+                                    duty_type="rezerwa" label="Dodaj użytkownika do rezerwy:" />
 
                             </div>
                         </div>

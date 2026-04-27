@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\DutiesService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 class GenerateCurrentDuties extends Command
 {
@@ -15,7 +16,9 @@ class GenerateCurrentDuties extends Command
 
     public function handle()
     {
-        $users = User::all();
+        $users = User::hasPattern()->get();
+
+        $changedBy = -1;//użytkownik systemowy
 
         $isDataInBD = CurrentDuty::count('*');
 
@@ -23,7 +26,7 @@ class GenerateCurrentDuties extends Command
 
         $noOfWeeks = intval($this->option('no_weeks') ?? self::NO_WEEKS);
 
-        DutiesService::generateCurrentDuties($users, $startDate, $noOfWeeks);
+        DutiesService::generateCurrentDuties($users, $changedBy, $startDate, $noOfWeeks);
 
         $this->info('Duties generated successfully!');
     }

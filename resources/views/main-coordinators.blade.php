@@ -43,18 +43,23 @@
     <div class="row">
         <h1 class="mb-5">Główni koordynatorzy adoracji:</h1>
 
-        @foreach ($coordinators as $coordinator)
             <div class="card text-center mb-4">
                 <div class="card-header fw-bold">
-                    {{ $coordinator->first_name }} {{ $coordinator->last_name }}
+                    Waldemar Majka
                 </div>
                 <div class="card-body">
 
                     <div class="phone-container">
-                        <i class="fa-solid fa-phone"></i>{{ $coordinator->phone_number }}
+                        <i class="fa-solid fa-phone"></i>515 533 283
                     </div>
 
-                    <form class="ajax-email-form" data-id="{{ $coordinator->id }}">
+                    <div class="email-container">
+                        <a href="mailto:adoracja@adoracja.chjz.pl">
+                            <i class="fa-regular fa-envelope"> adoracja@adoracja.chjz.pl</i>
+                        </a>
+                    </div>
+
+                    <form class="ajax-email-form">
                         <input
                             type="text"
                             class="form-control message-box"
@@ -67,7 +72,6 @@
                     </div>
                 </div>
             </div>
-        @endforeach
     </div>
 </div>
 @endsection
@@ -93,7 +97,6 @@ $(function() {
             url: "{{ route('main-coordinator-email') }}",
             method: "POST",
             data: {
-                coordinator_id: coordinatorId,
                 message: message,
                 _token: "{{ csrf_token() }}"
             },

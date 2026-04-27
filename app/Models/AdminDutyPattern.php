@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Services\DateHelper;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class AdminDutyPattern extends Model
@@ -25,13 +24,13 @@ class AdminDutyPattern extends Model
     public static function adminDutyPatterns()
     {
         return self::leftJoin('users as u', 'admin_duty_patterns.admin_id', 'u.id')
-        ->selectRaw("hour, day, admin_id")
-        ->orderBy('admin_duty_patterns.id')
-        ->get()
-        ->groupBy('day')
-        ->mapWithKeys(function($items, $day){
-            return [$day => $items->keyBy('hour')->toArray()];
-        });
+            ->selectRaw("hour, day, admin_id")
+            ->orderBy('admin_duty_patterns.id')
+            ->get()
+            ->groupBy('day')
+            ->mapWithKeys(function ($items, $day) {
+                return [$day => $items->keyBy('hour')->toArray()];
+            });
     }
 
     public function admin()
@@ -41,11 +40,17 @@ class AdminDutyPattern extends Model
 
     public static function getAdmin($duty)
     {
-        return DB::table('admin_duty_patterns')
-        ->where('day', DateHelper::dayOfWeek($duty->date))
-        ->where('hour', $duty->hour)
-        ->select('admin_id')
-        ->first()
-        ->admin_id;
+        $admin = DB::table('admin_duty_patterns')
+            ->join('users as u', 'admin_id', 'u.id')
+            ->where('day', DateHelper::dayOfWeek($duty->date))
+            ->where('hour', $duty->hour)
+            ->select('first_name', 'last_name')
+            ->first();
+
+        if (! $admin) {
+            return '';
+        }
+        
+        return $admin->first_name . ' ' . $admin->last_name;
     }
 }

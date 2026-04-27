@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCurrentDutyController;
+use App\Http\Controllers\AdminDutyPatternController;
 use App\Http\Controllers\AdminTestimonyController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CurrentDutyController;
@@ -35,11 +36,17 @@ Route::get('instruction', function () {
 
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/users/duty-pattern', [AdminUserController::class, 'weekDutyPattern'])->name('admin.users.duty-pattern');
 
     Route::post('/toggle-view', function (Illuminate\Http\Request $request) {
         $request->session()->put('admin_view', $request->input('view'));
         return response()->json(['success' => true]);
     })->name('toggle-view');
+
+    Route::prefix('duty-patterns')->group(function () {
+        Route::get('/', [AdminDutyPatternController::class, 'index'])->name('admin.duty.index');
+        Route::post('/update', [AdminDutyPatternController::class, 'update'])->name('admin.duty.update');
+    });
 
     Route::get('intentions', [AdminController::class, 'intentions'])->name('admin.intentions');
     Route::post('confirm-intention', [AdminController::class, 'confirmIntention'])->name('admin.confirm-intention');
@@ -52,13 +59,15 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
     Route::get('users', [AdminUserController::class, 'index'])->name('admin.users');
     Route::post('verify-user', [AdminUserController::class, 'verifyUser'])->name('admin.user.verify');
 
+    Route::get('users/suspend', [AdminUserController::class, 'suspendUser'])->name('admin.users.suspend');
     Route::get('users/create', [AdminUserController::class, 'createUser'])->name('admin.users.create');
     Route::post('users/search', [AdminUserController::class, 'searchUser'])->name('admin.users.search');
     Route::get('users/{user}/duties', [AdminUserController::class, 'duties'])->name('admin.users.duties');
     Route::post('users', [AdminUserController::class, 'store'])->name('admin.users.store');
 
     Route::get('users/{user}/patterns', [AdminUserController::class, 'showUserDuties'])->name('admin.users.patterns');
-    Route::post('users/{user}/patterns', [AdminUserController::class, 'userPatternsStore'])->name('admin.user.patterns.store');
+    Route::post('users/delete/{dutyPattern}/patterns', [AdminUserController::class, 'userPatternDestroy'])->name('admin.users.pattern.destroy');
+    Route::post('users/store/{user}/patterns', [AdminUserController::class, 'userPatternsStore'])->name('admin.user.patterns.store');
 
     Route::get('current-duty/{duty}/edit', [AdminCurrentDutyController::class, 'edit'])->name('admin.current-duty.edit');
     Route::post('current-duty', [AdminCurrentDutyController::class, 'addUser'])->name('admin.current-duty.store');

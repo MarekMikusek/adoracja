@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Models;
 
-use App\Services\DateHelper;
-use App\Services\Helper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DutyPattern extends Model
 {
-    protected $table = 'duty_patterns';
+    protected $table    = 'duty_patterns';
     protected $fillable = [
         'user_id',
         'day',
@@ -20,6 +19,7 @@ class DutyPattern extends Model
         'duty_type',
         'repeat_interval',
         'repeat_pattern',
+        'added_by',
     ];
 
     public $patternKey = 'duty';
@@ -28,41 +28,68 @@ class DutyPattern extends Model
         'is_admin_duty' => 'boolean',
     ];
 
-    public function users(): BelongsToMany
+    public function user(): BelongsTo
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(User::class);
     }
 
-    public static function getUsersForTimeFrame(Carbon $weekStartDate, string $weekDay, int $hour, Collection $users)
+    public static function getUsersForTimeFrame(Carbon $currentDate, string $weekDay, int $hour, Collection $users)
     {
         $mappedUsers = $users->keyBy('id');
-        $allDuties = self::where(['day' => $weekDay])->where('hour', $hour)->get();
 
-        foreach ($allDuties as &$duty) {
-            if (!$duty->isDutyInWeek($weekStartDate)|| $mappedUsers[$duty->user_id]->isSuspended($weekStartDate->addDays(DateHelper::weekDayOffset($duty->day)))) {
-                unset($duty);
-            }
-        }
+        // Pobieramy wzorce i filtrujemy je za pomocą metod kolekcji (reject)
+        return self::where(['day' => $weekDay, 'hour' => $hour])
+            ->get()
+            ->reject(function ($duty) use ($currentDate, $mappedUsers) {
+                // 1. Sprawdź czy wzorzec wypada w TYM konkretnym tygodniu
+                if (! $duty->isDutyInWeek($currentDate)) {
+                    return true; // odrzuć
+                }
 
-        // Return a collection of arrays with user_id and duty_type
-        return $allDuties->map(function ($duty) {
-            return [
-                'user_id' => $duty->user_id,
-                'duty_type' => $duty->duty_type,
-            ];
-        });
+                // 2. Sprawdź zawieszenie (używamy copy(), aby nie zmieniać currentDate)
+                $user = $mappedUsers->get($duty->user_id);
+                if (! $user || $user->isSuspended($currentDate->copy())) {
+                    return true; // odrzuć
+                }
+
+                return false; // zostaw w kolekcji
+            })
+            ->map(function ($duty) {
+                return [
+                    'user_id'   => $duty->user_id,
+                    'duty_type' => $duty->duty_type,
+                ];
+            });
     }
 
-    public function isDutyInWeek(Carbon $startDate): bool {
-        // Get the start and target week numbers
-        $startWeek = $startDate->copy()->startOfWeek()->weekOfYear;
-        $targetDate = $startDate->addDays(Helper::dayNumber($this->day));
-        $targetWeek = $targetDate->copy()->startOfWeek()->weekOfYear;
+    // public function isDutyInWeek(Carbon $startDate): bool {
+    //     // Get the start and target week numbers
+    //     $startWeek = $startDate->copy()->startOfWeek()->weekOfYear;
+    //     $targetDate = $startDate->addDays(Helper::dayNumber($this->day));
+    //     $targetWeek = $targetDate->copy()->startOfWeek()->weekOfYear;
 
-        // Calculate the difference in weeks
-        $weeksDifference = $targetWeek - $startWeek;
+    //     // Calculate the difference in weeks
+    //     $weeksDifference = $targetWeek - $startWeek;
 
-        // Check if the duty repeats in this week
-        return $weeksDifference >= 0 && $weeksDifference % $this->repeat_interval === 0;
+    //     // Check if the duty repeats in this week
+    //     return $weeksDifference >= 0 && $weeksDifference % $this->repeat_interval === 0;
+    // }
+
+    public function isDutyInWeek(Carbon $startDate): bool
+    {
+        // 1. Sprowadzamy obie daty do początku ich tygodni, aby porównywać "pełne bloki" siedmiodniowe
+        $patternStart = Carbon::parse($this->start_date)->startOfWeek();
+        $currentWeek  = $startDate->copy()->startOfWeek();
+
+        // 2. Jeśli sprawdzany tydzień jest wcześniejszy niż data rozpoczęcia wzorca, dyżur nie istnieje
+        if ($currentWeek->lt($patternStart)) {
+            return false;
+        }
+
+        // 3. Liczymy różnicę w tygodniach
+        $weeksDifference = $patternStart->diffInWeeks($currentWeek);
+
+        // 4. Sprawdzamy czy różnica jest podzielna przez interwał (np. co 2 tygodnie)
+        return $weeksDifference % $this->repeat_interval === 0;
     }
 }

@@ -20,45 +20,68 @@ class DutiesService
 
     public static function updateUserDuties(User $user)
     {
-        $oldDuties = (new CurrentDutyUser())->findUserDuties($user)->get();
-        foreach ($oldDuties as $duty) {
-            $duty->delete();
+        $startDate = Carbon::today();
+
+        // 1. Usuwamy stare automatyczne dyżury (oznaczone jako changed_by = -1)
+        // Dzięki whereHas usuwamy tylko te powiązane z datą przyszłą
+        CurrentDutyUser::where('user_id', $user->id)
+            ->where('changed_by', -1)
+            ->whereHas('currentDuty', function ($query) use ($startDate) {
+                $query->where('date', '>=', $startDate->toDateString());
+            })
+            ->delete();
+
+        // 2. Pobieramy wzorce użytkownika
+        $patterns = DutyPattern::where('user_id', $user->id)->get();
+
+        if ($patterns->isEmpty()) {
+            return;
         }
 
-        $startDate        = Carbon::now();
-        $currentDate      = clone ($startDate);
-        $endDate          = Carbon::createFromDate((new CurrentDuty())->orderBy('date', 'DESC')->first()['date'])->endOfDay();
-        $userDutyPatterns = DutyPattern::where('user_id', $user->id)->get();
+        // 3. Pobieramy wszystkie wygenerowane sloty w systemie od dzisiaj
+        $availableDuties = CurrentDuty::where('date', '>=', $startDate->toDateString())
+            ->orderBy('date')
+            ->get();
 
-        $userDutyPatternsArr = [];
+        $inserts = [];
 
-        foreach ($userDutyPatterns as $pattern) {
-            $userDutyPatternsArr[$pattern->day][$pattern->hour] = $pattern;
-        }
+        // 4. Iterujemy po istniejących terminach w kalendarzu
+        foreach ($availableDuties as $duty) {
+            $date = Carbon::parse($duty->date);
 
-        $userCurrentDutiesInserts = [];
+            // Sprawdzamy, czy użytkownik nie ma zawieszenia w tym konkretnym dniu
+            if ($user->isSuspended($date)) {
+                continue;
+            }
 
-        $allDuties = self::getCurrentDuties($startDate);
-        $allDates  = DateHelper::getCurrentDutiesDatesFromDate($startDate);
+            // Pobieramy nazwę dnia tygodnia (upewnij się, że format odpowiada temu w bazie, np. "Monday")
+            // Jeśli w bazie masz polskie nazwy z wielkiej litery, użyj: mb_convert_case($date->translatedFormat('l'), MB_CASE_TITLE, "UTF-8")
+            $rawName = $date->format('l');
+            $dayName = mb_convert_case($date->translatedFormat('l'), MB_CASE_TITLE, "UTF-8");
 
-        foreach ($allDates as $dateString) {
+            // Szukamy wzorca pasującego do dnia tygodnia i godziny
+            $matchingPatterns = $patterns->where('day', $dayName)
+                ->where('hour', $duty->hour);
 
-            $currentDateDayOfWeek = DateHelper::dayOfWeek(Carbon::create($dateString));
-
-            if (isset($userDutyPatternsArr[$currentDateDayOfWeek]) && ! $user->isSuspended($currentDate)) {
-
-                foreach ($userDutyPatternsArr[$currentDateDayOfWeek] as $hour => $duty) {
-
-                    if ($duty->isDutyInWeek($currentDate)) {
-                        $currentDutyId = $allDuties[$dateString][$hour]->id;
-                        $userCurrentDutiesInserts[] = ['user_id' => $user->id, 'current_duty_id' => $currentDutyId, 'duty_type' => $duty->duty_type];
-                    }
+            foreach ($matchingPatterns as $pattern) {
+                // Sprawdzamy interwał tygodniowy (np. co 2 tygodnie)
+                if ($pattern->isDutyInWeek($date)) {
+                    $inserts[] = [
+                        'user_id'         => $user->id,
+                        'current_duty_id' => $duty->id,
+                        'duty_type'       => $pattern->duty_type,
+                        'changed_by'      => -1, // Oznaczamy jako systemowy
+                        'created_at'      => now(),
+                        'updated_at'      => now(),
+                    ];
                 }
             }
-            $currentDate->addDays(1);
         }
 
-        return (new CurrentDutyUser())->insert($userCurrentDutiesInserts);
+        // 5. Masowe wstawianie dla wydajności (zamiast pojedynczych zapytań w pętli)
+        if (! empty($inserts)) {
+            CurrentDutyUser::insert($inserts);
+        }
     }
 
     public static function getCurrentDuties(Carbon $startDate)
@@ -76,49 +99,50 @@ class DutiesService
         return $ret;
     }
 
-    public static function generateCurrentDuties(Collection $users, $startDate = null, $noOfWeeks = 4)
+    public static function generateCurrentDuties(Collection $users, int $changedBy, $startDate = null, $noOfWeeks = 4)
     {
-        if (! $startDate) {
-            $startDate = Carbon::now();
-        }
+        $dateInserting = ($startDate ?: Carbon::now())->copy();
 
-        $dateInserting = $startDate->copy();
+        // Obliczamy całkowitą liczbę dni do wygenerowania
+        $totalDays = $noOfWeeks * 7;
 
-        for ($week = 1; $week <= $noOfWeeks; $week++) {
-            foreach (Helper::WEEK_DAYS as $weekDay) {
-                foreach (Helper::DAY_HOURS as $hour) {
+        for ($i = 0; $i < $totalDays; $i++) {
 
-                    $currentDuty       = new CurrentDuty();
-                    $currentDuty->hour = $hour;
-                    $currentDuty->date = $dateInserting;
-                    $currentDuty->save();
+            $rawDay  = $dateInserting->translatedFormat('l');
+            $weekDay = mb_convert_case($rawDay, MB_CASE_TITLE, "UTF-8");
 
-                    $usersForTimeFrame = DutyPattern::getUsersForTimeFrame($startDate, $weekDay, $hour, $users);
+            foreach (Helper::DAY_HOURS as $hour) {
+                $currentDuty = CurrentDuty::firstOrCreate([
+                    'hour' => $hour,
+                    'date' => $dateInserting->toDateString(),
+                ]);
 
-                    foreach ($usersForTimeFrame as $userDuty) {
-                        $currentDuty->users()->attach($userDuty['user_id'], ['duty_type' => $userDuty['duty_type']]);
-                    }
+                // PRZEKAZUJEMY $dateInserting zamiast stałego $startDate
+                $usersForTimeFrame = DutyPattern::getUsersForTimeFrame($dateInserting, $weekDay, $hour, $users);
+
+                foreach ($usersForTimeFrame as $userDuty) {
+                    $currentDuty->users()->attach($userDuty['user_id'], [
+                        'duty_type'  => $userDuty['duty_type'],
+                        'changed_by' => $changedBy,
+                    ]);
                 }
-                $dateInserting->addDays(1);
             }
+            $dateInserting->addDay();
         }
+
     }
 
     public static function applySuspension(User $user, ?Carbon $suspendFrom, ?Carbon $suspendTo): void
     {
-        $duties = DB::table('current_duties_users as cdu')
-        ->selectRaw('cdu.id as id')
-        ->join('current_duties as cd', 'cd.id', 'cdu.current_duty_id')
-        ->where('cdu.user_id', $user->id)
-        ->where('cd.date', '>=', $suspendFrom)
-        ->when($suspendTo, function($query) use ($suspendTo){
-            return $query->where('cd.date','<=', $suspendTo);
-        })
-        ->get();
+        CurrentDutyUser::where('user_id', $user->id)
+            ->whereHas('currentDuty', function ($query) use ($suspendFrom, $suspendTo) {
+                $query->where('date', '>=', $suspendFrom->toDateString());
 
-        foreach($duties as $duty){
-            CurrentDutyUser::find($duty->id)->update(['duty_type' => DutyType::SUSPEND]);
-        }
+                if ($suspendTo) {
+                    $query->where('date', '<=', $suspendTo->toDateString());
+                }
+            })
+            ->update(['duty_type' => DutyType::SUSPEND]);
     }
 
 }

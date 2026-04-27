@@ -40,8 +40,8 @@ class CurrentDutyController extends Controller
             $duty['name_of_day'] = DateHelper::dayOfWeek($duty['date']);
         }
 
-        $duties = $duties->groupBy('duty_type');
-        $duties['adoracja'] = $duties['adoracja'] ?? [];
+        $duties                    = $duties->groupBy('duty_type');
+        $duties['adoracja']        = $duties['adoracja'] ?? [];
         $duties['lista_rezerwowa'] = $duties['rezerwa'] ?? [];
 
         unset($duties['rezerwa']);
@@ -56,7 +56,7 @@ class CurrentDutyController extends Controller
         $data = $request->validated();
 
         $currentDuty = CurrentDuty::find($data['duty_id']);
-        $currentDuty->users()->attach(Auth::user(), ['duty_type' => $data['duty_type']]);
+        $currentDuty->users()->attach(Auth::user(), ['duty_type' => $data['duty_type'], 'changed_by' => Auth::user()->id]);
 
         CurrentDutyAddedJob::dispatch(Auth::user(), $currentDuty, $data['duty_type']);
 
@@ -67,8 +67,10 @@ class CurrentDutyController extends Controller
     public function destroy(RemoveCurrentDutyRequest $request): RedirectResponse
     {
         $duty = CurrentDutyUser::where('current_duty_id', $request->validated()['duty_id'])
-            ->where('user_id', Auth::user()->id)
-            ->delete();
+            ->where('user_id', Auth::user()->id)->first();
+        $duty->changed_by = Auth::user()->id;
+        $duty->save();
+        $duty->delete();
 
         return Redirect::route('home')
             ->with('success', 'Dyżur został usunięty');

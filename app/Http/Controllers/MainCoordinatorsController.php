@@ -16,6 +16,8 @@ class MainCoordinatorsController extends Controller
 {
     private NotificationService $notificationService;
 
+    private const EMAIL = 'adoracja@adoracja.chjz.pl';
+
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
@@ -38,8 +40,7 @@ class MainCoordinatorsController extends Controller
         try {
             $coordinator = User::findOrFail($validated['coordinator_id']);
 
-            Mail::to($coordinator->email)->send(new EmailFromWeb($validated['message']));
-            // $this->notificationService->sendNotification($coordinator, $validated['message']);
+            Mail::to(self::EMAIL)->send(new EmailFromWeb($validated['message']));
 
             return response()->json([
                 'success' => true,

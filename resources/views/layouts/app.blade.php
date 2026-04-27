@@ -83,16 +83,16 @@
                                     href="{{ route('admin.users') }}">Użytkownicy</a>
                             </li>
                             <li class="nav-item coordinator-link">
-                                <a class="nav-link {{ request()->routeIs('coordinators.index') ? 'active' : '' }} coordinator-link"
-                                    href="{{ route('coordinators.index') }}">Koordynatorzy</a>
+                                <a class="nav-link {{ request()->routeIs('admin.duty.index') ? 'active' : '' }} coordinator-link"
+                                    href="{{ route('admin.duty.index') }}">Koordynatorzy</a>
                             </li>
                             <li class="nav-item coordinator-link">
                                 <a class="nav-link {{ request()->routeIs('admin.intentions') ? 'active' : '' }} coordinator-link"
                                     href="{{ route('admin.intentions') }}">Intencje</a>
                             </li>
                             <li class="nav-item coordinator-link">
-                                <a class="nav-link {{ request()->routeIs('admin.testimonies') ? 'active' : '' }} coordinator-link"
-                                    href="{{ route('admin.testimonies.index') }}">Świadectwa</a>
+                                <a class="nav-link {{ request()->routeIs('admin.users.duty-pattern') ? 'active' : '' }} coordinator-link"
+                                    href="{{ route('admin.users.duty-pattern') }}">Tydzień</a>
                             </li>
                             <li class="nav-item adorator-link">
                                 <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }} adorator-link default-adorator-link"
@@ -127,11 +127,11 @@
                             <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
                                 href="{{ route('home') }}">Adoracja w najbliższym czasie</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('main-coordinator') ? 'active' : '' }}"
-                                href="{{ route('main-coordinator') }}">Kontakt do koorynatorów</a>
-                        </li>
                     @endguest
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('main-coordinator') ? 'active' : '' }}"
+                            href="{{ route('main-coordinator') }}">Kontakt do koorynatorów</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('instruction') ? 'active' : '' }}"
                             href="{{ route('instruction') }}">Instrukcja</a>

@@ -40,7 +40,7 @@
                                                 </div>
                                                 @if (!$duty['historical'])
                                                     <button type="button" class="btn btn-sm btn-danger delete-duty-btn"
-                                                        data-duty_id="{{ $duty['current_duty_id'] }}"
+                                                        data-duty_id="{{ $duty['id'] }}"
                                                         data-date="{{ $duty['date'] }}" data-hour="{{ $duty['hour'] }}"
                                                         title="Usuń posługę">
                                                         <i class="fas fa-times"></i>
@@ -75,7 +75,7 @@
                             <label for="remove-duty-hour" class="form-label">Godzina</label>
                             <input type="text" class="form-control" id="remove-duty-hour" readonly>
                         </div>
-                        <input type="hidden" id="remove-duty-duty-id">
+                        <input type="hidden" id="remove-duty-current-duty-id">
                         <button type="submit" class="btn btn-primary">Zapisz</button>
                     </form>
                 </div>
@@ -93,7 +93,7 @@
             $('#remove-duty-form').on('submit', function(e) {
                 e.preventDefault();
 
-                const duty_id = $('#remove-duty-duty-id').val();
+                const id = $('#remove-duty-current-duty-id').val();
                 const url = "{{ route('admin.users.remove-duty') }}";
 
                 $('#removeUserDutyModal').modal('hide');
@@ -103,7 +103,7 @@
                     type: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        duty_id: duty_id,
+                        id: id,
                     },
                     success: function(response) {
                         location.reload();
@@ -121,7 +121,7 @@
 
                 $('#remove-duty-hour').val(hour);
                 $('#remove-duty-date').val(date);
-                $('#remove-duty-duty-id').val(duty_id);
+                $('#remove-duty-current-duty-id').val(duty_id);
 
                 $('#removeUserDutyModal').modal('show');
             });
