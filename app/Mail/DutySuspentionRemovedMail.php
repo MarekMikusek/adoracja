@@ -2,6 +2,9 @@
 
 namespace App\Mail;
 
+use App\Models\DutyPattern;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,16 +12,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class DutySetMail extends Mailable implements ShouldQueue
+class DutySuspentionRemovedMail extends Mailable //implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    private User $user;
+
+    public function __construct(User $user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -27,7 +32,8 @@ class DutySetMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Duty Set Mail',
+            from: 'adoracja@adoracja.chjz.pl',
+            subject: 'Adoracja ChJZ - usunięto zawieszenie posługi',
         );
     }
 
@@ -37,7 +43,12 @@ class DutySetMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.suspention-removed',
+            with: [
+                'userFirstName' => $this->user->first_name,
+                'from' => $this->user->suspend_from,
+                'to' => $this->user->suspend_to,
+            ]
         );
     }
 

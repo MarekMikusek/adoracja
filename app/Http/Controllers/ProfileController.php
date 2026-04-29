@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Jobs\SuspendDutyJob;
+use App\Mail\DutySuspendedMail;
+use App\Mail\DutySuspentionRemovedMail;
 use App\Models\WaysOfContact;
 use App\Services\DutiesService;
 use Carbon\Carbon;
@@ -46,16 +48,28 @@ class ProfileController extends Controller
 
     public function saveSuspend(Request $request)
     {
-        $user = Auth::user();
-        $suspendFrom = $request->input('suspend_from') ? new Carbon($request->input('suspend_from')) : null;
-        $user->suspend_from = $suspendFrom;
+        /**@var \App\Models\User $user*/
+        $user = auth()->user();
+        $suspendFrom = $request->input('suspend_from') ? Carbon::parse($request->input('suspend_from'))->startOfDay() : null;
+        $user->suspend_from = $suspendFrom?  $suspendFrom->startOfDay() : null;
 
-        $suspendTo = $request->input('suspend_to') ? new Carbon($request->input('suspend_to')) : null;
-        $user->suspend_to = $suspendTo;
+        $suspendTo = $request->input('suspend_to') ? Carbon::parse($request->input('suspend_to'))->endOfDay() : null;
+        $user->suspend_to = $suspendTo ?  $suspendTo->endOfDay() : null;
 
         $user->save();
 
-        DutiesService::applySuspension($user, $suspendFrom, $suspendTo);
+        if($suspendFrom){
+            DutiesService::suspend($user);
+            if($user->hasRealEmail()){
+                Mail::to($user->email)->send(new DutySuspendedMail($user));
+            }
+        } else {
+            DutiesService::removeSuspention($user);
+            if($user->hasRealEmail()){
+                Mail::to($user->email)->send(new DutySuspentionRemovedMail($user));
+            }
+        }
+
 
         if($user->email){
             SuspendDutyJob::dispatch($user);

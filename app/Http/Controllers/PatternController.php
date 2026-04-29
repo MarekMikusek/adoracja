@@ -1,9 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PatternStoreRequest;
 use App\Http\Requests\SuspendDutyRequest;
+use App\Mail\DutyCreatedMail;
+use App\Mail\DutyRemovedMail;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
@@ -25,7 +27,7 @@ class PatternController extends Controller
      *
      * @var NotificationService
      */
-    protected $notificationService;
+    protected NotificationService $notificationService;
 
     /**
      * Create a new controller instance.
@@ -42,10 +44,10 @@ class PatternController extends Controller
     public function index(): View
     {
         $patterns = DutyPattern::query()
-        ->select(['hour', 'day', 'id','duty_type', 'repeat_interval'])
-        ->where('user_id', Auth::user()->id)
-        ->get()
-        ->groupBy('duty_type');
+            ->select(['hour', 'day', 'id', 'duty_type', 'repeat_interval'])
+            ->where('user_id', Auth::user()->id)
+            ->get()
+            ->groupBy('duty_type');
 
         return ViewFacade::make('patterns.index', [
             'duties'    => $patterns,
@@ -57,10 +59,10 @@ class PatternController extends Controller
 
     public function suspend(SuspendDutyRequest $request)
     {
-        $data = $request->validated();
+        $data        = $request->validated();
         $dutyPattern = DutyPattern::find($data['id']);
 
-        if($dutyPattern->user_id !== Auth::user()->id){
+        if ($dutyPattern->user_id !== Auth::user()->id) {
             return;
         }
 
@@ -74,19 +76,24 @@ class PatternController extends Controller
     {
         $validated = $request->validated();
 
-        $user = Auth::user();
+        /**@var \App\Models\User $user*/
+        $user = auth()->user();
 
-        $duty = DutyPattern::query()->create([
+        $dutyPattern = DutyPattern::query()->create([
             'user_id'         => $user->id,
             'day'             => $validated['day'],
             'hour'            => $validated['hour'],
             'duty_type'       => $validated['duty_type'],
             'repeat_interval' => $validated['repeat_interval'],
-            'start_date' => $validated['start_date'] ?? Carbon::now(),
-            'added_by' => $user->id
+            'start_date'      => $validated['start_date'] ?? Carbon::now(),
+            'added_by'        => $user->id,
         ]);
 
-        DutiesService::updateUserDuties($user);
+        DutiesService::addUserDuties($user, $dutyPattern);
+
+        if ($user->hasRealEmail()) {
+            Mail::to($user->email)->send(new DutyCreatedMail($user, $dutyPattern));
+        }
 
         return Redirect::route('patterns.index')
             ->with('success', 'Dyżur został zapisany pomyślnie');
@@ -97,15 +104,21 @@ class PatternController extends Controller
      */
     public function destroy(DutyPattern $dutyPattern): RedirectResponse
     {
+        /**@var \App\Models\User $user*/
+        $user = auth()->user();
 
-        if (($dutyPattern->user_id != Auth::id() && (!Auth::user()->is_admin))) {
+        if (($dutyPattern->user_id != $user->id && (! Auth::user()->is_admin))) {
             return Redirect::route('patterns.index')
                 ->with('error', 'Brak uprawnień do usunięcia tego dyżuru');
         }
 
         $dutyPattern->delete();
 
-        DutiesService::updateUserDuties(Auth::user());
+        DutiesService::removeUserDuties($dutyPattern, $user);
+
+        if ($user->hasRealEmail()) {
+            Mail::to($user->email)->send(new DutyRemovedMail($user, $dutyPattern));
+        }
 
         return Redirect::route('patterns.index')
             ->with('success', 'Dyżur został usunięty pomyślnie');

@@ -101,4 +101,14 @@ class User extends Authenticatable//implements MustVerifyEmail
     {
         return $query->has('dutyPatterns');
     }
+
+    public function hasRealEmail()
+    {
+        if(empty($this->email) || str_contains($this->email, 'fikcyjn') || str_contains($this->email, 'adoracja')){
+            return false;
+        }
+
+
+        return true;
+    }
 }

@@ -13,21 +13,21 @@ class DateHelper
 
     public static function weekDayOffset($weekDay)
     {
-        switch (strtolower($weekDay)) {
+        switch (mb_strtolower($weekDay)) {
             case 'niedziela':
-                return 6;
-            case 'poniedziałek':
-                return 0;
-            case 'wtorek':
                 return 1;
-            case 'środa':
+            case 'poniedziałek':
                 return 2;
-            case 'czwartek':
+            case 'wtorek':
                 return 3;
-            case 'piątek':
+            case 'środa':
                 return 4;
-            case 'sobota':
+            case 'czwartek':
                 return 5;
+            case 'piątek':
+                return 6;
+            case 'sobota':
+                return 7;
         }
 
     }

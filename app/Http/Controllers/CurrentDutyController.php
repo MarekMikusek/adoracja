@@ -30,6 +30,7 @@ class CurrentDutyController extends Controller
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
             ->where('cd.date', '>=', Carbon::today())
             ->where('user_id', Auth::id())
+            ->whereNull('current_duties_users.deleted_at')
             ->select(['current_duty_id', 'date', 'hour', 'duty_type', 'cd.inactive'])
             ->orderBy('duty_type')
             ->orderBy('date')
