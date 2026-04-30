@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCurrentDutyController;
 use App\Http\Controllers\AdminDutyPatternController;
+use App\Http\Controllers\AdminIntensionController;
 use App\Http\Controllers\AdminTestimonyController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CurrentDutyController;
@@ -48,9 +49,9 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function () {
         Route::post('/update', [AdminDutyPatternController::class, 'update'])->name('admin.duty.update');
     });
 
-    Route::get('intentions', [AdminController::class, 'intentions'])->name('admin.intentions');
-    Route::post('confirm-intention', [AdminController::class, 'confirmIntention'])->name('admin.confirm-intention');
-    Route::post('intentions-remove', [AdminController::class, 'removeIntention'])->name('admin.intentions.remove');
+    Route::get('intentions', [AdminIntensionController::class, 'index'])->name('admin.intentions');
+    Route::post('confirm-intention', [AdminIntensionController::class, 'confirm'])->name('admin.confirm-intention');
+    Route::post('intentions-remove', [AdminIntensionController::class, 'remove'])->name('admin.intentions.remove');
 
     Route::post('users/delete', [AdminUserController::class, 'destroy'])->name('admin.users.delete');
     Route::post('users/remove-duty', [AdminUserController::class, 'removeDuty'])->name('admin.users.remove-duty');

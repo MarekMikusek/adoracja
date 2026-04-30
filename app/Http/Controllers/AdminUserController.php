@@ -67,6 +67,7 @@ class AdminUserController extends Controller
             ->join('users as u', 'u.id', 'current_duties_users.user_id')
             ->where('cd.date', '>=', Carbon::today()->subWeeks(2))
             ->where('user_id', $user->id)
+            ->whereNull('current_duties_users.deleted_at')
             ->select(['current_duties_users.id as id', 'date', 'hour', 'duty_type', 'cd.inactive'])
             ->orderBy('duty_type')
             ->orderBy('date')

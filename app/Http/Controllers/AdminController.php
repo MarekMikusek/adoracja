@@ -11,6 +11,7 @@ use App\Models\DutyPattern;
 use App\Models\Intention;
 use App\Models\ReservePattern;
 use App\Models\User;
+use App\Services\AdminService;
 use App\Services\DateHelper;
 use App\Services\DutiesService;
 use App\Services\Helper;
@@ -27,103 +28,37 @@ use WeekDays;
 
 class AdminController extends Controller
 {
+    private AdminService $adminService;
     public const MY_DUTY_COLOUR  = '#A7C7E7';
     public const REZERWA_COLOUR  = '#FFE440';
     public const NO_DUTY_COLOUR  = '#FFFFFF';
-    public const HAS_DUTY_COLOUR = '#98FB98'; //11202   9863
+    public const HAS_DUTY_COLOUR = '#98FB98';
+
+    public function __construct(AdminService $adminService)
+    {
+        $this->adminService = $adminService;
+    }
 
     public function dashboard()
     {
+        $currentUser = Auth::user();
+        $adminName = $currentUser->first_name . ' ' . $currentUser->last_name;
         $startDate = Carbon::now()->subDay();
 
-        $adminName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
-
         if ($startDate->diffInWeeks(DutiesService::getCurrentDutyMostDistantDate()) < 6) {
-            Artisan::call('app:generate-current-duties --no_weeks=4');
-        }
-
-        $currentDuties = DB::table('current_duties as cd')
-            ->selectRaw("cd.date, cd.hour, cdu.user_id, cd.id as duty_id, cdu.duty_type, u.first_name || ' ' || u.last_name as name, cd.inactive as inactive")
-            ->where('date', '>=', $startDate)
-            ->leftJoin('current_duties_users as cdu', function ($join) {
-                $join->on('cdu.current_duty_id', '=', 'cd.id')
-                    ->whereNull('cdu.deleted_at');
-            })
-            ->leftJoin('users as u', 'cdu.user_id', 'u.id')
-            ->orderBy('cd.date')
-            ->orderBy('cd.hour')
-            ->get();
-
-        $duties = [];
-
-        foreach ($currentDuties as $duty) {
-            $currentDateAsCarbon = Carbon::createFromDate($duty->date);
-            $currentDate         = $currentDateAsCarbon->isoFormat('DD.MM');
-
-            if (! isset($duties[$currentDate])) {
-                $dayName                            = DateHelper::dayOfWeek($duty->date);
-                $duties[$currentDate]               = [];
-                $duties[$currentDate]['dayName']    = $dayName;
-                $duties[$currentDate]['timeFrames'] = [];
-            }
-
-            if (! isset($duties[$currentDate]['timeFrames'][$duty->hour])) {
-                $duties[$currentDate]['timeFrames'][$duty->hour]                           = [];
-                $duties[$currentDate]['timeFrames'][$duty->hour]['inactive']               = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['my_day']                 = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::DUTY->value]    = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::READY->value]   = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour][DutyType::SUSPEND->value] = 0;
-                $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name']             = AdminDutyPattern::getAdmin($duty);
-                $duties[$currentDate]['timeFrames'][$duty->hour]['duty_id']                = $duty->duty_id;
-            }
-
-            if ($duty->user_id) {
-                $duties[$currentDate]['timeFrames'][$duty->hour][$duty->duty_type]++;
-            }
-
-            if ($adminName == $duties[$currentDate]['timeFrames'][$duty->hour]['admin_name']) {
-                $duties[$currentDate]['timeFrames'][$duty->hour]['my_day'] = 1;
-            }
-
-            if ($duty->inactive == 1) {
-                $duties[$currentDate]['timeFrames'][$duty->hour]['inactive'] = 1;
-            }
+            Artisan::call('app:generate-current-duties --no_weeks=2');
         }
 
         return view('admin.dashboard', [
-            'duties'          => $duties,
+            'duties'          => $this->adminService->getDuties($startDate, $adminName),
             'admins'          => collect(User::admins())->keyBy('id')->toArray(),
             'dayHours'        => Helper::DAY_HOURS,
             'myDutyColour'    => self::MY_DUTY_COLOUR,
             'myReserveColour' => self::REZERWA_COLOUR,
             'noDutyColour'    => self::NO_DUTY_COLOUR,
             'hasDutyColour'   => self::HAS_DUTY_COLOUR,
-            'userName'        => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+            'userName'        => $currentUser,
         ]);
-    }
-
-    public function intentions()
-    {
-        return view('admin.intentions.index', ['intentions' => Intention::orderBy('id', "DESC")->get() ?? []]);
-    }
-
-    public function confirmIntention(ConfirmIntentionRequest $request)
-    {
-        $intention               = Intention::find($request->validated()['intention']);
-        $intention->user_id      = Auth::user()->id;
-        $intention->is_confirmed = 1;
-
-        return $intention->save();
-    }
-
-    public function removeIntention(RemoveIntentionRequest $request)
-    {
-        $data = $request->validated();
-
-        DB::table('intentions_users')->where('intention_id', $data['intention'])->delete();
-
-        DB::table('intentions')->where('id', $data['intention'])->delete();
     }
 
     public function hours(): View
