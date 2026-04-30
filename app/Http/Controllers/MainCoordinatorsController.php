@@ -4,30 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MainCoordinatorEmailRequest;
 use App\Mail\EmailFromWeb;
-use App\Mail\TestEmail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use App\Services\NotificationService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View as ViewFacade;
 
 class MainCoordinatorsController extends Controller
 {
-    private NotificationService $notificationService;
-
     private const EMAIL = 'adoracja@adoracja.chjz.pl';
-
-    public function __construct(NotificationService $notificationService)
-    {
-        $this->notificationService = $notificationService;
-    }
 
     public function index()
     {
         $mainCoordinators = DB::table('main_coordinators as mc')
         ->join('users as u', 'u.id', 'mc.id')
-        ->select('mc.id', 'u.first_name', 'u.last_name', 'u.phone_number')
+        ->select(['mc.id', 'u.first_name', 'u.last_name', 'u.phone_number'])
         ->get();
 
         return ViewFacade::make('main-coordinators', ['coordinators' => $mainCoordinators]);

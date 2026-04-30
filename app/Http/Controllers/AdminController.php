@@ -1,18 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Enums\DutyType;
 use App\Http\Requests\AssignAdminRequest;
-use App\Http\Requests\ConfirmIntentionRequest;
-use App\Http\Requests\RemoveIntentionRequest;
-use App\Models\AdminDutyPattern;
 use App\Models\CurrentDuty;
 use App\Models\DutyPattern;
-use App\Models\Intention;
 use App\Models\ReservePattern;
 use App\Models\User;
 use App\Services\AdminService;
-use App\Services\DateHelper;
 use App\Services\DutiesService;
 use App\Services\Helper;
 use Carbon\Carbon;
@@ -24,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
-use WeekDays;
 
 class AdminController extends Controller
 {
@@ -75,7 +68,7 @@ class AdminController extends Controller
         return ViewFacade::make('admin.hours.index', [
             'admins'     => $admins,
             'adminHours' => $adminHours,
-            'weekDays'   => WeekDays::DAYS,
+            'weekDays'   => Helper::WEEK_DAYS ,
         ]);
     }
 
@@ -140,19 +133,6 @@ class AdminController extends Controller
         ]);
     }
 
-    public function sendNotification(Request $request)
-    {
-        $request->validate([
-            'user_ids'   => 'required|array',
-            'user_ids.*' => 'exists:users,id',
-            'message'    => 'required|string',
-        ]);
-
-        // TODO: Implement notification sending
-
-        return response()->json(['message' => 'Powiadomienia zostały wysłane']);
-    }
-
     public function index()
     {
         $admins = User::where('is_admin', true)->get();
@@ -173,14 +153,6 @@ class AdminController extends Controller
         return response()->json(['message' => 'Duty hours updated successfully.']);
     }
 
-    public function dutyHours()
-    {
-        $dutyHours = $this->getDutyHours();
-        $admins    = User::where('is_admin', true)->get();
-
-        return view('admin.duty_hours', compact('dutyHours', 'admins'));
-    }
-
     public function assignDutyHours(AssignAdminRequest $request)
     {
         $validated = $request->validated();
@@ -192,28 +164,4 @@ class AdminController extends Controller
         return response()->json(['message' => 'Admin assigned successfully.']);
     }
 
-    public function getDutyHours()
-    {
-        $dutyHours = DB::table('admin_duty_patterns as adp')
-            ->leftJoin('users as u', 'u.id', 'adp.admin_id')
-            ->selectRaw("adp.day, adp.hour, adp.id, u.id as admin_id, concat(u.first_name, ' ', u.last_name) as admin_name")
-            ->orderBy('adp.id')
-            ->get();
-
-        return $dutyHours;
-    }
-
-    public function updateColor(Request $request)
-    {
-        $request->validate([
-            'admin_id' => 'required|exists:users,id',
-            'color'    => 'required|string|size:7', // Ensure it's a valid hex color
-        ]);
-
-        $admin        = User::findOrFail($request->admin_id);
-        $admin->color = $request->color;
-        $admin->save();
-
-        return response()->json(['message' => 'Admin color updated successfully.']);
-    }
 }

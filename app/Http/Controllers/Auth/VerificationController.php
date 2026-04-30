@@ -19,7 +19,7 @@ class VerificationController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -54,4 +54,4 @@ class VerificationController extends Controller
 
         return back()->with('resent', true);
     }
-} 
+}

@@ -3,6 +3,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int|null $coordinator_responsible
+ * @property int|null $day
+ * @property int|null $updated_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $coordinatorResponsible
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern whereCoordinatorResponsible($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern whereDay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MonthlyCoordinatorPattern whereUpdatedBy($value)
+ * @mixin \Eloquent
+ */
 class MonthlyCoordinatorPattern extends Model
 {
     protected $table = 'monthly_coordinators_patterns';

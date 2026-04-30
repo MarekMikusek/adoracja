@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Jobs\SuspendDutyJob;
 use App\Mail\DutySuspendedMail;
 use App\Mail\DutySuspentionRemovedMail;
 use App\Models\WaysOfContact;
@@ -68,11 +67,6 @@ class ProfileController extends Controller
             if($user->hasRealEmail()){
                 Mail::to($user->email)->send(new DutySuspentionRemovedMail($user));
             }
-        }
-
-
-        if($user->email){
-            SuspendDutyJob::dispatch($user);
         }
 
         return response()->redirectTo('/');

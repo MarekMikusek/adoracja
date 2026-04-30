@@ -11,19 +11,15 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Services\NotificationService;
 
 class UserController extends Controller
 {
-    protected $notificationService;
-
     /**
      * Create a new controller instance.
      */
-    public function __construct(NotificationService $notificationService)
+    public function __construct()
     {
         $this->middleware('auth');
-        $this->notificationService = $notificationService;
     }
 
     /**
@@ -91,12 +87,6 @@ class UserController extends Controller
         ]);
 
         Auth::user()->update($validated);
-
-        // Send test notification
-        $this->notificationService->sendNotification(
-            Auth::user(),
-            'To jest testowe powiadomienie potwierdzające zmianę ustawień.'
-        );
 
         return Redirect::route('profile')
             ->with('success', 'Ustawienia powiadomień zostały zaktualizowane');

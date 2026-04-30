@@ -5,6 +5,26 @@ use App\Services\DateHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int $id
+ * @property int|null $admin_id
+ * @property int $hour
+ * @property string $day
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $admin
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereAdminId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereDay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereHour($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AdminDutyPattern whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class AdminDutyPattern extends Model
 {
     protected $table = 'admin_duty_patterns';

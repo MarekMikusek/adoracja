@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DutyPattern;
 use App\Models\User;
+use App\Services\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
-use WeekDays;
 
 class DutyPatternController extends Controller
 {
@@ -44,7 +44,7 @@ class DutyPatternController extends Controller
         return ViewFacade::make('duty-patterns.index', [
             'patterns' => $patterns,
             'admins' => $admins,
-            'weekDays' => WeekDays::DAYS
+            'weekDays' => Helper::WEEK_DAYS
         ]);
     }
 

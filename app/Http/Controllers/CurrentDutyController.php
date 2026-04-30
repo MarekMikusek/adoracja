@@ -7,9 +7,7 @@ use App\Http\Requests\StoreOnceDutyRequest;
 use App\Jobs\CurrentDutyAddedJob;
 use App\Models\CurrentDuty;
 use App\Models\CurrentDutyUser;
-use App\Models\User;
 use App\Services\DateHelper;
-use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,9 +18,6 @@ use Illuminate\View\View;
 
 class CurrentDutyController extends Controller
 {
-    public function __construct(private NotificationService $notificationService)
-    {}
-
     public function index(Request $request): View
     {
         $duties = CurrentDutyUser::query()

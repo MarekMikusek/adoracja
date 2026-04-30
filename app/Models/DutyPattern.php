@@ -8,6 +8,33 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $day
+ * @property int $hour
+ * @property string $duty_type
+ * @property int $repeat_interval
+ * @property string|null $start_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $added_by
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereDay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereDutyType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereHour($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereRepeatInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DutyPattern whereUserId($value)
+ * @mixin \Eloquent
+ */
 class DutyPattern extends Model
 {
     protected $table    = 'duty_patterns';
