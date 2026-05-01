@@ -29,7 +29,7 @@
                 </div>
             </div>
         @empty
-            <p>Brak opinii do wyświetlenia.</p>
+            <p>Nie ma jeszcze świadectw. 🙁</p>
         @endforelse
     </div>
 

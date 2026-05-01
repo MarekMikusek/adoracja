@@ -1,13 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ProvidersRouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -34,7 +36,7 @@ class LoginController extends Controller
      */
     public function showLoginForm(): View
     {
-        return ViewFacade::make('auth.login');
+        return view('auth.login');
     }
 
     /**
@@ -42,19 +44,13 @@ class LoginController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function login(Request $request): RedirectResponse
+    public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->only('email', 'password');
-        $remember    = $request->has('remember');
+        $request->authenticate();
 
-        if (Auth::attempt($credentials, $remember)) {
-            // Authentication passed...
-            return redirect()->intended('dashboard');
-        }
+        $request->session()->regenerate();
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return redirect()->intended($this->redirectTo);
     }
 
     /**
@@ -70,24 +66,4 @@ class LoginController extends Controller
         return response()->redirectTo('/');
     }
 
-    /**
-     * Get the needed authorization credentials from the request.
-     *
-     * @return array<string, string>
-     */
-    protected function credentials(Request $request): array
-    {
-        return array_merge(
-            $request->only($this->username(), 'password'),
-            ['email_verified_at' => null]
-        );
-    }
-
-    protected function authenticated(Request $request, $user)
-    {
-        auth()->logout();
-        return response()->json([
-            'message' => 'Proszę potwierdzić adres email przed zalogowaniem.',
-        ], 401);
-    }
 }

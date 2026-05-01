@@ -9,8 +9,8 @@
             <div class="card-body">
 
                 <ul class="list-group">
-                    @if (!empty($duties['adoracja']))
-                        @foreach ($duties['adoracja'] as $duty)
+                    @if (!empty($patterns['adoracja']))
+                        @foreach ($patterns['adoracja'] as $duty)
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -51,8 +51,8 @@
             </div>
             <div class="card-body">
                 <ul class="list-group">
-                    @if (!empty($duties['rezerwa']))
-                        @foreach ($duties['rezerwa'] as $duty)
+                    @if (!empty($patterns['rezerwa']))
+                        @foreach ($patterns['rezerwa'] as $duty)
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-md-6">

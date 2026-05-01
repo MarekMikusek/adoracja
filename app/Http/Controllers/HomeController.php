@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -24,7 +27,6 @@ class HomeController extends Controller
         $user   = Auth::user();
         $userId = $user ? $user->id : null;
 
-        // 1. Uproszczone zapytanie: Pobieramy wszystkie sloty i dołączamy do nich zapisanych użytkowników
         $upcomingDuties = DB::table('current_duties as cd')
             ->select([
                 'cd.id as duty_id',

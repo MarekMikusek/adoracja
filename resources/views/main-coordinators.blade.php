@@ -41,7 +41,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h1 class="mb-5">Główni koordynatorzy adoracji:</h1>
+        <h1 class="mb-5">Koordynatorzy adoracji:</h1>
 
             <div class="card text-center mb-4">
                 <div class="card-header fw-bold">
@@ -55,7 +55,7 @@
 
                     <div class="email-container">
                         <a href="mailto:adoracja@adoracja.chjz.pl">
-                            <i class="fa-regular fa-envelope"> adoracja@adoracja.chjz.pl</i>
+                            <i class="fa-regular fa-envelope">adoracja@adoracja.chjz.pl</i>
                         </a>
                     </div>
 

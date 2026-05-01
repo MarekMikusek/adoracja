@@ -134,7 +134,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('instruction') ? 'active' : '' }}"
-                            href="{{ route('instruction') }}">Instrukcja</a>
+                            href="{{ route('instruction') }}">Instrukcja/informacje</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('rodo') ? 'active' : '' }}"

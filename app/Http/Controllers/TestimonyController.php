@@ -1,38 +1,44 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Actions\Testimonies\CreateTestimonyAction;
+use App\Http\Requests\StoreTestimonyRequest;
 use App\Models\Testimony;
-
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class TestimonyController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $testimonies = Testimony::orderBy('created_at', 'desc')->where('is_confirmed', 1)->paginate(20);
+        $testimonies = Testimony::query()
+            ->confirmed()
+            ->recent()
+            ->paginate(20);
+
         return view('testimonies.index', compact('testimonies'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view('testimonies.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nickname'  => 'required|string',
-            'testimony' => 'required|string|max:1000',
-        ]);
+    public function store(
+        StoreTestimonyRequest $request,
+        CreateTestimonyAction $action
+    ): RedirectResponse {
+        $action->execute($request->validated());
 
-        Testimony::create($request->all());
-
-        return redirect()->route('testimonies.index')
-            ->with('success', 'Opinia dodana pomyślnie.');
+        return redirect()
+            ->route('testimonies.index')
+            ->with('success', 'Opinia dodana pomyślnie i oczekuje na moderację.');
     }
 
-    public function show(Testimony $testimony)
+    public function show(Testimony $testimony): View
     {
         return view('testimonies.show', compact('testimony'));
     }

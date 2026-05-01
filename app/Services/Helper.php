@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Carbon\Carbon;
@@ -8,6 +10,7 @@ class Helper
 {
     const WEEK_DAYS = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
     const DAY_HOURS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+    const SYSTEM_USER = -1;
     /**
      * returns week hours in format [['date' => 1, 'dayName' => 'Poniedziałek', 'hour' => 0], [] , ...]
      *

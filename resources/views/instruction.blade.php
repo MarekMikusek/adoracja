@@ -147,57 +147,63 @@
             <div class="faq-item">
                 <div class="faq-question">Czy muszę się deklarować cotygodniową posługę?</div>
                 <div class="faq-answer">
-                    <p>Nie musisz.🙂 Poszukujemy osób, które będą gotowe posługiwać regularnie, ale zapraszamy też osoby, które nie są na to gotowe.</p>
-                    <p>Zarejestruj się, jeśli chcesz pozostać adoratorem okazjonalnym to prosimy o zapisanie się wtedy kiedy Ci pasuje.</p>
+                    <p>Nie musisz.🙂 Poszukujemy osób, które będą gotowe posługiwać regularnie, ale zapraszamy też osoby,
+                        które nie są na to gotowe.</p>
+                    <p>Zarejestruj się, jeśli chcesz pozostać adoratorem okazjonalnym to prosimy o zapisanie się wtedy kiedy
+                        Ci pasuje.</p>
                 </div>
             </div>
             <div class="faq-item">
                 <div class="faq-question">Dlaczego powinenem się zajestrować i zapisywać na adorację?</div>
                 <div class="faq-answer">
-                    <p>Naszą wspólną odpowiedzialnością jest zadbanie żeby cały cza ktoś był z Panem Jezusem. Na tm polega wieczysta adoracja.</p>
-                    <p>Ta strona internetowa ma pomagać w zapewnieniu stałej obecności osób modlących się w kaplicy adoracji. Zapisanie czy to na stałą posługę czy okazjnonalną bardzo ułatwi (niełatwą) pracę koordynatorów.</p>
+                    <p>Naszą wspólną odpowiedzialnością jest zadbanie żeby cały cza ktoś był z Panem Jezusem. Na tm polega
+                        wieczysta adoracja.</p>
+                    <p>Ta strona internetowa ma pomagać w zapewnieniu stałej obecności osób modlących się w kaplicy
+                        adoracji. Zapisanie czy to na posługę stałą czy okazjonalną bardzo ułatwi (niełatwą) pracę
+                        koordynatorów.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Czy mogę zapisać się na adorację, mimo że jestem z innej parafii?</div>
+                <div class="faq-answer">
+                    <p>Jak najbardziej, kaplica jest otwarta dla każdego.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Czy w godzinach wieczornych/nocnych jest udostępniony parking?</div>
+                <div class="faq-answer">
+                    <p>Tak, parking przykościelny jest dostępny przez całą dobę.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Czy w kaplicy jest dostępna lampka do czytania?</div>
+                <div class="faq-answer">
+                    <p>Tak, są dostępne dwa dedykowane miejsca z lampkami.</p>
                 </div>
             </div>
 
-
-                            {{-- <div class="faq-item">
-                <div class="faq-question">Dlaczego powinenem się zajestrować i zapisywać na adorację?</div>
-                <div class="faq-answer">
-                    <p>Naszą wspólną odpowiedizlanością jest zadbanie żeby cały cza ktoś był z Panem Jezusem. Na tm polega wieczysta adoracja.</p>
-                    <p>Ta strona internetowa ma pomagać w zapewnieniu stałej obecności osób modlących się w kaplicy adoracji. Zapisanie czy to na stałą posługę czy okazjnonalną bardzo ułatwi (niełatwą) pracę koordynatorów.</p>
-                </div>
-                <div class="faq-image-container">
-                    <img src="{{ asset('images/faq_profile_screen.jpg') }}" alt="Instrukcja profilu" class="faq-img"
-                        onclick="openModal(this.src)">
-                </div> --}}
         </div>
-    </div>
+    @endsection
 
-    <div id="imageModal" class="modal" onclick="closeModal()">
-        <span class="close-modal">&times;</span>
-        <img class="modal-content" id="imgFullSize">
-    </div>
-@endsection
-
-@section('scripts')
-    <script>
-        function openModal(src) {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("imgFullSize");
-            modal.style.display = "flex";
-            modalImg.src = src;
-        }
-
-        function closeModal() {
-            const modal = document.getElementById("imageModal");
-            modal.style.display = "none";
-        }
-
-        // Zamknij modal po naciśnięciu klawisza Esc
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") {
-                closeModal();
+    @section('scripts')
+        <script>
+            function openModal(src) {
+                const modal = document.getElementById("imageModal");
+                const modalImg = document.getElementById("imgFullSize");
+                modal.style.display = "flex";
+                modalImg.src = src;
             }
-        });
-    </script>
-@endsection
+
+            function closeModal() {
+                const modal = document.getElementById("imageModal");
+                modal.style.display = "none";
+            }
+
+            // Zamknij modal po naciśnięciu klawisza Esc
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape") {
+                    closeModal();
+                }
+            });
+        </script>
+    @endsection

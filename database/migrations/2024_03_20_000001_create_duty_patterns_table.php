@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +18,8 @@ return new class extends Migration
             $table->string('duty_type', 12); // adoracja, gotowość
             $table->tinyInteger('repeat_interval')->default(1);
             $table->date('start_date')->nullable();
+            $table->integer('added_by')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PatternStoreRequest;
@@ -32,13 +35,13 @@ class PatternController extends Controller
     public function index(): View
     {
         $patterns = DutyPattern::query()
-            ->select(['hour', 'day', 'id', 'duty_type', 'repeat_interval'])
+            ->select(['hour', 'day', 'id', 'duty_type', 'repeat_interval', 'user_id'])
             ->where('user_id', Auth::user()->id)
             ->get()
             ->groupBy('duty_type');
 
         return ViewFacade::make('patterns.index', [
-            'duties'    => $patterns,
+            'patterns'  => $patterns ?? collect([]),
             'weekDays'  => Helper::getWeekDays(),
             'hours'     => Helper::getHours(),
             'intervals' => Helper::getIntervals(),
@@ -77,7 +80,7 @@ class PatternController extends Controller
             'added_by'        => $user->id,
         ]);
 
-        DutiesService::addUserDuties($user, $dutyPattern);
+        app(DutiesService::class)->addUserDuties($user, $dutyPattern);
 
         if ($user->hasRealEmail()) {
             Mail::to($user->email)->send(new DutyCreatedMail($user, $dutyPattern));
@@ -95,14 +98,14 @@ class PatternController extends Controller
         /**@var \App\Models\User $user*/
         $user = auth()->user();
 
-        if (($dutyPattern->user_id != $user->id && (! Auth::user()->is_admin))) {
+        if (($dutyPattern->user_id != $user->id && (!auth()->user()->is_admin))) {
             return Redirect::route('patterns.index')
                 ->with('error', 'Brak uprawnień do usunięcia tego dyżuru');
         }
 
         $dutyPattern->delete();
 
-        DutiesService::removeUserDuties($dutyPattern, $user);
+        app(DutiesService::class)->removeUserDuties($dutyPattern, $user);
 
         if ($user->hasRealEmail()) {
             Mail::to($user->email)->send(new DutyRemovedMail($user, $dutyPattern));

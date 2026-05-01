@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +34,7 @@ class CurrentDuty extends Model
     protected $fillable = [
         'date',
         'hour',
+        'inactive'
     ];
 
     protected $casts = [

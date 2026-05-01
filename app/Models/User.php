@@ -1,8 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Notifications\VerifyEmailNotification;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -63,7 +67,7 @@ use Illuminate\Support\Facades\DB;
 class User extends Authenticatable//implements MustVerifyEmail
 
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
 
@@ -111,15 +115,6 @@ class User extends Authenticatable//implements MustVerifyEmail
     public function currentDuties(): BelongsToMany
     {
         return $this->belongsToMany(CurrentDuty::class, 'current_duties_users', 'user_id');
-    }
-
-    protected static function booted()
-    {
-        static::created(function ($user) {
-            if (! $user->hasVerifiedEmail()) {
-                $user->sendEmailVerificationNotification();
-            }
-        });
     }
 
     public function isSuspended(Carbon $date): bool
